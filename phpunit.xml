@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd"
-         bootstrap="kl-universal-anti-spam/tests/bootstrap.php"
+         bootstrap="botfence/tests/bootstrap.php"
          colors="true"
          cacheDirectory=".phpunit.cache"
          displayDetailsOnTestsThatTriggerDeprecations="true"
@@ -9,14 +9,14 @@
          displayDetailsOnTestsThatTriggerNotices="true"
          displayDetailsOnTestsThatTriggerWarnings="true">
     <testsuites>
-        <testsuite name="KL Universal Anti-Spam Test Suite">
-            <directory>kl-universal-anti-spam/tests</directory>
+        <testsuite name="BotFence Test Suite">
+            <directory>botfence/tests</directory>
         </testsuite>
     </testsuites>
     <source>
         <include>
-            <directory suffix=".php">kl-universal-anti-spam/includes</directory>
-            <directory suffix=".php">kl-universal-anti-spam/integrations</directory>
+            <directory suffix=".php">botfence/includes</directory>
+            <directory suffix=".php">botfence/integrations</directory>
         </include>
     </source>
 </phpunit>

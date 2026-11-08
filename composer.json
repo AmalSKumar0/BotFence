@@ -1,6 +1,13 @@
 {
-    "name": "kl/universal-anti-spam",
-    "description": "KL Universal Anti-Spam & Automated CAPTCHA WordPress Plugin",
+    "name": "amalskumar/botfence",
+    "description": "BotFence - Universal WordPress Anti-Spam & Automated CAPTCHA Plugin built by Amal S Kumar",
+    "homepage": "https://amalskumar.dev",
+    "authors": [
+        {
+            "name": "Amal S Kumar",
+            "homepage": "https://amalskumar.dev"
+        }
+    ],
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "require": {
@@ -11,13 +18,16 @@
     },
     "autoload": {
         "psr-4": {
-            "KL_Anti_Spam\\": "kl-universal-anti-spam/includes/",
-            "KL_Anti_Spam\\Integrations\\": "kl-universal-anti-spam/integrations/"
+            "BotFence\\": "botfence/includes/",
+            "BotFence\\Integrations\\": "botfence/integrations/",
+            "KL_Anti_Spam\\": "botfence/includes/",
+            "KL_Anti_Spam\\Integrations\\": "botfence/integrations/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "KL_Anti_Spam\\Tests\\": "kl-universal-anti-spam/tests/"
+            "BotFence\\Tests\\": "botfence/tests/",
+            "KL_Anti_Spam\\Tests\\": "botfence/tests/"
         }
     },
     "config": {

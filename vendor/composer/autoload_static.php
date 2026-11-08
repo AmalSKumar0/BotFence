@@ -26,6 +26,12 @@ class ComposerStaticInit8f49de3de3358c3fdb3b418135a463c9
         array (
             'DeepCopy\\' => 9,
         ),
+        'B' =>
+        array (
+            'BotFence\\Tests\\' => 15,
+            'BotFence\\Integrations\\' => 22,
+            'BotFence\\' => 9,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -35,19 +41,31 @@ class ComposerStaticInit8f49de3de3358c3fdb3b418135a463c9
         ),
         'KL_Anti_Spam\\Tests\\' =>
         array (
-            0 => __DIR__ . '/../..' . '/kl-universal-anti-spam/tests',
+            0 => __DIR__ . '/../..' . '/botfence/tests',
         ),
         'KL_Anti_Spam\\Integrations\\' =>
         array (
-            0 => __DIR__ . '/../..' . '/kl-universal-anti-spam/integrations',
+            0 => __DIR__ . '/../..' . '/botfence/integrations',
         ),
         'KL_Anti_Spam\\' =>
         array (
-            0 => __DIR__ . '/../..' . '/kl-universal-anti-spam/includes',
+            0 => __DIR__ . '/../..' . '/botfence/includes',
         ),
         'DeepCopy\\' =>
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
+        ),
+        'BotFence\\Tests\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/botfence/tests',
+        ),
+        'BotFence\\Integrations\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/botfence/integrations',
+        ),
+        'BotFence\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/botfence/includes',
         ),
     );
 

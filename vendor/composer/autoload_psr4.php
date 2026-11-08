@@ -7,8 +7,11 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
-    'KL_Anti_Spam\\Tests\\' => array($baseDir . '/kl-universal-anti-spam/tests'),
-    'KL_Anti_Spam\\Integrations\\' => array($baseDir . '/kl-universal-anti-spam/integrations'),
-    'KL_Anti_Spam\\' => array($baseDir . '/kl-universal-anti-spam/includes'),
+    'KL_Anti_Spam\\Tests\\' => array($baseDir . '/botfence/tests'),
+    'KL_Anti_Spam\\Integrations\\' => array($baseDir . '/botfence/integrations'),
+    'KL_Anti_Spam\\' => array($baseDir . '/botfence/includes'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
+    'BotFence\\Tests\\' => array($baseDir . '/botfence/tests'),
+    'BotFence\\Integrations\\' => array($baseDir . '/botfence/integrations'),
+    'BotFence\\' => array($baseDir . '/botfence/includes'),
 );

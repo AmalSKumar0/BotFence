@@ -1,1 +1,1 @@
-kl-universal-anti-spam/BotFence.php
+botfence/BotFence.php
