@@ -1,7 +1,7 @@
 === BotFence ===
 Contributors: amalskumar
 Donate link: https://amalskumar.dev/
-Tags: anti-spam, spam protection, invisible captcha, captcha, form security, wpforms, cf7, gravity forms, elementor forms, fluent forms, woocommerce
+Tags: anti-spam, captcha, spam protection, form security, forms
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 8.1
