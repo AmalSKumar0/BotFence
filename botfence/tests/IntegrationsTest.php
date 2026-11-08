@@ -46,6 +46,13 @@ class IntegrationsTest extends TestCase {
 		$kl_test_wc_notices = array();
 		$wpdb->logs_table   = array();
 		$wpdb->rates_table  = array();
+		Contact_Form_7::clear_cache();
+		if ( class_exists( '\WPCF7_ContactForm' ) ) {
+			\WPCF7_ContactForm::$current = null;
+		}
+		if ( class_exists( '\WPCF7_Submission' ) ) {
+			\WPCF7_Submission::$instance = null;
+		}
 
 		$this->token_manager = new Token_Manager();
 		$this->token_manager->set_secret_key( 'test_integrations_secret_key_12345678' );
@@ -78,6 +85,7 @@ class IntegrationsTest extends TestCase {
 		) ) );
 
 		return array(
+			'_wpcf7'                 => $form_id,
 			'kl_anti_spam_token'     => $tok_data['token'],
 			'kl_anti_spam_telemetry' => $telemetry,
 			'message'                => 'Legitimate form message ' . bin2hex( random_bytes( 8 ) ),
@@ -106,7 +114,7 @@ class IntegrationsTest extends TestCase {
 		$_POST[ $hp_field ] = 'spam link';
 		$this->assertTrue( $adapter->filter_spam( false ) );
 
-		// Mail abort action.
+		// Mail abort action: verifies mail is skipped cleanly without setting $abort = true.
 		$abort = false;
 		$dummy_cf = new class {
 			public bool $skip_mail = false;
@@ -115,7 +123,8 @@ class IntegrationsTest extends TestCase {
 			}
 		};
 		$adapter->action_before_send_mail( $dummy_cf, $abort );
-		$this->assertTrue( $abort );
+		$this->assertTrue( $dummy_cf->skip_mail );
+		$this->assertFalse( $abort ); // Must NOT use $abort = true as a generic spam rejection mechanism.
 	}
 
 	/**

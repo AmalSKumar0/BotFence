@@ -107,9 +107,18 @@ abstract class Abstract_Form_Adapter implements Form_Adapter_Interface {
 	}
 
 	/**
+	 * Convenience alias for clearing verification cache.
+	 */
+	public static function clear_cache(): void {
+		self::clear_memoized_verifications();
+	}
+
+	/**
 	 * Verifies submission data using the centralized CAPTCHA engine.
 	 *
 	 * Uses per-request memoization to avoid replay self-denial across multiple hooks.
+	 * Memoizes based on token hash and security fields so that external plugins (such as WP Armour
+	 * or CF7 internal mail tags) modifying non-security POST fields do not cause cache misses.
 	 *
 	 * @param array<string, mixed> $data    Submission data.
 	 * @param string               $form_id Form identifier.
@@ -122,7 +131,16 @@ abstract class Abstract_Form_Adapter implements Form_Adapter_Interface {
 	 * }
 	 */
 	public function verify( array $data, string $form_id = '' ): array {
-		$cache_key = $this->get_id() . ':' . $form_id . ':' . md5( (string) wp_json_encode( $data ) );
+		$token     = (string) ( $data['botfence_token'] ?? $data['kl_anti_spam_token'] ?? '' );
+		$hp_fields = array();
+		foreach ( $data as $k => $v ) {
+			if ( str_starts_with( (string) $k, 'botfence_' ) || str_starts_with( (string) $k, 'kl_' ) ) {
+				$hp_fields[ $k ] = $v;
+			}
+		}
+		$sec_hash  = md5( (string) wp_json_encode( $hp_fields ) );
+		$data_hash = md5( (string) wp_json_encode( $data ) );
+		$cache_key = $this->get_id() . ':' . $form_id . ':' . ( ! empty( $token ) ? ( hash( 'sha256', $token ) . '_' . $sec_hash ) : $data_hash );
 
 		if ( isset( self::$memoized_verifications[ $cache_key ] ) ) {
 			return self::$memoized_verifications[ $cache_key ];

@@ -52,6 +52,13 @@ class Captcha_Engine {
 	protected Logger $logger;
 
 	/**
+	 * Complete diagnostic lifecycle trace for the most recent verification.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	protected ?array $last_verification_trace = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Token_Manager|null $token_manager Token manager.
@@ -109,22 +116,7 @@ class Captcha_Engine {
 		$ip_hash   = $this->rate_limiter->hash_ip( $client_ip );
 		$masked_ip = $this->rate_limiter->mask_ip( $client_ip );
 
-		// 1. Honeypot Check.
-		$hp_result = $this->honeypot->check_submission( $submission_data );
-
-		// 2. Token Check.
-		$possible_token_keys = array( 'botfence_token', 'botfence_anti_spam_token', 'kl_anti_spam_token', '_kl_as_token', '_botfence_token' );
-		$raw_token           = '';
-		foreach ( $possible_token_keys as $k ) {
-			if ( ! empty( $submission_data[ $k ] ) ) {
-				$raw_token = (string) $submission_data[ $k ];
-				break;
-			}
-		}
-
-		$token_res = $this->token_manager->validate_token( $raw_token, $form_id, $client_ip );
-
-		// 3. Telemetry Extraction.
+		// 1. Telemetry Extraction.
 		$possible_telemetry_keys = array( 'botfence_telemetry', 'botfence_anti_spam_telemetry', 'kl_anti_spam_telemetry', '_kl_as_telemetry', '_botfence_telemetry' );
 		$telemetry_raw           = null;
 		foreach ( $possible_telemetry_keys as $tk ) {
@@ -143,6 +135,21 @@ class Captcha_Engine {
 		}
 
 		$elapsed_time = isset( $telemetry['elapsed_time'] ) ? (float) $telemetry['elapsed_time'] : (float) ( $submission_data['botfence_elapsed_time'] ?? $submission_data['kl_elapsed_time'] ?? 0 );
+
+		// 2. Honeypot Check (with telemetry-informed autofill discrimination).
+		$hp_result = $this->honeypot->check_submission( $submission_data, $telemetry );
+
+		// 3. Token Check.
+		$possible_token_keys = array( 'botfence_token', 'botfence_anti_spam_token', 'kl_anti_spam_token', '_kl_as_token', '_botfence_token' );
+		$raw_token           = '';
+		foreach ( $possible_token_keys as $k ) {
+			if ( ! empty( $submission_data[ $k ] ) ) {
+				$raw_token = (string) $submission_data[ $k ];
+				break;
+			}
+		}
+
+		$token_res = $this->token_manager->validate_token( $raw_token, $form_id, $client_ip );
 
 		// 4. Content Analysis (Excessive URLs & Duplicate Message).
 		$text_fields = $this->extract_text_content( $submission_data );
@@ -194,6 +201,27 @@ class Captcha_Engine {
 			$error_message = __( 'Additional human verification is required before your submission can be accepted.', 'botfence' );
 		}
 
+		// Record complete submission lifecycle trace for diagnostic logging without logging PII.
+		$this->last_verification_trace = array(
+			'form_id'                  => $form_id,
+			'form_type'                => $form_type,
+			'token_status'             => $token_res['status'],
+			'token_age'                => $token_res['age'],
+			'is_token_expired'         => 'expired' === $token_res['status'],
+			'is_token_replayed'        => 'replayed' === $token_res['status'],
+			'honeypot_triggered'       => $hp_result['triggered'],
+			'honeypot_autofill'        => ! empty( $hp_result['autofill_detected'] ),
+			'telemetry_validated'      => ! empty( $telemetry ),
+			'elapsed_time'             => $elapsed_time,
+			'risk_score'               => $evaluation['score'],
+			'challenge_solved'         => $challenge_solved,
+			'rate_limit_exceeded'      => $rate_res['rate_exceeded'],
+			'is_quarantined'           => $rate_res['is_quarantined'],
+			'security_decision'        => $evaluation['action'],
+			'is_valid'                 => ( 'allow' === $evaluation['action'] ),
+			'other_plugin_aborted'     => false,
+		);
+
 		// 9. Log the verification attempt.
 		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 
@@ -219,6 +247,15 @@ class Captcha_Engine {
 			'error_message' => $error_message,
 			'signals'       => $evaluation['signals'],
 		);
+	}
+
+	/**
+	 * Returns the diagnostic lifecycle trace for the most recent verification.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	public function get_last_verification_trace(): ?array {
+		return $this->last_verification_trace;
 	}
 
 	/**
@@ -267,10 +304,27 @@ class Captcha_Engine {
 			'botfence_challenge_answer',
 			'kl_challenge_token',
 			'kl_challenge_answer',
+			'_wpcf7',
+			'_wpcf7_version',
+			'_wpcf7_locale',
+			'_wpcf7_unit_tag',
+			'_wpcf7_container_post',
+			'_wpcf7_posted_data_hash',
+			'wpa_initiator',
+			'wpa_field',
+			'wpa_uuid',
 		);
 
 		foreach ( $data as $k => $v ) {
-			if ( in_array( $k, $skip_keys, true ) || str_starts_with( (string) $k, 'botfence_hp_' ) || str_starts_with( (string) $k, 'kl_hp_' ) ) {
+			$key_str = (string) $k;
+			if (
+				in_array( $key_str, $skip_keys, true ) ||
+				str_starts_with( $key_str, 'botfence_' ) ||
+				str_starts_with( $key_str, 'kl_' ) ||
+				str_starts_with( $key_str, 'wpa_' ) ||
+				str_starts_with( $key_str, 'akismet_' ) ||
+				str_starts_with( $key_str, '_wpcf7' )
+			) {
 				continue;
 			}
 			if ( is_string( $v ) ) {

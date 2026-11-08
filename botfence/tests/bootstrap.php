@@ -164,6 +164,21 @@ function do_action( $hook, ...$args ) {
 	}
 }
 
+function do_action_ref_array( $hook, array $args ) {
+	global $kl_test_actions;
+	if ( empty( $kl_test_actions[ $hook ] ) ) {
+		return;
+	}
+
+	$callbacks = $kl_test_actions[ $hook ];
+	usort( $callbacks, fn( $a, $b ) => $a['priority'] <=> $b['priority'] );
+
+	foreach ( $callbacks as $entry ) {
+		$params = array_slice( $args, 0, $entry['accepted_args'] );
+		call_user_func_array( $entry['callback'], $params );
+	}
+}
+
 function remove_filter( $hook, $callback, $priority = 10 ) {
 	global $kl_test_filters;
 	if ( isset( $kl_test_filters[ $hook ] ) ) {
@@ -650,6 +665,72 @@ class Mock_WPDB {
 $wpdb = new Mock_WPDB();
 
 // Form builders mock hooks / functions.
+if ( ! defined( 'WPCF7_VERSION' ) ) {
+	define( 'WPCF7_VERSION', '5.9.3' );
+}
+
+if ( ! class_exists( 'WPCF7_ContactForm' ) ) {
+	class WPCF7_ContactForm {
+		public static $current = null;
+		public string $id = '1365';
+		public bool $skip_mail = false;
+
+		public function __construct( string $id = '1365' ) {
+			$this->id = $id;
+		}
+
+		public function id(): string {
+			return $this->id;
+		}
+
+		public static function get_current() {
+			return self::$current;
+		}
+	}
+}
+
+if ( ! class_exists( 'WPCF7_Submission' ) ) {
+	class WPCF7_Submission {
+		public static $instance = null;
+		public string $status = 'init';
+		public ?WPCF7_ContactForm $contact_form = null;
+		public array $posted_data = array();
+
+		public function __construct( ?WPCF7_ContactForm $contact_form = null ) {
+			$this->contact_form = $contact_form ?: new WPCF7_ContactForm();
+		}
+
+		public static function get_instance() {
+			return self::$instance;
+		}
+
+		public function get_contact_form() {
+			return $this->contact_form;
+		}
+
+		public function get_status(): string {
+			return $this->status;
+		}
+
+		public function set_status( string $status ): void {
+			$this->status = $status;
+		}
+
+		public function get_response(): string {
+			switch ( $this->status ) {
+				case 'aborted':
+					return 'Sending mail has been aborted.';
+				case 'spam':
+					return 'There was an error trying to send your message. Please try again later.';
+				case 'mail_sent':
+					return 'Thank you for your message. It has been sent.';
+				default:
+					return '';
+			}
+		}
+	}
+}
+
 function wc_add_notice( $message, $notice_type = 'success' ) {
 	global $kl_test_wc_notices;
 	$kl_test_wc_notices[] = array( 'msg' => $message, 'type' => $notice_type );
