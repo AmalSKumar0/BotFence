@@ -137,7 +137,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenDownload }) 
               Twitter
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/AmalSKumar0/BotFence"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-[#ffffff] transition-colors"

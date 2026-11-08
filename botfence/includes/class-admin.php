@@ -445,7 +445,7 @@ class Admin {
 						<span class="botfence-badge-version kl-badge-version">v<?php echo esc_html( BOTFENCE_VERSION ); ?></span>
 					</h1>
 					<p style="margin: 0; color: #646970; font-size: 13px;">
-						<?php esc_html_e( 'Universal Anti-Spam & Automated CAPTCHA Engine built by Amal S Kumar', 'botfence' ); ?> &bull; <a href="https://amalskumar.dev" target="_blank" rel="noopener noreferrer" style="color: #2271b1; text-decoration: none;">amalskumar.dev</a>
+						<?php esc_html_e( 'Universal Anti-Spam & Automated CAPTCHA Engine built by Amal S Kumar', 'botfence' ); ?> &bull; <a href="https://bot-fence.vercel.app/" target="_blank" rel="noopener noreferrer" style="color: #2271b1; text-decoration: none;">bot-fence.vercel.app</a> &bull; <a href="https://amalskumar.dev" target="_blank" rel="noopener noreferrer" style="color: #2271b1; text-decoration: none;">amalskumar.dev</a>
 					</p>
 				</div>
 				<div>
@@ -1051,6 +1051,10 @@ class Admin {
 										</div>
 									</div>
 								</td>
+							</tr>
+							<tr>
+								<td><strong><?php esc_html_e( 'Official Website', 'botfence' ); ?></strong></td>
+								<td><a href="https://bot-fence.vercel.app/" target="_blank" rel="noopener noreferrer">https://bot-fence.vercel.app/</a></td>
 							</tr>
 							<tr>
 								<td><strong><?php esc_html_e( 'Author & Developer', 'botfence' ); ?></strong></td>

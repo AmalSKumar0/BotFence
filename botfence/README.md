@@ -189,6 +189,6 @@ OK (84 tests, 444 assertions)
 
 ## Author & Attribution
 
-- **Developer:** Amal S Kumar
-- **Website:** [https://amalskumar.dev](https://amalskumar.dev)
+- **Plugin Website:** [https://bot-fence.vercel.app/](https://bot-fence.vercel.app/)
+- **Developer:** Amal S Kumar ([amalskumar.dev](https://amalskumar.dev))
 - **Plugin:** BotFence

@@ -1,7 +1,7 @@
 {
     "name": "amalskumar/botfence",
     "description": "BotFence - Universal WordPress Anti-Spam & Automated CAPTCHA Plugin built by Amal S Kumar",
-    "homepage": "https://amalskumar.dev",
+    "homepage": "https://bot-fence.vercel.app/",
     "authors": [
         {
             "name": "Amal S Kumar",
