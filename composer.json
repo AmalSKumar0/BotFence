@@ -1,0 +1,27 @@
+{
+    "name": "kl/universal-anti-spam",
+    "description": "KL Universal Anti-Spam & Automated CAPTCHA WordPress Plugin",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "KL_Anti_Spam\\": "kl-universal-anti-spam/includes/",
+            "KL_Anti_Spam\\Integrations\\": "kl-universal-anti-spam/integrations/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "KL_Anti_Spam\\Tests\\": "kl-universal-anti-spam/tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {}
+    }
+}
