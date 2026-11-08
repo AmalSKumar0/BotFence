@@ -440,7 +440,7 @@ class Admin {
 			<div class="botfence-admin-header kl-admin-header">
 				<div>
 					<h1>
-						<span class="dashicons dashicons-shield-alt" style="font-size: 26px; color: #2271b1; width: 26px; height: 26px;"></span>
+						<img src="<?php echo esc_url( BOTFENCE_URL . 'assets/images/icon-128x128.png' ); ?>" class="botfence-header-logo" alt="BotFence" style="width: 32px; height: 32px; border-radius: 6px; object-fit: contain; vertical-align: middle;" />
 						<?php esc_html_e( 'BotFence', 'botfence' ); ?>
 						<span class="botfence-badge-version kl-badge-version">v<?php echo esc_html( BOTFENCE_VERSION ); ?></span>
 					</h1>
@@ -1040,6 +1040,18 @@ class Admin {
 					<h2 class="botfence-panel-title kl-panel-title"><?php esc_html_e( 'System Environment & Diagnostics', 'botfence' ); ?></h2>
 					<table class="botfence-table kl-table">
 						<tbody>
+							<tr>
+								<td><strong><?php esc_html_e( 'Plugin Identity', 'botfence' ); ?></strong></td>
+								<td>
+									<div style="display: flex; align-items: center; gap: 12px;">
+										<img src="<?php echo esc_url( BOTFENCE_URL . 'assets/images/icon-128x128.png' ); ?>" alt="BotFence" style="width: 36px; height: 36px; border-radius: 6px;" />
+										<div>
+											<strong>BotFence</strong> &bull; <code>v<?php echo esc_html( BOTFENCE_VERSION ); ?></code>
+											<div style="color: #646970; font-size: 12px;"><?php esc_html_e( 'Universal Invisible Anti-Spam & Automated CAPTCHA Engine', 'botfence' ); ?></div>
+										</div>
+									</div>
+								</td>
+							</tr>
 							<tr>
 								<td><strong><?php esc_html_e( 'Author & Developer', 'botfence' ); ?></strong></td>
 								<td><strong>Amal S Kumar</strong> (<a href="https://amalskumar.dev" target="_blank" rel="noopener noreferrer">amalskumar.dev</a>)</td>

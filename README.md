@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner-1544x500.png" alt="BotFence Banner" width="100%" style="border-radius: 8px;">
+</p>
+
 # BotFence - Universal WordPress Anti-Spam & Automated CAPTCHA Plugin
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%2B-blue.svg)](https://php.net)
