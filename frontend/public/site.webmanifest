@@ -1,0 +1,21 @@
+{
+  "name": "BotFence — Zero-CAPTCHA Anti-Spam Plugin for WordPress",
+  "short_name": "BotFence",
+  "description": "Enterprise-grade, autonomous, zero-CAPTCHA WordPress security plugin that eliminates form spam and malicious bots.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#141414",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}

@@ -28,7 +28,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDownload }) => {
 
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline-block px-3 py-1 rounded-full bg-[#f3f3f3] text-[#707070] text-xs font-medium">
-              v2.4.1 • GPLv2
+              v1.0.0 • GPL-2.0-or-later
             </span>
             <button
               type="button"
