@@ -61,6 +61,14 @@ No. Honeypot fields use standard `aria-hidden="true"` and off-screen positioning
 = Does BotFence comply with WordPress.org Plugin Directory Guidelines? =
 Yes. BotFence is 100% compliant with all 18 WordPress.org guidelines: it is 100% GPL-licensed, makes zero external network calls (no tracking, no SaaS dependency), loads zero external executable code, displays zero public-facing credits or links, registers no site-wide dashboard nags, uses local WordPress libraries, and provides full unminified human-readable source code.
 
+== Screenshots ==
+
+1. Executive Security Dashboard displaying live spams blocked hero counter, time-windowed threat analytics, and form-by-form protection breakdown.
+2. Form Builder Integrations panel showing automatic detection and protection status for all 10 supported form builders.
+3. Risk Scoring & Security Weights configuration matrix.
+4. Privacy-first audit logs with cryptographically hashed & masked IP addresses and CSV export.
+5. Interactive security attack simulator and diagnostic test runner.
+
 == Changelog ==
 
 = 1.0.0 =
