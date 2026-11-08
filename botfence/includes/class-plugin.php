@@ -181,11 +181,25 @@ class Plugin {
 	/**
 	 * REST route callback for dynamic token issuance on cached pages.
 	 *
+	 * Includes rate-limiting protection to prevent DoS attacks against cryptographic token generation.
+	 *
 	 * @param WP_REST_Request $request Request instance.
 	 * @return WP_REST_Response
 	 */
 	public function rest_get_token( WP_REST_Request $request ): WP_REST_Response {
-		$client_ip  = $this->rate_limiter->get_client_ip();
+		$client_ip = $this->rate_limiter->get_client_ip();
+		$ip_hash   = $this->rate_limiter->hash_ip( $client_ip );
+		$now_dt    = gmdate( 'Y-m-d H:i:s' );
+		$exp_dt    = gmdate( 'Y-m-d H:i:s', time() + 60 );
+		$requests  = $this->rate_limiter->increment_counter( 'rest_token:' . $ip_hash, 'rest_token_min', $now_dt, $exp_dt );
+
+		if ( $requests > 60 ) {
+			return new WP_REST_Response(
+				array( 'error' => __( 'Rate limit exceeded for security token issuance.', 'botfence' ) ),
+				429
+			);
+		}
+
 		$form_id    = sanitize_key( (string) $request->get_param( 'form_id' ) );
 		$token_data = $this->token_manager->generate_token( ! empty( $form_id ) ? $form_id : 'cached_page', $client_ip );
 
@@ -203,7 +217,17 @@ class Plugin {
 	 */
 	public function ajax_refresh_token(): void {
 		$client_ip = $this->rate_limiter->get_client_ip();
-		$form_id   = isset( $_POST['form_id'] ) ? sanitize_key( wp_unslash( $_POST['form_id'] ) ) : 'cached_page'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$ip_hash   = $this->rate_limiter->hash_ip( $client_ip );
+		$now_dt    = gmdate( 'Y-m-d H:i:s' );
+		$exp_dt    = gmdate( 'Y-m-d H:i:s', time() + 60 );
+		$requests  = $this->rate_limiter->increment_counter( 'ajax_token:' . $ip_hash, 'ajax_token_min', $now_dt, $exp_dt );
+
+		if ( $requests > 60 ) {
+			wp_send_json_error( array( 'message' => __( 'Rate limit exceeded for token refresh.', 'botfence' ) ), 429 );
+			return;
+		}
+
+		$form_id = isset( $_POST['form_id'] ) ? sanitize_key( wp_unslash( $_POST['form_id'] ) ) : 'cached_page'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		$token_data = $this->token_manager->generate_token( $form_id, $client_ip );
 
@@ -222,6 +246,7 @@ class Plugin {
 		$retention_days = (int) ( get_option( 'botfence_log_retention_days' ) ?: get_option( 'kl_antispam_log_retention_days', 30 ) );
 		Database::purge_old_logs( $retention_days );
 		Database::purge_expired_rate_limits();
+		Database::purge_expired_tokens();
 	}
 
 	/**

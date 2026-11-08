@@ -51,6 +51,7 @@ class Admin {
 		add_action( 'wp_ajax_botfence_simulate_test', array( $this, 'ajax_simulate_test' ) );
 		add_action( 'wp_ajax_kl_simulate_test', array( $this, 'ajax_simulate_test' ) );
 		add_action( 'wp_ajax_botfence_refresh_stats', array( $this, 'ajax_refresh_stats' ) );
+		add_action( 'wp_ajax_botfence_mark_false_positive', array( $this, 'ajax_mark_false_positive' ) );
 	}
 
 	/**
@@ -225,6 +226,22 @@ class Admin {
 	}
 
 	/**
+	 * Sanitizes a CSV cell to prevent formula injection (CWE-1236).
+	 *
+	 * Prepends single quote if cell starts with =, +, -, @, tab, or carriage return.
+	 *
+	 * @param mixed $value Cell value.
+	 * @return string Sanitized cell value.
+	 */
+	public static function sanitize_csv_cell( $value ): string {
+		$str = (string) $value;
+		if ( '' !== $str && in_array( $str[0], array( '=', '+', '-', '@', "\t", "\r" ), true ) ) {
+			return "'" . $str;
+		}
+		return $str;
+	}
+
+	/**
 	 * Exports log records to a downloadable CSV file.
 	 */
 	protected function export_logs_csv(): void {
@@ -252,25 +269,48 @@ class Admin {
 				}
 			}
 
-			fputcsv(
-				$output,
-				array(
-					$log->id,
-					$log->created_at,
-					$log->form_type,
-					$log->form_id,
-					$log->risk_score,
-					$log->action_taken,
-					implode( '; ', $signals_list ),
-					$log->masked_ip,
-					$log->submission_time,
-					$log->is_spam ? 'Yes' : 'No',
-				)
+			$row = array(
+				$log->id,
+				$log->created_at,
+				$log->form_type,
+				$log->form_id,
+				$log->risk_score,
+				$log->action_taken,
+				implode( '; ', $signals_list ),
+				$log->masked_ip,
+				$log->submission_time,
+				$log->is_spam ? 'Yes' : 'No',
 			);
+
+			fputcsv( $output, array_map( array( self::class, 'sanitize_csv_cell' ), $row ) );
 		}
 
 		fclose( $output );
 		exit;
+	}
+
+	/**
+	 * AJAX endpoint: Marks a log item as a false positive.
+	 */
+	public function ajax_mark_false_positive(): void {
+		$nonce_valid = check_ajax_referer( 'botfence_admin_action_nonce', 'nonce', false ) || check_ajax_referer( 'kl_admin_action_nonce', 'nonce', false );
+		if ( ! $nonce_valid || ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Unauthorized access.', 'botfence' ) ), 403 );
+			return;
+		}
+
+		$log_id = isset( $_POST['log_id'] ) ? (int) $_POST['log_id'] : 0;
+		if ( $log_id <= 0 ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid log ID.', 'botfence' ) ), 400 );
+			return;
+		}
+
+		$success = $this->engine->get_logger()->mark_false_positive( $log_id );
+		if ( $success ) {
+			wp_send_json_success( array( 'message' => __( 'Marked as false positive.', 'botfence' ) ) );
+		} else {
+			wp_send_json_error( array( 'message' => __( 'Failed to update record.', 'botfence' ) ), 500 );
+		}
 	}
 
 	/**

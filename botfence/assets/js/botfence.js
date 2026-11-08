@@ -31,6 +31,8 @@
 	var keystrokes = 0;
 	var touchEvents = 0;
 	var focusEvents = 0;
+	var pasteCount = 0;
+	var autofillDetected = false;
 	var lastMouseMove = 0;
 
 	// Telemetry event listeners.
@@ -65,6 +67,18 @@
 		focusEvents++;
 	}, { passive: true });
 
+	window.addEventListener('paste', function() {
+		recordFirstInteraction();
+		pasteCount++;
+	}, { passive: true });
+
+	window.addEventListener('change', function(e) {
+		recordFirstInteraction();
+		if (e.target && (e.target.matches && e.target.matches(':-webkit-autofill') || e.target.getAttribute('autocomplete'))) {
+			autofillDetected = true;
+		}
+	}, { passive: true });
+
 	/**
 	 * Encodes object to base64 string safely.
 	 */
@@ -90,6 +104,8 @@
 			keystrokes: keystrokes,
 			touches: touchEvents,
 			focus_count: focusEvents,
+			paste_count: pasteCount,
+			autofill: autofillDetected,
 			is_trusted: e && typeof e.isTrusted !== 'undefined' ? !!e.isTrusted : true,
 			webdriver: !!(navigator.webdriver || window._phantom || window.__nightmare),
 			screen_dim: [window.screen ? window.screen.width : 0, window.screen ? window.screen.height : 0]

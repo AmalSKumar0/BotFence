@@ -117,4 +117,46 @@ class RateLimiterTest extends TestCase {
 		$this->assertTrue( $res['is_quarantined'] );
 		$this->assertSame( 100, $res['risk_points'] );
 	}
+
+	public function test_expired_rate_limit_resets_counter(): void {
+		global $wpdb;
+
+		$ident      = 'ip_m:test_hash_123';
+		$limit_type = 'ip_minute';
+
+		// Seed an expired entry with count = 5 from 2 hours ago.
+		$wpdb->rates_table[ $ident . ':' . $limit_type ] = (object) array(
+			'identifier' => $ident,
+			'limit_type' => $limit_type,
+			'count'      => 5,
+			'first_seen' => gmdate( 'Y-m-d H:i:s', time() - 7200 ),
+			'expires_at' => gmdate( 'Y-m-d H:i:s', time() - 7140 ),
+		);
+
+		// Increment counter now with new window.
+		$now_dt = gmdate( 'Y-m-d H:i:s' );
+		$exp_dt = gmdate( 'Y-m-d H:i:s', time() + 60 );
+		$count  = $this->limiter->increment_counter( $ident, $limit_type, $now_dt, $exp_dt );
+
+		// Counter must reset to 1 rather than incrementing to 6.
+		$this->assertSame( 1, $count );
+	}
+
+	public function test_per_form_rate_limiting(): void {
+		$ip = '198.51.100.99';
+		update_option( 'botfence_rate_limit_ip_per_minute', 50 );
+		update_option( 'kl_antispam_rate_limit_ip_per_minute', 50 );
+		update_option( 'botfence_rate_limit_form_per_minute', 3 );
+
+		// Form limit is 3/min. Run 3 submissions.
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$res = $this->limiter->check_submission( 'contact_vip', "Msg $i", $ip );
+			$this->assertFalse( $res['rate_exceeded'] );
+		}
+
+		// 4th submission exceeds per-form rate limit.
+		$res = $this->limiter->check_submission( 'contact_vip', 'Msg 4', $ip );
+		$this->assertTrue( $res['rate_exceeded'] );
+		$this->assertStringContainsString( 'contact_vip', $res['reason'] );
+	}
 }

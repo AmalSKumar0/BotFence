@@ -37,6 +37,16 @@ class Database {
 	}
 
 	/**
+	 * Returns the consumed single-use tokens table name with WordPress prefix.
+	 *
+	 * @return string
+	 */
+	public static function get_tokens_table(): string {
+		global $wpdb;
+		return $wpdb->prefix . 'botfence_used_tokens';
+	}
+
+	/**
 	 * Creates or updates the plugin database tables.
 	 */
 	public static function create_tables(): void {
@@ -45,6 +55,7 @@ class Database {
 		$charset_collate = $wpdb->get_charset_collate();
 		$logs_table      = self::get_logs_table();
 		$rates_table     = self::get_rates_table();
+		$tokens_table    = self::get_tokens_table();
 
 		// Two spaces between PRIMARY KEY and definition required by dbDelta.
 		$sql_logs = "CREATE TABLE {$logs_table} (
@@ -79,12 +90,38 @@ class Database {
 			KEY expires_at (expires_at)
 		) {$charset_collate};";
 
+		$sql_tokens = "CREATE TABLE {$tokens_table} (
+			token_hash varchar(64) NOT NULL,
+			form_id varchar(128) NOT NULL DEFAULT '',
+			consumed_at datetime NOT NULL,
+			expires_at datetime NOT NULL,
+			PRIMARY KEY  (token_hash),
+			KEY expires_at (expires_at)
+		) {$charset_collate};";
+
 		if ( ! function_exists( 'dbDelta' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		}
 
 		dbDelta( $sql_logs );
 		dbDelta( $sql_rates );
+		dbDelta( $sql_tokens );
+	}
+
+	/**
+	 * Purges expired single-use tokens.
+	 *
+	 * @return int Number of rows deleted.
+	 */
+	public static function purge_expired_tokens(): int {
+		global $wpdb;
+
+		$table        = self::get_tokens_table();
+		$now          = gmdate( 'Y-m-d H:i:s' );
+		$query        = $wpdb->prepare( "DELETE FROM {$table} WHERE expires_at < %s", $now ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows_deleted = $wpdb->query( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+
+		return is_numeric( $rows_deleted ) ? (int) $rows_deleted : 0;
 	}
 
 	/**

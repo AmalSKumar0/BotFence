@@ -281,6 +281,20 @@ class IntegrationsTest extends TestCase {
 		$val_errors = new \WP_Error();
 		$adapter->validate_registration( 'spammer', 'spam@test.com', $val_errors );
 		$this->assertTrue( in_array( $val_errors->get_error_code(), array( 'botfence_spam_detected', 'kl_spam_detected' ), true ) );
+
+		// Login validation: clean submission -> returns user.
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$_POST = $this->create_clean_post( 'wc_login' );
+		$_POST['login'] = '1';
+		$user_mock = (object) array( 'ID' => 123, 'user_login' => 'legit_user' );
+		$login_res = $adapter->validate_login( $user_mock, 'legit_user', 'password' );
+		$this->assertSame( $user_mock, $login_res );
+
+		// Login validation: honeypot spam -> returns WP_Error.
+		$_POST[ $hp_field ] = 'spam login bot';
+		$spam_res = $adapter->validate_login( $user_mock, 'legit_user', 'password' );
+		$this->assertTrue( is_wp_error( $spam_res ) );
+		$this->assertSame( 'botfence_spam_detected', $spam_res->get_error_code() );
 	}
 
 	/**

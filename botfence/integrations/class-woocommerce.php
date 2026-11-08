@@ -63,6 +63,7 @@ class WooCommerce extends Abstract_Form_Adapter {
 
 		// 3. Account Login Form.
 		add_action( 'woocommerce_login_form', array( $this, 'render_login_fields' ), 20 );
+		add_filter( 'authenticate', array( $this, 'validate_login' ), 20, 3 );
 	}
 
 	/**
@@ -118,6 +119,39 @@ class WooCommerce extends Abstract_Form_Adapter {
 	public function render_login_fields(): void {
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $this->render_fields( 'wc_login' );
+	}
+
+	/**
+	 * Validates WooCommerce login submission.
+	 *
+	 * @param mixed  $user     Authenticated user object or WP_Error.
+	 * @param string $username Username or email.
+	 * @param string $password User password.
+	 * @return mixed
+	 */
+	public function validate_login( $user, string $username = '', string $password = '' ) {
+		if ( is_wp_error( $user ) ) {
+			return $user;
+		}
+
+		if ( empty( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== strtoupper( (string) $_SERVER['REQUEST_METHOD'] ) ) {
+			return $user;
+		}
+
+		$post_data = ! empty( $_POST ) ? wp_unslash( $_POST ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		$is_wc_login = isset( $post_data['woocommerce-login-nonce'] ) || isset( $post_data['login'] ) || isset( $post_data['wc_login'] );
+		if ( ! $is_wc_login && empty( $post_data['botfence_token'] ) && empty( $post_data['kl_anti_spam_token'] ) ) {
+			return $user;
+		}
+
+		$res = $this->verify( $post_data, 'wc_login' );
+		if ( ! $res['is_valid'] ) {
+			$msg = ! empty( $res['error_message'] ) ? $res['error_message'] : __( 'Login flagged by anti-spam verification.', 'botfence' );
+			return new \WP_Error( 'botfence_spam_detected', $msg );
+		}
+
+		return $user;
 	}
 }
 

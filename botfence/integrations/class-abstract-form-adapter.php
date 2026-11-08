@@ -93,7 +93,23 @@ abstract class Abstract_Form_Adapter implements Form_Adapter_Interface {
 	}
 
 	/**
+	 * Per-request memoized verification results to prevent replay self-denial.
+	 *
+	 * @var array<string, array>
+	 */
+	protected static array $memoized_verifications = array();
+
+	/**
+	 * Clears memoized verifications (primarily used for test teardown).
+	 */
+	public static function clear_memoized_verifications(): void {
+		self::$memoized_verifications = array();
+	}
+
+	/**
 	 * Verifies submission data using the centralized CAPTCHA engine.
+	 *
+	 * Uses per-request memoization to avoid replay self-denial across multiple hooks.
 	 *
 	 * @param array<string, mixed> $data    Submission data.
 	 * @param string               $form_id Form identifier.
@@ -106,7 +122,16 @@ abstract class Abstract_Form_Adapter implements Form_Adapter_Interface {
 	 * }
 	 */
 	public function verify( array $data, string $form_id = '' ): array {
-		return $this->engine->verify_submission( $data, $this->get_id(), $form_id );
+		$cache_key = $this->get_id() . ':' . $form_id . ':' . md5( (string) wp_json_encode( $data ) );
+
+		if ( isset( self::$memoized_verifications[ $cache_key ] ) ) {
+			return self::$memoized_verifications[ $cache_key ];
+		}
+
+		$result = $this->engine->verify_submission( $data, $this->get_id(), $form_id );
+		self::$memoized_verifications[ $cache_key ] = $result;
+
+		return $result;
 	}
 }
 

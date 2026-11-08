@@ -142,11 +142,14 @@ class CaptchaEngineTest extends TestCase {
 		$this->assertNotEmpty( $challenge['challenge_token'] );
 		$this->assertGreaterThan( time(), $challenge['expires_at'] );
 
-		// Parse the expected answer from challenge token payload to test verification.
+		// Verify answer is NOT leaked in the payload.
 		$parts   = explode( '.', $challenge['challenge_token'] );
 		$payload = base64_decode( $parts[0] );
-		$data    = explode( '|', $payload );
-		$answer  = $data[1];
+		$this->assertStringNotContainsString( 'answer', $payload );
+
+		// Solve challenge by parsing math question.
+		preg_match( '/What is (\d+) \+ (\d+)\?/', $challenge['question'], $matches );
+		$answer = (string) ( (int) $matches[1] + (int) $matches[2] );
 
 		// Valid answer solves challenge.
 		$is_valid = $this->engine->verify_adaptive_challenge( $challenge['challenge_token'], $answer, 'form_test' );
@@ -161,10 +164,9 @@ class CaptchaEngineTest extends TestCase {
 		$tok_data  = $this->token_manager->generate_token( 'form_1', '127.0.0.1' );
 		$challenge = $this->engine->generate_adaptive_challenge( 'form_1' );
 
-		$parts   = explode( '.', $challenge['challenge_token'] );
-		$payload = base64_decode( $parts[0] );
-		$data    = explode( '|', $payload );
-		$answer  = $data[1];
+		// Solve challenge from question text.
+		preg_match( '/What is (\d+) \+ (\d+)\?/', $challenge['question'], $matches );
+		$answer = (string) ( (int) $matches[1] + (int) $matches[2] );
 
 		// Submission that was fast (30 points = medium risk), but includes correct challenge solution.
 		$telemetry = base64_encode( (string) wp_json_encode( array(
@@ -201,5 +203,43 @@ class CaptchaEngineTest extends TestCase {
 		// Excluded form by type:id.
 		$res2 = $this->engine->verify_submission( $post_data, 'cf7', 'special_form' );
 		$this->assertTrue( $res2['is_valid'] );
+		$this->assertSame( 'allow', $res2['action'] );
+	}
+
+	public function test_challenge_security_constraints(): void {
+		$challenge = $this->engine->generate_adaptive_challenge( 'form_payment' );
+
+		preg_match( '/What is (\d+) \+ (\d+)\?/', $challenge['question'], $matches );
+		$answer = (string) ( (int) $matches[1] + (int) $matches[2] );
+
+		// Cross-form challenge reuse must fail.
+		$mismatch = $this->engine->verify_adaptive_challenge( $challenge['challenge_token'], $answer, 'form_contact' );
+		$this->assertFalse( $mismatch );
+
+		// Tampered challenge signature must fail.
+		$tampered = $challenge['challenge_token'] . 'bad';
+		$bad_sig  = $this->engine->verify_adaptive_challenge( $tampered, $answer, 'form_payment' );
+		$this->assertFalse( $bad_sig );
+	}
+
+	public function test_double_hook_memoization_avoids_replay_self_denial(): void {
+		$tok_data = $this->token_manager->generate_token( 'cf7_memo', '127.0.0.1' );
+		$adapter  = new \BotFence\Integrations\Contact_Form_7( $this->engine );
+
+		$post_data = array(
+			'botfence_token' => $tok_data['token'],
+			'your-name'      => 'Alice Human',
+			'your-email'     => 'alice@example.com',
+			'your-message'   => 'Legitimate form message for testing memoization',
+		);
+
+		// First hook execution (e.g. wpcf7_spam): consumes token and validates.
+		$res1 = $adapter->verify( $post_data, 'cf7_memo' );
+		$this->assertTrue( $res1['is_valid'] );
+
+		// Second hook execution in same request (e.g. wpcf7_before_send_mail): returns memoized result!
+		$res2 = $adapter->verify( $post_data, 'cf7_memo' );
+		$this->assertTrue( $res2['is_valid'] );
+		$this->assertSame( $res1['score'], $res2['score'] );
 	}
 }

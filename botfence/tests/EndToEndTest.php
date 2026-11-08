@@ -196,42 +196,24 @@ class EndToEndTest extends TestCase {
 	 * A user with JS disabled completes the accessible fallback math challenge.
 	 */
 	public function test_e2e_js_disabled_visitor_with_accessible_fallback(): void {
-		$challenge = $this->engine->generate_adaptive_challenge( 'no_js_form' );
+		$challenge = $this->engine->generate_adaptive_challenge( 'post_100' );
 
-		// Parse solution answer.
-		$parts   = explode( '.', $challenge['challenge_token'] );
-		$payload = base64_decode( $parts[0] );
-		$data    = explode( '|', $payload );
-		$answer  = $data[1];
+		// Parse solution answer from question text.
+		preg_match( '/What is (\d+) \+ (\d+)\?/', $challenge['question'], $matches );
+		$answer = (string) ( (int) $matches[1] + (int) $matches[2] );
 
-		// In non-JS environment, kl_anti_spam_telemetry is absent, but the fallback answer is provided.
+		$tok_data = $this->token_manager->generate_token( 'post_100', '127.0.0.1' );
 		$submission = array(
+			'kl_anti_spam_token'  => $tok_data['token'],
 			'kl_challenge_token'  => $challenge['challenge_token'],
 			'kl_challenge_answer' => $answer,
-			'message'             => 'Hello from a user with JavaScript turned off in browser ' . uniqid(),
+			'message'             => 'Clean submission with accessible fallback ' . uniqid(),
 			'user_name'           => 'Privacy User',
 		);
 
 		$result = $this->engine->verify_submission( $submission, 'comments', 'post_100' );
-
-		// Now test with a fresh challenge and valid token.
-		$challenge2 = $this->engine->generate_adaptive_challenge( 'post_100' );
-		$parts2     = explode( '.', $challenge2['challenge_token'] );
-		$payload2   = base64_decode( $parts2[0] );
-		$data2      = explode( '|', $payload2 );
-		$answer2    = $data2[1];
-
-		$tok_data = $this->token_manager->generate_token( 'post_100', '127.0.0.1' );
-		$submission2 = array(
-			'kl_anti_spam_token'  => $tok_data['token'],
-			'kl_challenge_token'  => $challenge2['challenge_token'],
-			'kl_challenge_answer' => $answer2,
-			'message'             => 'Clean submission with accessible fallback ' . uniqid(),
-		);
-
-		$res_with_token = $this->engine->verify_submission( $submission2, 'comments', 'post_100' );
-		$this->assertTrue( $res_with_token['is_valid'] );
-		$this->assertSame( 'allow', $res_with_token['action'] );
+		$this->assertTrue( $result['is_valid'] );
+		$this->assertSame( 'allow', $result['action'] );
 	}
 
 	/**
@@ -263,5 +245,83 @@ class EndToEndTest extends TestCase {
 		$this->assertTrue( $result['is_valid'] );
 		$this->assertSame( 'allow', $result['action'] );
 		$this->assertSame( 0, $result['score'] );
+	}
+
+	/**
+	 * Attack Scenario 7: TOCTOU Replay Simulation (Simultaneous Submissions)
+	 */
+	public function test_attack_simulation_simultaneous_token_replay(): void {
+		$tok_data = $this->token_manager->generate_token( 'transfer_form', '198.51.100.22' );
+
+		// First submission (arrived at thread 1).
+		$res1 = $this->engine->verify_submission( array(
+			'botfence_token' => $tok_data['token'],
+			'amount'         => '100',
+		), 'custom_forms', 'transfer_form' );
+		$this->assertTrue( $res1['is_valid'] );
+
+		// Second submission (arrived concurrently at thread 2 with exact same token).
+		$res2 = $this->engine->verify_submission( array(
+			'botfence_token' => $tok_data['token'],
+			'amount'         => '100',
+		), 'custom_forms', 'transfer_form' );
+		$this->assertFalse( $res2['is_valid'] );
+		$this->assertSame( 'block', $res2['action'] );
+		$this->assertSame( 100, $res2['score'] );
+	}
+
+	/**
+	 * Attack Scenario 8: Cross-Form Token Substitution Attack
+	 */
+	public function test_attack_simulation_cross_form_substitution(): void {
+		// Adversary generates a token on a low-privilege newsletter form.
+		$tok_newsletter = $this->token_manager->generate_token( 'newsletter_form', '198.51.100.33' );
+
+		// Adversary replays this token against a checkout form.
+		$res = $this->engine->verify_submission( array(
+			'botfence_token' => $tok_newsletter['token'],
+			'order_id'       => '999',
+		), 'woocommerce', 'wc_checkout' );
+
+		$this->assertFalse( $res['is_valid'] );
+		$this->assertSame( 'block', $res['action'] );
+		$this->assertSame( 100, $res['score'] );
+	}
+
+	/**
+	 * Attack Scenario 9: Cryptographic Challenge Answer Extraction Attack
+	 */
+	public function test_attack_simulation_challenge_answer_cannot_be_extracted_from_payload(): void {
+		$challenge = $this->engine->generate_adaptive_challenge( 'secure_form' );
+
+		// Inspect client-side token payload.
+		$parts   = explode( '.', $challenge['challenge_token'] );
+		$payload = base64_decode( $parts[0] );
+
+		// Payload must NOT contain the word 'answer' or the answer value.
+		$this->assertCount( 3, explode( '|', $payload ) ); // Only form_id | expires_at | nonce
+		$this->assertStringNotContainsString( 'answer', $payload );
+
+		// Forging an answer by tampering the signature must fail.
+		$forged = $parts[0] . '.' . hash( 'sha256', 'fake_signature' );
+		$this->assertFalse( $this->engine->verify_adaptive_challenge( $forged, '42', 'secure_form' ) );
+	}
+
+	/**
+	 * Attack Scenario 10: REST Token Flood DoS Protection
+	 */
+	public function test_attack_simulation_rest_token_dos_throttling(): void {
+		$plugin  = Plugin::get_instance();
+		$request = new WP_REST_Request( array( 'form_id' => 'cached_form' ) );
+
+		// 60 requests within limit.
+		for ( $i = 1; $i <= 60; $i++ ) {
+			$res = $plugin->rest_get_token( $request );
+			$this->assertSame( 200, $res->status );
+		}
+
+		// 61st request gets throttled with HTTP 429.
+		$res_throttled = $plugin->rest_get_token( $request );
+		$this->assertSame( 429, $res_throttled->status );
 	}
 }

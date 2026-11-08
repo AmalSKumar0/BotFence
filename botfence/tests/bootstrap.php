@@ -439,6 +439,14 @@ class Mock_WPDB {
 	public int $insert_id = 0;
 	public array $logs_table = array();
 	public array $rates_table = array();
+	public array $used_tokens_table = array();
+	public bool $suppress_errors = false;
+
+	public function suppress_errors( bool $suppress = true ): bool {
+		$prev = $this->suppress_errors;
+		$this->suppress_errors = $suppress;
+		return $prev;
+	}
 
 	public function get_charset_collate(): string {
 		return 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci';
@@ -472,7 +480,51 @@ class Mock_WPDB {
 		return 1;
 	}
 
+	public function update( string $table, array $data, array $where, ?array $format = null, ?array $where_format = null ): int {
+		$affected = 0;
+		foreach ( $this->logs_table as $id => $row ) {
+			$match = true;
+			foreach ( $where as $col => $val ) {
+				if ( (string) ( $row->$col ?? '' ) !== (string) $val ) {
+					$match = false;
+					break;
+				}
+			}
+			if ( $match ) {
+				foreach ( $data as $col => $val ) {
+					$row->$col = $val;
+				}
+				$affected++;
+			}
+		}
+		return $affected;
+	}
+
 	public function query( string $query ) {
+		// Handle atomic token consumption into used_tokens table.
+		if ( ( str_contains( $query, 'botfence_used_tokens' ) || str_contains( $query, 'kl_antispam_used_tokens' ) ) && str_contains( $query, 'INSERT INTO' ) ) {
+			preg_match( "/VALUES \('([^']+)',\s*'([^']+)',\s*'([^']+)',\s*'([^']+)'\)/", $query, $m );
+			if ( ! empty( $m ) ) {
+				$token_hash  = $m[1];
+				$form_id     = $m[2];
+				$consumed_at = $m[3];
+				$expires_at  = $m[4];
+
+				if ( isset( $this->used_tokens_table[ $token_hash ] ) ) {
+					// Duplicate token - simulate primary key constraint violation.
+					return false;
+				}
+
+				$this->used_tokens_table[ $token_hash ] = (object) array(
+					'token_hash'  => $token_hash,
+					'form_id'     => $form_id,
+					'consumed_at' => $consumed_at,
+					'expires_at'  => $expires_at,
+				);
+				return 1;
+			}
+		}
+
 		// Handle ON DUPLICATE KEY UPDATE for both BotFence and legacy tables.
 		if ( ( str_contains( $query, 'botfence_rate_limits' ) || str_contains( $query, 'kl_antispam_rate_limits' ) ) && str_contains( $query, 'ON DUPLICATE KEY UPDATE' ) ) {
 			preg_match( "/VALUES \('([^']+)',\s*'([^']+)',\s*1,\s*'([^']+)',\s*'([^']+)'\)/", $query, $m );
@@ -481,8 +533,20 @@ class Mock_WPDB {
 				$type  = $m[2];
 				$key   = $ident . ':' . $type;
 				if ( isset( $this->rates_table[ $key ] ) ) {
-					$this->rates_table[ $key ]->count++;
-					$this->rates_table[ $key ]->expires_at = $m[4];
+					$existing = $this->rates_table[ $key ];
+					// If query contains atomic reset condition with expires_at check
+					if ( str_contains( $query, 'IF(expires_at <=' ) || str_contains( $query, 'IF(expires_at <' ) ) {
+						if ( strtotime( $existing->expires_at ) <= strtotime( $m[3] ) ) {
+							$existing->count = 1;
+							$existing->first_seen = $m[3];
+							$existing->expires_at = $m[4];
+						} else {
+							$existing->count++;
+						}
+					} else {
+						$this->rates_table[ $key ]->count++;
+						$this->rates_table[ $key ]->expires_at = $m[4];
+					}
 				} else {
 					$this->rates_table[ $key ] = (object) array(
 						'identifier' => $ident,
@@ -498,6 +562,11 @@ class Mock_WPDB {
 
 		if ( str_contains( $query, 'TRUNCATE' ) ) {
 			$this->logs_table = array();
+			$this->used_tokens_table = array();
+			return 1;
+		}
+
+		if ( str_contains( $query, 'DELETE FROM' ) && ( str_contains( $query, 'botfence_used_tokens' ) || str_contains( $query, 'kl_antispam_used_tokens' ) ) ) {
 			return 1;
 		}
 
@@ -506,10 +575,16 @@ class Mock_WPDB {
 
 	public function get_var( string $query ) {
 		if ( str_contains( $query, 'SHOW TABLES LIKE' ) ) {
+			if ( str_contains( $query, 'used_tokens' ) ) {
+				return 'wp_botfence_used_tokens';
+			}
+			if ( str_contains( $query, 'rate_limits' ) ) {
+				return 'wp_botfence_rate_limits';
+			}
 			if ( str_contains( $query, 'wp_botfence_logs' ) ) {
 				return 'wp_botfence_logs';
 			}
-			return 'wp_kl_antispam_logs';
+			return 'wp_botfence_logs';
 		}
 		if ( str_contains( $query, 'COUNT(id)' ) ) {
 			if ( str_contains( $query, "action_taken = 'block'" ) ) {

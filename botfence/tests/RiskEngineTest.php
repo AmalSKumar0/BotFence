@@ -170,4 +170,48 @@ class RiskEngineTest extends TestCase {
 		$this->assertSame( 95, $res['score'] );
 		$this->assertSame( 'block', $res['action'] );
 	}
+
+	public function test_legitimate_paste_and_autofill_not_penalized(): void {
+		// User pasted text into message field (0 keystrokes, 0 mouse moves, but paste_count = 1).
+		$context_paste = array(
+			'honeypot_triggered' => false,
+			'token_status'       => 'valid',
+			'elapsed_time'       => 4.5,
+			'text_length'        => 150,
+			'telemetry'          => array(
+				'mouse_moves' => 0,
+				'keystrokes'  => 0,
+				'touches'     => 0,
+				'paste_count' => 1,
+				'is_trusted'  => true,
+				'webdriver'   => false,
+			),
+		);
+
+		$res_paste = $this->engine->evaluate( $context_paste );
+		$this->assertSame( 0, $res_paste['score'] );
+		$this->assertSame( 'allow', $res_paste['action'] );
+		$this->assertFalse( $res_paste['is_spam'] );
+
+		// User autofilled credentials or address (autofill = true).
+		$context_autofill = array(
+			'honeypot_triggered' => false,
+			'token_status'       => 'valid',
+			'elapsed_time'       => 3.5,
+			'text_length'        => 80,
+			'telemetry'          => array(
+				'mouse_moves' => 0,
+				'keystrokes'  => 0,
+				'touches'     => 0,
+				'autofill'    => true,
+				'is_trusted'  => true,
+				'webdriver'   => false,
+			),
+		);
+
+		$res_autofill = $this->engine->evaluate( $context_autofill );
+		$this->assertSame( 0, $res_autofill['score'] );
+		$this->assertSame( 'allow', $res_autofill['action'] );
+		$this->assertFalse( $res_autofill['is_spam'] );
+	}
 }

@@ -256,6 +256,34 @@ class Logger {
 	}
 
 	/**
+	 * Marks a log entry as a false positive (reviewed legitimate).
+	 *
+	 * @param int $log_id Log record ID.
+	 * @return bool True on success.
+	 */
+	public function mark_false_positive( int $log_id ): bool {
+		global $wpdb;
+
+		if ( $log_id <= 0 ) {
+			return false;
+		}
+
+		$table   = Database::get_logs_table();
+		$updated = $wpdb->update(
+			$table,
+			array(
+				'is_spam'      => 0,
+				'action_taken' => 'allow',
+			),
+			array( 'id' => $log_id ),
+			array( '%d', '%s' ),
+			array( '%d' )
+		);
+
+		return false !== $updated;
+	}
+
+	/**
 	 * Empties all records from the logs table.
 	 *
 	 * @return int Number of rows deleted.

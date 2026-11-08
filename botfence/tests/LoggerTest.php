@@ -108,4 +108,33 @@ class LoggerTest extends TestCase {
 		$this->logger->clear_logs();
 		$this->assertCount( 0, $this->logger->get_logs()['items'] );
 	}
+
+	public function test_mark_false_positive(): void {
+		$id = $this->logger->log( array(
+			'form_type'    => 'cf7',
+			'action_taken' => 'block',
+			'is_spam'      => 1,
+		) );
+
+		$res = $this->logger->mark_false_positive( $id );
+		$this->assertTrue( $res );
+
+		$logs = $this->logger->get_logs();
+		$entry = $logs['items'][0];
+		$this->assertSame( 0, (int) $entry->is_spam );
+		$this->assertSame( 'allow', $entry->action_taken );
+	}
+
+	public function test_csv_cell_formula_injection_defense(): void {
+		// Formula triggers must be prefixed with single quote.
+		$this->assertSame( "'=SUM(A1:A10)", \BotFence\Admin::sanitize_csv_cell( '=SUM(A1:A10)' ) );
+		$this->assertSame( "'+1+2", \BotFence\Admin::sanitize_csv_cell( '+1+2' ) );
+		$this->assertSame( "'-calc", \BotFence\Admin::sanitize_csv_cell( '-calc' ) );
+		$this->assertSame( "'@cmd", \BotFence\Admin::sanitize_csv_cell( '@cmd' ) );
+		$this->assertSame( "'\tTabbed", \BotFence\Admin::sanitize_csv_cell( "\tTabbed" ) );
+
+		// Normal safe text left untouched.
+		$this->assertSame( 'Normal form message', \BotFence\Admin::sanitize_csv_cell( 'Normal form message' ) );
+		$this->assertSame( 'user@example.com', \BotFence\Admin::sanitize_csv_cell( 'user@example.com' ) );
+	}
 }

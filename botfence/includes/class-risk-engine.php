@@ -149,7 +149,7 @@ class Risk_Engine {
 					(float) ( $context['token_age'] ?? 0 )
 				),
 			);
-		} elseif ( in_array( $token_status, array( 'missing', 'malformed', 'tampered', 'invalid_payload', 'replayed' ), true ) ) {
+		} elseif ( in_array( $token_status, array( 'missing', 'malformed', 'tampered', 'invalid_payload', 'replayed', 'form_mismatch', 'future_timestamp' ), true ) ) {
 			$points       = $this->get_weight( self::SIGNAL_INVALID_TOKEN );
 			$total_score += $points;
 			$signals[]    = array(
@@ -252,12 +252,18 @@ class Risk_Engine {
 		}
 
 		// Zero human interaction with long text.
+		// Protect legitimate users using password managers, autofill, paste, or assistive navigation.
 		$mouse_moves = (int) ( $telemetry['mouse_moves'] ?? -1 );
 		$keystrokes  = (int) ( $telemetry['keystrokes'] ?? -1 );
 		$touches     = (int) ( $telemetry['touches'] ?? -1 );
+		$focus_count = (int) ( $telemetry['focus_count'] ?? -1 );
+		$paste_count = (int) ( $telemetry['paste_count'] ?? 0 );
+		$autofill    = ! empty( $telemetry['autofill'] );
 		$text_length = (int) ( $context['text_length'] ?? 0 );
 
-		if ( $mouse_moves === 0 && $keystrokes === 0 && $touches === 0 && $text_length > 30 ) {
+		$is_assistive_or_paste = ( $paste_count > 0 || $autofill || $focus_count > 0 );
+
+		if ( ! $is_assistive_or_paste && $mouse_moves === 0 && $keystrokes === 0 && $touches === 0 && $text_length > 30 ) {
 			$points       = $this->get_weight( self::SIGNAL_SUSPICIOUS_BEHAVIOR );
 			$total_score += $points;
 			$signals[]    = array(

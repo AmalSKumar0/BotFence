@@ -318,11 +318,13 @@ class Captcha_Engine {
 
 		$secret     = (string) ( get_option( 'botfence_secret_key' ) ?: get_option( 'kl_antispam_secret_key', 'botfence_secret' ) );
 		$expires_at = time() + 900; // 15 minutes validity
-		$nonce      = wp_generate_password( 12, false );
+		$nonce      = wp_generate_password( 16, false );
 
-		$payload   = $form_id . '|' . $answer . '|' . $expires_at . '|' . $nonce;
-		$signature = hash_hmac( 'sha256', $payload, $secret );
-		$token     = base64_encode( $payload ) . '.' . $signature;
+		// Cryptographic payload contains NO plaintext answer.
+		// The answer is sealed in the HMAC signature.
+		$payload     = $form_id . '|' . $expires_at . '|' . $nonce;
+		$answer_hash = hash_hmac( 'sha256', $form_id . '|' . $answer . '|' . $expires_at . '|' . $nonce, $secret );
+		$token       = base64_encode( $payload ) . '.' . $answer_hash;
 
 		return array(
 			'question'        => sprintf(
@@ -350,36 +352,40 @@ class Captcha_Engine {
 			return false;
 		}
 
-		list( $encoded_payload, $signature ) = $parts;
+		list( $encoded_payload, $provided_hash ) = $parts;
 		$secret  = (string) ( get_option( 'botfence_secret_key' ) ?: get_option( 'kl_antispam_secret_key', 'botfence_secret' ) );
 		$payload = base64_decode( $encoded_payload );
 
-		$expected_sig = hash_hmac( 'sha256', $payload, $secret );
-		if ( ! hash_equals( $expected_sig, $signature ) ) {
-			return false;
-		}
-
 		$data = explode( '|', $payload );
-		if ( count( $data ) !== 4 ) {
+		if ( count( $data ) !== 3 ) {
 			return false;
 		}
 
-		list( $token_form_id, $expected_answer, $expires_at, $nonce ) = $data;
+		list( $token_form_id, $expires_at, $nonce ) = $data;
+
+		// Form binding validation.
+		if ( ! empty( $form_id ) && ! empty( $token_form_id ) && $token_form_id !== $form_id && ! in_array( $token_form_id, array( 'generic', 'cached_page' ), true ) ) {
+			return false;
+		}
 
 		if ( time() > (int) $expires_at ) {
 			return false;
 		}
 
-		// Replay protection for challenge token.
-		$transient_key = 'botfence_ch_used_' . md5( $nonce );
-		$kl_key        = 'kl_ch_used_' . md5( $nonce );
-		if ( get_transient( $transient_key ) || get_transient( $kl_key ) ) {
+		// Atomic single-use consumption of challenge nonce.
+		$nonce_hash = hash( 'sha256', 'challenge_' . $nonce );
+		$now_dt     = gmdate( 'Y-m-d H:i:s' );
+		$exp_dt     = gmdate( 'Y-m-d H:i:s', (int) $expires_at + 120 );
+		$consumed   = $this->token_manager->consume_token_atomically( $nonce_hash, $token_form_id, $now_dt, $exp_dt );
+		if ( ! $consumed ) {
 			return false;
 		}
-		set_transient( $transient_key, 1, 900 );
-		set_transient( $kl_key, 1, 900 );
 
-		return trim( $answer ) === trim( $expected_answer );
+		// Recompute sealed answer HMAC.
+		$clean_answer  = trim( (string) $answer );
+		$expected_hash = hash_hmac( 'sha256', $token_form_id . '|' . $clean_answer . '|' . $expires_at . '|' . $nonce, $secret );
+
+		return hash_equals( $expected_hash, $provided_hash );
 	}
 
 	/**

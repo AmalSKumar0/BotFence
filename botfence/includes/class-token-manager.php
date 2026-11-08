@@ -222,12 +222,29 @@ class Token_Manager {
 			);
 		}
 
-		// 7. Replay Protection.
-		$nonce_hash    = md5( $payload['n'] . '_' . $payload['t'] );
-		$transient_key = 'botfence_used_tok_' . $nonce_hash;
-		$kl_key        = 'kl_used_tok_' . $nonce_hash;
+		// 7. Form-Specific Binding Validation.
+		$token_form_id = sanitize_key( (string) ( $payload['f'] ?? '' ) );
+		if ( ! empty( $form_id ) && ! empty( $token_form_id ) ) {
+			$expected_form_id = sanitize_key( $form_id );
+			if ( $token_form_id !== $expected_form_id && ! in_array( $token_form_id, array( 'generic', 'cached_page' ), true ) ) {
+				return array(
+					'is_valid'      => false,
+					'status'        => 'form_mismatch',
+					'timestamp'     => $token_time,
+					'age'           => $age,
+					'risk_points'   => $weight_invalid,
+					'error_message' => __( 'Security verification token is not valid for this form.', 'botfence' ),
+				);
+			}
+		}
 
-		if ( get_transient( $transient_key ) || get_transient( $kl_key ) ) {
+		// 8. Atomic Single-Use Token Consumption (Replay Prevention).
+		$nonce_hash = hash( 'sha256', $payload['n'] . '_' . $payload['t'] );
+		$now_dt     = gmdate( 'Y-m-d H:i:s', $now );
+		$exp_dt     = gmdate( 'Y-m-d H:i:s', $now + $lifetime + 120 );
+
+		$consumed = $this->consume_token_atomically( $nonce_hash, $token_form_id, $now_dt, $exp_dt );
+		if ( ! $consumed ) {
 			return array(
 				'is_valid'      => false,
 				'status'        => 'replayed',
@@ -238,11 +255,6 @@ class Token_Manager {
 			);
 		}
 
-		// Mark token as consumed for remaining lifetime plus 120s safety buffer.
-		$ttl = max( 120, (int) ( $lifetime - $age + 120 ) );
-		set_transient( $transient_key, 1, $ttl );
-		set_transient( $kl_key, 1, $ttl );
-
 		return array(
 			'is_valid'      => true,
 			'status'        => 'valid',
@@ -251,6 +263,50 @@ class Token_Manager {
 			'risk_points'   => 0,
 			'error_message' => '',
 		);
+	}
+
+	/**
+	 * Atomically records token consumption to eliminate TOCTOU race conditions.
+	 *
+	 * @param string $nonce_hash  Unique token hash.
+	 * @param string $form_id     Form identifier.
+	 * @param string $consumed_at Datetime string.
+	 * @param string $expires_at  Datetime string.
+	 * @return bool True if successfully consumed, false if already consumed (duplicate).
+	 */
+	public function consume_token_atomically( string $nonce_hash, string $form_id, string $consumed_at, string $expires_at ): bool {
+		global $wpdb;
+
+		$table = Database::get_tokens_table();
+
+		// Check if table exists in current database.
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+		if ( $table_exists ) {
+			$wpdb->suppress_errors( true );
+			$inserted = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT INTO {$table} (token_hash, form_id, consumed_at, expires_at) VALUES (%s, %s, %s, %s)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$nonce_hash,
+					$form_id,
+					$consumed_at,
+					$expires_at
+				)
+			);
+			$wpdb->suppress_errors( false );
+
+			if ( false === $inserted || 0 === $inserted ) {
+				return false;
+			}
+			return true;
+		}
+
+		// Fallback to transient-based consumption if database table is not yet provisioned.
+		$transient_key = 'botfence_used_tok_' . md5( $nonce_hash );
+		if ( get_transient( $transient_key ) ) {
+			return false;
+		}
+		set_transient( $transient_key, 1, 900 );
+		return true;
 	}
 }
 

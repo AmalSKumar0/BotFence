@@ -278,7 +278,54 @@ class Rate_Limiter {
 			);
 		}
 
-		// 4. Repeated identical message detection.
+		// 4. Per-Form rate limit.
+		if ( ! empty( $form_id ) ) {
+			$form_ident   = 'form:' . sanitize_key( $form_id ) . ':' . $ip_hash;
+			$form_limit   = (int) $this->get_conf( 'rate_limit_form_per_minute', 10 );
+			$form_expires = gmdate( 'Y-m-d H:i:s', $now_time + 60 );
+			$form_count   = $this->increment_counter( $form_ident, 'form_minute', $now_dt, $form_expires );
+
+			if ( $form_count > $form_limit ) {
+				$rate_exceeded     = true;
+				$accumulated_risk += $weight_rate;
+				$reasons[]         = sprintf(
+					/* translators: 1: form ID, 2: rate limit */
+					__( 'Exceeded limit of %2$d submissions per minute for form "%1$s".', 'botfence' ),
+					sanitize_key( $form_id ),
+					$form_limit
+				);
+			}
+		}
+
+		// 5. Per-Session rate limit (if session identifier present).
+		$session_token = '';
+		if ( ! empty( $_COOKIE['botfence_session'] ) && is_string( $_COOKIE['botfence_session'] ) ) {
+			$session_token = sanitize_key( $_COOKIE['botfence_session'] );
+		} elseif ( function_exists( 'wp_get_session_token' ) ) {
+			$raw_token = (string) wp_get_session_token();
+			if ( ! empty( $raw_token ) ) {
+				$session_token = hash( 'sha256', $raw_token );
+			}
+		}
+
+		if ( ! empty( $session_token ) ) {
+			$sess_ident   = 'sess:' . substr( $session_token, 0, 32 );
+			$sess_limit   = (int) $this->get_conf( 'rate_limit_session_per_minute', self::DEFAULT_LIMIT_PER_MINUTE );
+			$sess_expires = gmdate( 'Y-m-d H:i:s', $now_time + 60 );
+			$sess_count   = $this->increment_counter( $sess_ident, 'session_minute', $now_dt, $sess_expires );
+
+			if ( $sess_count > $sess_limit ) {
+				$rate_exceeded     = true;
+				$accumulated_risk += $weight_rate;
+				$reasons[]         = sprintf(
+					/* translators: %d: limit */
+					__( 'Exceeded session rate limit of %d submissions per minute.', 'botfence' ),
+					$sess_limit
+				);
+			}
+		}
+
+		// 6. Repeated identical message detection.
 		$repeated_message = false;
 		if ( ! empty( $content ) && strlen( trim( $content ) ) > 10 ) {
 			$content_clean = preg_replace( '/\s+/', ' ', strtolower( trim( $content ) ) );
@@ -306,6 +353,8 @@ class Rate_Limiter {
 	/**
 	 * Atomically increments a counter record in the database.
 	 *
+	 * Resets count and expiration window if previous window has expired.
+	 *
 	 * @param string $identifier Record key.
 	 * @param string $limit_type Counter category.
 	 * @param string $first_seen Datetime string.
@@ -317,11 +366,14 @@ class Rate_Limiter {
 
 		$table = Database::get_rates_table();
 
-		// Atomic insert or increment.
+		// Atomic insert or increment with window reset if expired.
 		$query = $wpdb->prepare(
 			"INSERT INTO {$table} (identifier, limit_type, count, first_seen, expires_at)
 			VALUES (%s, %s, 1, %s, %s)
-			ON DUPLICATE KEY UPDATE count = count + 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			ON DUPLICATE KEY UPDATE
+				count = IF(expires_at <= VALUES(first_seen), 1, count + 1),
+				first_seen = IF(expires_at <= VALUES(first_seen), VALUES(first_seen), first_seen),
+				expires_at = IF(expires_at <= VALUES(first_seen), VALUES(expires_at), expires_at)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$identifier,
 			$limit_type,
 			$first_seen,
