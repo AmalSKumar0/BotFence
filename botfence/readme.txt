@@ -58,6 +58,9 @@ Yes! When static caching is detected, the plugin asynchronously queries `/wp-jso
 = Does this block accessibility tools or screen readers? =
 No. Honeypot fields use standard `aria-hidden="true"` and off-screen positioning rather than brittle CSS flags. Additionally, an accessible fallback verification challenge is provided for users without JavaScript.
 
+= Does BotFence comply with WordPress.org Plugin Directory Guidelines? =
+Yes. BotFence is 100% compliant with all 18 WordPress.org guidelines: it is 100% GPL-licensed, makes zero external network calls (no tracking, no SaaS dependency), loads zero external executable code, displays zero public-facing credits or links, registers no site-wide dashboard nags, uses local WordPress libraries, and provides full unminified human-readable source code.
+
 == Changelog ==
 
 = 1.0.0 =
