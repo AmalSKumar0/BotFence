@@ -5,7 +5,7 @@
 # BotFence - Universal WordPress Anti-Spam & Automated CAPTCHA Plugin
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%2B-blue.svg)](https://php.net)
-[![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-21759b.svg)](https://wordpress.org)
+[![WordPress](https://img.shields.io/badge/WordPress-5.9%2B-21759b.svg)](https://wordpress.org)
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0%2B-orange.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![Tests: 84 Passing](https://img.shields.io/badge/Tests-84%20Passing%20(444%20assertions)-brightgreen.svg)]()
 [![Author: Amal S Kumar](https://img.shields.io/badge/Author-Amal%20S%20Kumar-blue)](https://amalskumar.dev)
@@ -20,9 +20,9 @@ BotFence is designed and built in strict accordance with all 18 guidelines estab
 
 | # | Guideline | Status | Codebase Verification & Compliance Evidence |
 |---|---|:---:|---|
-| **1** | **GPL-Compatible License** | **COMPLIANT** | Declared as `GPL-2.0-or-later` in [`botfence/BotFence.php`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/BotFence.php#L11-L12) and `GPLv2 or later` in [`botfence/readme.txt`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/readme.txt#L9-L10). All PHP, CSS, and JS assets are 100% free and open-source under GPL. |
+| **1** | **GPL-Compatible License** | **COMPLIANT** | Declared as `GPL-2.0-or-later` in [`botfence/botfence.php`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/botfence.php#L11-L12) and `GPLv2 or later` in [`botfence/readme.txt`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/readme.txt#L9-L10). All PHP, CSS, and JS assets are 100% free and open-source under GPL. |
 | **2** | **Developer Responsibility** | **COMPLIANT** | All source code is original, fully tested, and self-contained. No external unverified third-party libraries or external services are utilized. |
-| **3** | **Stable Version Distribution** | **COMPLIANT** | Stable tag `1.0.0` in [`botfence/readme.txt`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/readme.txt#L8) directly synchronizes with [`BOTFENCE_VERSION`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/BotFence.php#L23) in [`botfence/BotFence.php`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/BotFence.php). |
+| **3** | **Stable Version Distribution** | **COMPLIANT** | Stable tag `1.0.0` in [`botfence/readme.txt`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/readme.txt#L8) directly synchronizes with [`BOTFENCE_VERSION`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/botfence.php#L23) in [`botfence/botfence.php`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/botfence.php). |
 | **4** | **Human-Readable Code** | **COMPLIANT** | Zero code obfuscation, mangling, or base64 execution. Complete, unminified source code is provided in [`botfence/assets/js/botfence.js`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/assets/js/botfence.js) and [`botfence/assets/admin/botfence-admin.js`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/assets/admin/botfence-admin.js). |
 | **5** | **No Trialware or Paywalls** | **COMPLIANT** | 100% of features (all 10 adapters, adaptive challenge, rate limiter, dashboard analytics, risk scoring) are completely free, open, and permanently unlocked. Zero paid upgrades or gated features. |
 | **6** | **Software as a Service (SaaS)** | **COMPLIANT** | BotFence operates completely autonomously on the local WordPress server. It does not require any paid API keys, subscription plans, or remote SaaS validation. |
@@ -34,7 +34,7 @@ BotFence is designed and built in strict accordance with all 18 guidelines estab
 | **12** | **Spam-Free Readmes & Translations** | **COMPLIANT** | [`botfence/readme.txt`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/readme.txt#L4) is restricted to **exactly 5 compliant tags** (`anti-spam`, `captcha`, `spam protection`, `form security`, `forms`). Competitor brand names are excluded from tags, and no cloaked affiliate links exist. |
 | **13** | **Use Default WordPress Libraries** | **COMPLIANT** | Admin scripts enqueue WordPress's core `'jquery'` handle via `wp_enqueue_script()`. Frontend scripts use lightweight, vanilla JavaScript with zero external library bundling. |
 | **14** | **Avoid Frequent SVN Commits** | **COMPLIANT** | Codebase is organized into clean, tagged releases (`1.0.0`) ready for the WordPress.org SVN release workflow. |
-| **15** | **Increment Version Numbers** | **COMPLIANT** | Semantic versioning (`1.0.0`) is synchronized across [`BotFence.php`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/BotFence.php#L6), [`readme.txt`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/readme.txt#L8), and [`README.md`](file:///home/amalskumar/projects/Plugins/BotFence/README.md). |
+| **15** | **Increment Version Numbers** | **COMPLIANT** | Semantic versioning (`1.0.0`) is synchronized across [`botfence.php`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/botfence.php#L6), [`readme.txt`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/readme.txt#L8), and [`README.md`](file:///home/amalskumar/projects/Plugins/BotFence/README.md). |
 | **16** | **Complete Plugin at Submission** | **COMPLIANT** | BotFence is complete, functional, and self-contained with 84 unit tests, comprehensive documentation, and zero placeholder stubs. |
 | **17** | **Respect Trademarks & Project Names** | **COMPLIANT** | The plugin slug is `botfence` and the name is **BotFence**. It does not use "WordPress", "WooCommerce", or any third-party trademark as the primary slug. |
 | **18** | **Directory Maintenance Rights** | **COMPLIANT** | Acknowledged and respected. |
@@ -58,7 +58,7 @@ BotFence includes an executive **Threat Defense & Analytics Dashboard** in WordP
 ## 📦 Deliverables & Source Code
 
 - **Plugin Source Directory:** [`botfence/`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/)
-  - Main bootstrap: [`botfence/BotFence.php`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/BotFence.php)
+  - Main bootstrap: [`botfence/botfence.php`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/botfence.php)
   - Core subsystems: [`botfence/includes/`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/includes/)
     - Dynamic Honeypot Engine: [`class-honeypot.php`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/includes/class-honeypot.php)
     - Cryptographic Token Manager: [`class-token-manager.php`](file:///home/amalskumar/projects/Plugins/BotFence/botfence/includes/class-token-manager.php)

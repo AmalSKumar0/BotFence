@@ -1,1 +1,1 @@
-botfence/BotFence.php
+botfence/botfence.php

@@ -9,14 +9,14 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	define( 'ABSPATH', dirname( __DIR__ ) . '/' );
+	define( 'ABSPATH', dirname( __DIR__ ) . '/botfence/' );
 }
 
 if ( ! defined( 'BOTFENCE_VERSION' ) ) {
 	define( 'BOTFENCE_VERSION', '1.0.0' );
 }
 if ( ! defined( 'BOTFENCE_FILE' ) ) {
-	define( 'BOTFENCE_FILE', ABSPATH . 'BotFence.php' );
+	define( 'BOTFENCE_FILE', ABSPATH . 'botfence.php' );
 }
 if ( ! defined( 'BOTFENCE_PATH' ) ) {
 	define( 'BOTFENCE_PATH', ABSPATH );
@@ -25,7 +25,7 @@ if ( ! defined( 'BOTFENCE_URL' ) ) {
 	define( 'BOTFENCE_URL', 'http://example.com/wp-content/plugins/botfence/' );
 }
 if ( ! defined( 'BOTFENCE_BASENAME' ) ) {
-	define( 'BOTFENCE_BASENAME', 'botfence/BotFence.php' );
+	define( 'BOTFENCE_BASENAME', 'botfence/botfence.php' );
 }
 
 // Backwards-compatibility aliases
@@ -198,12 +198,21 @@ function sanitize_key( $key ) {
 	return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $key ) );
 }
 
+function wp_strip_all_tags( $text, $remove_breaks = false ) {
+	$text = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', (string) $text );
+	$text = preg_replace( '/<[^>]*>/', '', (string) $text );
+	if ( $remove_breaks ) {
+		$text = preg_replace( '/[\r\n\t ]+/', ' ', (string) $text );
+	}
+	return trim( (string) $text );
+}
+
 function sanitize_text_field( $str ) {
-	return trim( strip_tags( (string) $str ) );
+	return wp_strip_all_tags( (string) $str );
 }
 
 function sanitize_textarea_field( $str ) {
-	return trim( strip_tags( (string) $str ) );
+	return wp_strip_all_tags( (string) $str );
 }
 
 function wp_unslash( $val ) {

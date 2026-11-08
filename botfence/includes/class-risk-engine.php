@@ -176,7 +176,7 @@ class Risk_Engine {
 				'points'  => $points,
 				'details' => sprintf(
 					/* translators: 1: submission elapsed seconds, 2: minimum required seconds */
-					__( 'Completed in %.2f seconds (minimum human threshold: %.2f seconds).', 'botfence' ),
+					__( 'Completed in %1$.2f seconds (minimum human threshold: %2$.2f seconds).', 'botfence' ),
 					$elapsed_time,
 					$min_time_limit
 				),

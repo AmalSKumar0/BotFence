@@ -367,20 +367,20 @@ class Rate_Limiter {
 		$table = Database::get_rates_table();
 
 		// Atomic insert or increment with window reset if expired.
-		$query = $wpdb->prepare(
-			"INSERT INTO {$table} (identifier, limit_type, count, first_seen, expires_at)
-			VALUES (%s, %s, 1, %s, %s)
-			ON DUPLICATE KEY UPDATE
-				count = IF(expires_at <= VALUES(first_seen), 1, count + 1),
-				first_seen = IF(expires_at <= VALUES(first_seen), VALUES(first_seen), first_seen),
-				expires_at = IF(expires_at <= VALUES(first_seen), VALUES(expires_at), expires_at)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$identifier,
-			$limit_type,
-			$first_seen,
-			$expires_at
-		);
-
-		$wpdb->query( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->query(
+			$wpdb->prepare(
+				"INSERT INTO {$table} (identifier, limit_type, count, first_seen, expires_at)
+				VALUES (%s, %s, 1, %s, %s)
+				ON DUPLICATE KEY UPDATE
+					count = IF(expires_at <= VALUES(first_seen), 1, count + 1),
+					first_seen = IF(expires_at <= VALUES(first_seen), VALUES(first_seen), first_seen),
+					expires_at = IF(expires_at <= VALUES(first_seen), VALUES(expires_at), expires_at)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$identifier,
+				$limit_type,
+				$first_seen,
+				$expires_at
+			)
+		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 		$current_count = $wpdb->get_var(
 			$wpdb->prepare(

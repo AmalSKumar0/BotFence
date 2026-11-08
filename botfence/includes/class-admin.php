@@ -256,8 +256,21 @@ class Admin {
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
 
-		$output = fopen( 'php://output', 'w' );
-		fputcsv( $output, array( 'ID', 'Date/Time (UTC)', 'Form Type', 'Form ID', 'Risk Score', 'Action', 'Signals', 'Masked IP', 'Duration (s)', 'Is Spam' ) );
+		$format_csv_row = static function( array $fields ): string {
+			$escaped = array_map(
+				static function( $val ) {
+					$str = (string) $val;
+					if ( str_contains( $str, '"' ) || str_contains( $str, ',' ) || str_contains( $str, "\n" ) || str_contains( $str, "\r" ) ) {
+						return '"' . str_replace( '"', '""', $str ) . '"';
+					}
+					return $str;
+				},
+				$fields
+			);
+			return implode( ',', $escaped ) . "\r\n";
+		};
+
+		echo $format_csv_row( array( 'ID', 'Date/Time (UTC)', 'Form Type', 'Form ID', 'Risk Score', 'Action', 'Signals', 'Masked IP', 'Duration (s)', 'Is Spam' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$logs_data = $this->engine->get_logger()->get_logs( array( 'per_page' => 5000 ) );
 		foreach ( $logs_data['items'] as $log ) {
@@ -282,10 +295,9 @@ class Admin {
 				$log->is_spam ? 'Yes' : 'No',
 			);
 
-			fputcsv( $output, array_map( array( self::class, 'sanitize_csv_cell' ), $row ) );
+			echo $format_csv_row( array_map( array( self::class, 'sanitize_csv_cell' ), $row ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		fclose( $output );
 		exit;
 	}
 

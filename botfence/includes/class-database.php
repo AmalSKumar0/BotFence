@@ -108,10 +108,6 @@ class Database {
 				dbDelta( $sql_logs );
 				dbDelta( $sql_rates );
 				dbDelta( $sql_tokens );
-			} else {
-				$wpdb->query( $sql_logs );
-				$wpdb->query( $sql_rates );
-				$wpdb->query( $sql_tokens );
 			}
 		} catch ( \Throwable $e ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -130,8 +126,9 @@ class Database {
 
 		$table        = self::get_tokens_table();
 		$now          = gmdate( 'Y-m-d H:i:s' );
-		$query        = $wpdb->prepare( "DELETE FROM {$table} WHERE expires_at < %s", $now ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$rows_deleted = $wpdb->query( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$rows_deleted = $wpdb->query(
+			$wpdb->prepare( "DELETE FROM {$table} WHERE expires_at < %s", $now ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
 
 		return is_numeric( $rows_deleted ) ? (int) $rows_deleted : 0;
 	}
@@ -151,8 +148,9 @@ class Database {
 
 		$table        = self::get_logs_table();
 		$cutoff       = gmdate( 'Y-m-d H:i:s', time() - ( $retention_days * DAY_IN_SECONDS ) );
-		$query        = $wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s", $cutoff ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$rows_deleted = $wpdb->query( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$rows_deleted = $wpdb->query(
+			$wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s", $cutoff ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
 
 		return is_numeric( $rows_deleted ) ? (int) $rows_deleted : 0;
 	}
@@ -167,8 +165,9 @@ class Database {
 
 		$table        = self::get_rates_table();
 		$now          = gmdate( 'Y-m-d H:i:s' );
-		$query        = $wpdb->prepare( "DELETE FROM {$table} WHERE expires_at < %s", $now ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$rows_deleted = $wpdb->query( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$rows_deleted = $wpdb->query(
+			$wpdb->prepare( "DELETE FROM {$table} WHERE expires_at < %s", $now ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
 
 		return is_numeric( $rows_deleted ) ? (int) $rows_deleted : 0;
 	}
