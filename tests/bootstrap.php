@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'BOTFENCE_VERSION' ) ) {
-	define( 'BOTFENCE_VERSION', '1.0.1' );
+	define( 'BOTFENCE_VERSION', '1.0.2' );
 }
 if ( ! defined( 'BOTFENCE_FILE' ) ) {
 	define( 'BOTFENCE_FILE', ABSPATH . 'botfence.php' );

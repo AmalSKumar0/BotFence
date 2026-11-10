@@ -5,7 +5,7 @@ Tags: anti-spam, captcha, spam protection, form security, forms
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,10 @@ Yes. BotFence is 100% compliant with all 18 WordPress.org guidelines: it is 100%
 5. Interactive security attack simulator and diagnostic test runner.
 
 == Changelog ==
+
+= 1.0.2 =
+* Resolved residual Plugin Check database annotations and query linting.
+* Rebuilt production distribution packages.
 
 = 1.0.1 =
 * Resolved Plugin Check standards compliance and PHPCS code quality warnings.

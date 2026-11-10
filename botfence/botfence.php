@@ -3,7 +3,7 @@
  * Plugin Name:       BotFence
  * Plugin URI:        https://bot-fence.vercel.app/
  * Description:       Universal invisible anti-spam and automated CAPTCHA engine for WordPress. Built by Amal S Kumar. Protects all forms with behaviour analysis, cryptographic tokens, dynamic honeypots, rate limiting, and risk scoring.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 5.9
  * Requires PHP:      8.1
  * Author:            Amal S Kumar
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // BotFence Plugin constants.
 if ( ! defined( 'BOTFENCE_VERSION' ) ) {
-	define( 'BOTFENCE_VERSION', '1.0.1' );
+	define( 'BOTFENCE_VERSION', '1.0.2' );
 }
 
 if ( ! defined( 'BOTFENCE_FILE' ) ) {
