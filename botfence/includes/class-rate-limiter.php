@@ -368,7 +368,7 @@ class Rate_Limiter {
 		$table = Database::get_rates_table();
 
 		// Atomic insert or increment with window reset if expired.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query(
 			$wpdb->prepare(
 				"INSERT INTO {$table} (identifier, limit_type, count, first_seen, expires_at)
@@ -376,13 +376,14 @@ class Rate_Limiter {
 				ON DUPLICATE KEY UPDATE
 					count = IF(expires_at <= VALUES(first_seen), 1, count + 1),
 					first_seen = IF(expires_at <= VALUES(first_seen), VALUES(first_seen), first_seen),
-					expires_at = IF(expires_at <= VALUES(first_seen), VALUES(expires_at), expires_at)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					expires_at = IF(expires_at <= VALUES(first_seen), VALUES(expires_at), expires_at)",
 				$identifier,
 				$limit_type,
 				$first_seen,
 				$expires_at
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$current_count = $wpdb->get_var(

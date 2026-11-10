@@ -105,8 +105,8 @@ class Logger {
 		}
 
 		// Count total records.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$total = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table} WHERE {$where_sql}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+		$total = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table} WHERE {$where_sql}" );
 
 		// Pagination & Sorting.
 		$per_page = max( 1, (int) $params['per_page'] );
@@ -116,13 +116,13 @@ class Logger {
 		$orderby  = in_array( $params['orderby'], array( 'created_at', 'risk_score', 'form_type' ), true ) ? $params['orderby'] : 'created_at';
 
 		$query = $wpdb->prepare(
-			"SELECT * FROM {$table} WHERE {$where_sql} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT * FROM {$table} WHERE {$where_sql} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d",
 			$per_page,
 			$offset
 		);
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$items = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$items = $wpdb->get_results( $query );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 
 		return array(
 			'items' => is_array( $items ) ? $items : array(),
@@ -183,47 +183,38 @@ class Logger {
 		$seven_days_ago = gmdate( 'Y-m-d H:i:s', $now_utc - ( 7 * DAY_IN_SECONDS ) );
 		$thirty_days_ago= gmdate( 'Y-m-d H:i:s', $now_utc - ( 30 * DAY_IN_SECONDS ) );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$total_checked    = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$total_blocked    = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'block'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$total_allowed    = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'allow'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$total_challenged = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'challenge'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$total_checked    = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table}" );
+		$total_blocked    = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'block'" );
+		$total_allowed    = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'allow'" );
+		$total_challenged = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'challenge'" );
 
 		// Time-windowed statistics.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$blocked_today = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'block' AND created_at >= %s", $start_of_today ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->prepare( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'block' AND created_at >= %s", $start_of_today )
 		);
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$blocked_7_days = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'block' AND created_at >= %s", $seven_days_ago ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->prepare( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'block' AND created_at >= %s", $seven_days_ago )
 		);
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$blocked_30_days = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'block' AND created_at >= %s", $thirty_days_ago ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->prepare( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'block' AND created_at >= %s", $thirty_days_ago )
 		);
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$allowed_today = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'allow' AND created_at >= %s", $start_of_today ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->prepare( "SELECT COUNT(id) FROM {$table} WHERE action_taken = 'allow' AND created_at >= %s", $start_of_today )
 		);
 
 		$block_rate = $total_checked > 0 ? round( ( $total_blocked / $total_checked ) * 100, 1 ) : 0.0;
 		$threats_mitigated = $total_blocked + $total_challenged;
 
 		// Fetch recent blocked submissions.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$recent_blocked = $wpdb->get_results(
-			"SELECT * FROM {$table} WHERE action_taken = 'block' ORDER BY created_at DESC LIMIT 8" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT * FROM {$table} WHERE action_taken = 'block' ORDER BY created_at DESC LIMIT 8"
 		);
 
 		// Form builder breakdown of blocked spam.
 		$form_breakdown = array();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$form_rows = $wpdb->get_results(
-			"SELECT form_type, COUNT(id) as total FROM {$table} WHERE action_taken = 'block' GROUP BY form_type ORDER BY total DESC LIMIT 10" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT form_type, COUNT(id) as total FROM {$table} WHERE action_taken = 'block' GROUP BY form_type ORDER BY total DESC LIMIT 10"
 		);
 		if ( is_array( $form_rows ) ) {
 			foreach ( $form_rows as $frow ) {
@@ -234,10 +225,10 @@ class Logger {
 
 		// Tally top signals from the last 150 spam events.
 		$signal_tallies = array();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$reasons_rows   = $wpdb->get_col(
-			"SELECT reasons FROM {$table} WHERE is_spam = 1 ORDER BY created_at DESC LIMIT 150" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT reasons FROM {$table} WHERE is_spam = 1 ORDER BY created_at DESC LIMIT 150"
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		if ( is_array( $reasons_rows ) ) {
 			foreach ( $reasons_rows as $row_json ) {
