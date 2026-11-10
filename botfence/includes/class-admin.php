@@ -150,6 +150,10 @@ class Admin {
 	 * Sanitizes and saves settings to both current and legacy option names.
 	 */
 	protected function save_settings(): void {
+		if ( ! check_admin_referer( 'botfence_save_settings_action', 'botfence_save_settings_nonce' ) && ! check_admin_referer( 'kl_save_settings_action', 'kl_save_settings_nonce' ) ) {
+			return;
+		}
+
 		$update_pair = function( $suffix, $val ) {
 			update_option( 'botfence_' . $suffix, $val );
 			update_option( 'kl_antispam_' . $suffix, $val );
@@ -448,6 +452,7 @@ class Admin {
 		$adapters   = $this->detector->get_adapters();
 		$logs       = $this->engine->get_logger()->get_logs( array( 'per_page' => 20 ) );
 		$valid_tabs = array( 'dashboard', 'integrations', 'risk', 'rates', 'logs', 'diagnostics' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$active_tab = isset( $_GET['tab'] ) && in_array( $_GET['tab'], $valid_tabs, true ) ? sanitize_key( (string) $_GET['tab'] ) : 'dashboard';
 
 		?>
@@ -470,10 +475,12 @@ class Admin {
 				</div>
 			</div>
 
+			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 			<?php if ( isset( $_GET['updated'] ) ) : ?>
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings updated successfully.', 'botfence' ); ?></p></div>
 			<?php endif; ?>
 
+			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 			<?php if ( isset( $_GET['logs_cleared'] ) ) : ?>
 				<div class="notice notice-info is-dismissible"><p><?php esc_html_e( 'BotFence logs have been cleared.', 'botfence' ); ?></p></div>
 			<?php endif; ?>

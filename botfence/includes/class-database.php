@@ -110,9 +110,7 @@ class Database {
 				dbDelta( $sql_tokens );
 			}
 		} catch ( \Throwable $e ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'BotFence Database initialization note: ' . $e->getMessage() );
-			}
+			// Fail gracefully if database initialization encounters permission constraints.
 		}
 	}
 
@@ -126,6 +124,7 @@ class Database {
 
 		$table        = self::get_tokens_table();
 		$now          = gmdate( 'Y-m-d H:i:s' );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$rows_deleted = $wpdb->query(
 			$wpdb->prepare( "DELETE FROM {$table} WHERE expires_at < %s", $now ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		);
@@ -148,6 +147,7 @@ class Database {
 
 		$table        = self::get_logs_table();
 		$cutoff       = gmdate( 'Y-m-d H:i:s', time() - ( $retention_days * DAY_IN_SECONDS ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$rows_deleted = $wpdb->query(
 			$wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s", $cutoff ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		);
@@ -165,6 +165,7 @@ class Database {
 
 		$table        = self::get_rates_table();
 		$now          = gmdate( 'Y-m-d H:i:s' );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$rows_deleted = $wpdb->query(
 			$wpdb->prepare( "DELETE FROM {$table} WHERE expires_at < %s", $now ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		);

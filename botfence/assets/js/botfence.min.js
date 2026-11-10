@@ -5,7 +5,7 @@
  * Zero-dependency client script for behaviour telemetry, dynamic token refresh on cached pages,
  * and universal form builder protection.
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 (function() {
 	'use strict';

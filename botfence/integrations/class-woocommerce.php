@@ -134,7 +134,8 @@ class WooCommerce extends Abstract_Form_Adapter {
 			return $user;
 		}
 
-		if ( empty( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== strtoupper( (string) $_SERVER['REQUEST_METHOD'] ) ) {
+		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+		if ( 'POST' !== strtoupper( $request_method ) ) {
 			return $user;
 		}
 

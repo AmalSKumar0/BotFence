@@ -62,7 +62,7 @@ export async function sendTelegramNotification(
 📧 <b>Email:</b> ${escapeHtml(data.email)}
 ⭐ <b>Willing to Review:</b> ${data.wouldReview ? '✅ Yes' : '❌ No'}
 🕒 <b>Timestamp:</b> ${escapeHtml(formattedTime)}
-📦 <b>Package:</b> BotFence.zip (WordPress Plugin v1.0.0)
+📦 <b>Package:</b> BotFence.zip (WordPress Plugin v1.0.1)
 `.trim();
 
   try {

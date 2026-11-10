@@ -74,8 +74,10 @@ class Contact_Form_7 extends Abstract_Form_Adapter {
 	 * @return string Form identifier.
 	 */
 	public function get_cf7_form_id( $submission_or_form = null ): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- CF7 pipeline handles submission nonces.
 		if ( ! empty( $_POST['_wpcf7'] ) ) {
-			return sanitize_key( (string) $_POST['_wpcf7'] );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return sanitize_key( (string) wp_unslash( $_POST['_wpcf7'] ) );
 		}
 
 		if ( is_object( $submission_or_form ) ) {

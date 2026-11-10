@@ -107,7 +107,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
               {downloadSuccess ? 'Download ready' : 'Download BotFence'}
             </h2>
             <p className="text-xs text-[#707070] mt-0.5">
-              WordPress plugin package (v1.0.0 • GPL-2.0-or-later)
+              WordPress plugin package (v1.0.1 • GPL-2.0-or-later)
             </p>
           </div>
           <button

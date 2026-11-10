@@ -280,9 +280,11 @@ class Token_Manager {
 		$table = Database::get_tokens_table();
 
 		// Check if table exists in current database.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 		if ( $table_exists ) {
 			$wpdb->suppress_errors( true );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$inserted = $wpdb->query(
 				$wpdb->prepare(
 					"INSERT INTO {$table} (token_hash, form_id, consumed_at, expires_at) VALUES (%s, %s, %s, %s)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

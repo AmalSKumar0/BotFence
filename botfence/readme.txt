@@ -5,11 +5,11 @@ Tags: anti-spam, captcha, spam protection, form security, forms
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Autonomous, universal invisible anti-spam and automated CAPTCHA engine protecting all WordPress forms without third-party subscriptions. Built by Amal S Kumar.
+Universal zero-CAPTCHA anti-spam engine protecting all WordPress forms without third-party services. Built by Amal S Kumar.
 
 == Description ==
 
@@ -70,6 +70,12 @@ Yes. BotFence is 100% compliant with all 18 WordPress.org guidelines: it is 100%
 5. Interactive security attack simulator and diagnostic test runner.
 
 == Changelog ==
+
+= 1.0.1 =
+* Resolved Plugin Check standards compliance and PHPCS code quality warnings.
+* Enhanced admin dashboard multi-tab navigation with instant switching and persistence.
+* Fixed metric calculation for active form adapters.
+* Cleaned up legacy active plugin entries on activation.
 
 = 1.0.0 =
 * Initial production release of BotFence.

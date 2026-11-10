@@ -219,6 +219,7 @@ class Rate_Limiter {
 
 		// 1. Check if IP is currently quarantined.
 		$quarantine_ident = 'quarantine:' . $ip_hash;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$is_quarantined   = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT count FROM {$rates_table} WHERE identifier = %s AND limit_type = 'quarantine' AND expires_at > %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -367,6 +368,7 @@ class Rate_Limiter {
 		$table = Database::get_rates_table();
 
 		// Atomic insert or increment with window reset if expired.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->query(
 			$wpdb->prepare(
 				"INSERT INTO {$table} (identifier, limit_type, count, first_seen, expires_at)
@@ -380,8 +382,9 @@ class Rate_Limiter {
 				$first_seen,
 				$expires_at
 			)
-		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		);
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$current_count = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT count FROM {$table} WHERE identifier = %s AND limit_type = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

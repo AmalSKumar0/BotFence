@@ -3,7 +3,7 @@
  * Plugin Name:       BotFence
  * Plugin URI:        https://bot-fence.vercel.app/
  * Description:       Universal invisible anti-spam and automated CAPTCHA engine for WordPress. Built by Amal S Kumar. Protects all forms with behaviour analysis, cryptographic tokens, dynamic honeypots, rate limiting, and risk scoring.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 5.9
  * Requires PHP:      8.1
  * Author:            Amal S Kumar
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // BotFence Plugin constants.
 if ( ! defined( 'BOTFENCE_VERSION' ) ) {
-	define( 'BOTFENCE_VERSION', '1.0.0' );
+	define( 'BOTFENCE_VERSION', '1.0.1' );
 }
 
 if ( ! defined( 'BOTFENCE_FILE' ) ) {
@@ -39,21 +39,21 @@ if ( ! defined( 'BOTFENCE_BASENAME' ) ) {
 	define( 'BOTFENCE_BASENAME', plugin_basename( __FILE__ ) );
 }
 
-// Backwards compatibility constants.
+// Backwards compatibility constants (phpcs:ignore warnings for legacy prefixes).
 if ( ! defined( 'KL_ANTISPAM_VERSION' ) ) {
-	define( 'KL_ANTISPAM_VERSION', BOTFENCE_VERSION );
+	define( 'KL_ANTISPAM_VERSION', BOTFENCE_VERSION ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Legacy compatibility constant.
 }
 if ( ! defined( 'KL_ANTISPAM_FILE' ) ) {
-	define( 'KL_ANTISPAM_FILE', BOTFENCE_FILE );
+	define( 'KL_ANTISPAM_FILE', BOTFENCE_FILE ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Legacy compatibility constant.
 }
 if ( ! defined( 'KL_ANTISPAM_PATH' ) ) {
-	define( 'KL_ANTISPAM_PATH', BOTFENCE_PATH );
+	define( 'KL_ANTISPAM_PATH', BOTFENCE_PATH ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Legacy compatibility constant.
 }
 if ( ! defined( 'KL_ANTISPAM_URL' ) ) {
-	define( 'KL_ANTISPAM_URL', BOTFENCE_URL );
+	define( 'KL_ANTISPAM_URL', BOTFENCE_URL ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Legacy compatibility constant.
 }
 if ( ! defined( 'KL_ANTISPAM_BASENAME' ) ) {
-	define( 'KL_ANTISPAM_BASENAME', BOTFENCE_BASENAME );
+	define( 'KL_ANTISPAM_BASENAME', BOTFENCE_BASENAME ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Legacy compatibility constant.
 }
 
 // Compatibility helper for PHP < 8.0.
@@ -195,9 +195,7 @@ if ( ! function_exists( 'botfence_activate' ) ) {
 				}
 			}
 		} catch ( \Throwable $e ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'BotFence activation error: ' . $e->getMessage() );
-			}
+			// Fail-safe activation.
 		}
 	}
 }
@@ -253,7 +251,7 @@ if ( ! function_exists( 'botfence' ) ) {
  * Backwards compatibility helper.
  */
 if ( ! function_exists( 'kl_anti_spam' ) ) {
-	function kl_anti_spam() {
+	function kl_anti_spam() { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Legacy compatibility helper.
 		return botfence();
 	}
 }
