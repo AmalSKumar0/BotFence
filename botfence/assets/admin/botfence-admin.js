@@ -16,7 +16,7 @@
 				$(this).addClass('active');
 
 				$('.botfence-tab-pane, .kl-tab-pane').hide();
-				$(target).fadeIn(150);
+				$(target).show();
 
 				// Update URL hash without jumping
 				if (history.pushState) {
@@ -25,9 +25,17 @@
 			}
 		});
 
-		// Activate tab from URL hash if present
-		if (window.location.hash && $(window.location.hash).length) {
-			$('.botfence-nav-tab[href="' + window.location.hash + '"], .kl-nav-tab[href="' + window.location.hash + '"]').first().trigger('click');
+		// Activate tab from URL hash or query param if present
+		var activeHash = window.location.hash;
+		if (!activeHash) {
+			var urlParams = new URLSearchParams(window.location.search);
+			var tabQuery = urlParams.get('tab');
+			if (tabQuery) {
+				activeHash = '#tab-' + tabQuery;
+			}
+		}
+		if (activeHash && $(activeHash).length) {
+			$('.botfence-nav-tab[href="' + activeHash + '"], .kl-nav-tab[href="' + activeHash + '"]').first().trigger('click');
 		}
 
 		// Switch tab button links (in-page buttons pointing to #tab-*)

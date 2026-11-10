@@ -121,7 +121,8 @@ class Admin {
 			&& ( check_admin_referer( 'botfence_save_settings_action', 'botfence_save_settings_nonce' ) || check_admin_referer( 'kl_save_settings_action', 'kl_save_settings_nonce' ) )
 		) {
 			$this->save_settings();
-			wp_safe_redirect( add_query_arg( array( 'page' => 'botfence', 'updated' => '1' ), admin_url( 'admin.php' ) ) );
+			$tab = isset( $_POST['botfence_current_tab'] ) ? sanitize_key( (string) $_POST['botfence_current_tab'] ) : 'dashboard';
+			wp_safe_redirect( add_query_arg( array( 'page' => 'botfence', 'tab' => $tab, 'updated' => '1' ), admin_url( 'admin.php#tab-' . $tab ) ) );
 			exit;
 		}
 
@@ -443,9 +444,11 @@ class Admin {
 	 * Renders the full admin page with tabs.
 	 */
 	public function render_admin_page(): void {
-		$stats    = $this->engine->get_logger()->get_stats();
-		$adapters = $this->detector->get_adapters();
-		$logs     = $this->engine->get_logger()->get_logs( array( 'per_page' => 20 ) );
+		$stats      = $this->engine->get_logger()->get_stats();
+		$adapters   = $this->detector->get_adapters();
+		$logs       = $this->engine->get_logger()->get_logs( array( 'per_page' => 20 ) );
+		$valid_tabs = array( 'dashboard', 'integrations', 'risk', 'rates', 'logs', 'diagnostics' );
+		$active_tab = isset( $_GET['tab'] ) && in_array( $_GET['tab'], $valid_tabs, true ) ? sanitize_key( (string) $_GET['tab'] ) : 'dashboard';
 
 		?>
 		<div class="wrap botfence-admin-wrap kl-admin-wrap">
@@ -477,16 +480,73 @@ class Admin {
 
 			<!-- Navigation Tabs -->
 			<nav class="botfence-nav-tabs kl-nav-tabs">
-				<a href="#tab-dashboard" class="botfence-nav-tab kl-nav-tab active"><span class="dashicons dashicons-dashboard"></span> <?php esc_html_e( 'Dashboard', 'botfence' ); ?></a>
-				<a href="#tab-integrations" class="botfence-nav-tab kl-nav-tab"><span class="dashicons dashicons-forms"></span> <?php esc_html_e( 'Form Integrations', 'botfence' ); ?></a>
-				<a href="#tab-risk" class="botfence-nav-tab kl-nav-tab"><span class="dashicons dashicons-chart-pie"></span> <?php esc_html_e( 'Risk & Security', 'botfence' ); ?></a>
-				<a href="#tab-rates" class="botfence-nav-tab kl-nav-tab"><span class="dashicons dashicons-clock"></span> <?php esc_html_e( 'Rate Limiting', 'botfence' ); ?></a>
-				<a href="#tab-logs" class="botfence-nav-tab kl-nav-tab"><span class="dashicons dashicons-list-view"></span> <?php esc_html_e( 'Logs & Activity', 'botfence' ); ?></a>
-				<a href="#tab-diagnostics" class="botfence-nav-tab kl-nav-tab"><span class="dashicons dashicons-admin-tools"></span> <?php esc_html_e( 'Diagnostics & Simulator', 'botfence' ); ?></a>
+				<a href="#tab-dashboard" class="botfence-nav-tab kl-nav-tab <?php echo 'dashboard' === $active_tab ? 'active' : ''; ?>"><span class="dashicons dashicons-dashboard"></span> <?php esc_html_e( 'Dashboard', 'botfence' ); ?></a>
+				<a href="#tab-integrations" class="botfence-nav-tab kl-nav-tab <?php echo 'integrations' === $active_tab ? 'active' : ''; ?>"><span class="dashicons dashicons-forms"></span> <?php esc_html_e( 'Form Integrations', 'botfence' ); ?></a>
+				<a href="#tab-risk" class="botfence-nav-tab kl-nav-tab <?php echo 'risk' === $active_tab ? 'active' : ''; ?>"><span class="dashicons dashicons-chart-pie"></span> <?php esc_html_e( 'Risk & Security', 'botfence' ); ?></a>
+				<a href="#tab-rates" class="botfence-nav-tab kl-nav-tab <?php echo 'rates' === $active_tab ? 'active' : ''; ?>"><span class="dashicons dashicons-clock"></span> <?php esc_html_e( 'Rate Limiting', 'botfence' ); ?></a>
+				<a href="#tab-logs" class="botfence-nav-tab kl-nav-tab <?php echo 'logs' === $active_tab ? 'active' : ''; ?>"><span class="dashicons dashicons-list-view"></span> <?php esc_html_e( 'Logs & Activity', 'botfence' ); ?></a>
+				<a href="#tab-diagnostics" class="botfence-nav-tab kl-nav-tab <?php echo 'diagnostics' === $active_tab ? 'active' : ''; ?>"><span class="dashicons dashicons-admin-tools"></span> <?php esc_html_e( 'Diagnostics & Simulator', 'botfence' ); ?></a>
 			</nav>
 
+			<!-- Instant Vanilla JS Tab Switcher Fallback -->
+			<script>
+				(function() {
+					function bfSwitchTab(targetId) {
+						if (!targetId || targetId.charAt(0) !== '#') return;
+						var tabs = document.querySelectorAll('.botfence-nav-tab, .kl-nav-tab');
+						var panes = document.querySelectorAll('.botfence-tab-pane, .kl-tab-pane');
+						var targetPane = document.querySelector(targetId);
+						if (!targetPane) return;
+
+						tabs.forEach(function(t) { t.classList.remove('active'); });
+						panes.forEach(function(p) { p.style.display = 'none'; });
+
+						var activeLink = document.querySelector('.botfence-nav-tab[href="' + targetId + '"], .kl-nav-tab[href="' + targetId + '"]');
+						if (activeLink) activeLink.classList.add('active');
+						targetPane.style.display = 'block';
+
+						if (window.history && window.history.replaceState) {
+							window.history.replaceState(null, null, targetId);
+						}
+					}
+
+					document.addEventListener('DOMContentLoaded', function() {
+						var tabs = document.querySelectorAll('.botfence-nav-tab, .kl-nav-tab');
+						tabs.forEach(function(tab) {
+							tab.addEventListener('click', function(e) {
+								var href = this.getAttribute('href');
+								if (href && href.charAt(0) === '#') {
+									e.preventDefault();
+									bfSwitchTab(href);
+								}
+							});
+						});
+
+						var switchBtns = document.querySelectorAll('.botfence-switch-tab-btn');
+						switchBtns.forEach(function(btn) {
+							btn.addEventListener('click', function(e) {
+								var href = this.getAttribute('href');
+								if (href && href.charAt(0) === '#') {
+									e.preventDefault();
+									bfSwitchTab(href);
+									var nav = document.querySelector('.botfence-nav-tabs');
+									if (nav) {
+										window.scrollTo({ top: nav.offsetTop - 40, behavior: 'smooth' });
+									}
+								}
+							});
+						});
+
+						var hash = window.location.hash;
+						if (hash && document.querySelector(hash)) {
+							bfSwitchTab(hash);
+						}
+					});
+				})();
+			</script>
+
 			<!-- TAB 1: DASHBOARD -->
-			<div id="tab-dashboard" class="botfence-tab-pane kl-tab-pane">
+			<div id="tab-dashboard" class="botfence-tab-pane kl-tab-pane" style="<?php echo 'dashboard' === $active_tab ? '' : 'display: none;'; ?>">
 				<!-- Hero Stats Banner: Spams Blocked Till Now -->
 				<div class="botfence-hero-banner">
 					<div class="botfence-hero-top">
@@ -734,9 +794,10 @@ class Admin {
 			</div>
 
 			<!-- TAB 2: INTEGRATIONS -->
-			<div id="tab-integrations" class="botfence-tab-pane kl-tab-pane" style="display: none;">
+			<div id="tab-integrations" class="botfence-tab-pane kl-tab-pane" style="<?php echo 'integrations' === $active_tab ? '' : 'display: none;'; ?>">
 				<form method="post" action="">
 					<?php wp_nonce_field( 'botfence_save_settings_action', 'botfence_save_settings_nonce' ); ?>
+					<input type="hidden" name="botfence_current_tab" value="integrations" />
 					<div class="botfence-panel kl-panel">
 						<h2 class="botfence-panel-title kl-panel-title"><?php esc_html_e( 'Universal Form Builder Protections', 'botfence' ); ?></h2>
 						<p class="description">
@@ -789,9 +850,10 @@ class Admin {
 			</div>
 
 			<!-- TAB 3: RISK & SECURITY -->
-			<div id="tab-risk" class="botfence-tab-pane kl-tab-pane" style="display: none;">
+			<div id="tab-risk" class="botfence-tab-pane kl-tab-pane" style="<?php echo 'risk' === $active_tab ? '' : 'display: none;'; ?>">
 				<form method="post" action="">
 					<?php wp_nonce_field( 'botfence_save_settings_action', 'botfence_save_settings_nonce' ); ?>
+					<input type="hidden" name="botfence_current_tab" value="risk" />
 					<div class="botfence-panel kl-panel">
 						<h2 class="botfence-panel-title kl-panel-title"><?php esc_html_e( 'Risk Thresholds & Decision Logic', 'botfence' ); ?></h2>
 						<p class="description"><?php esc_html_e( 'Configure how the risk engine evaluates composite scores (0 to 100 points).', 'botfence' ); ?></p>
@@ -884,9 +946,10 @@ class Admin {
 			</div>
 
 			<!-- TAB 4: RATE LIMITING -->
-			<div id="tab-rates" class="botfence-tab-pane kl-tab-pane" style="display: none;">
+			<div id="tab-rates" class="botfence-tab-pane kl-tab-pane" style="<?php echo 'rates' === $active_tab ? '' : 'display: none;'; ?>">
 				<form method="post" action="">
 					<?php wp_nonce_field( 'botfence_save_settings_action', 'botfence_save_settings_nonce' ); ?>
+					<input type="hidden" name="botfence_current_tab" value="rates" />
 					<div class="botfence-panel kl-panel">
 						<h2 class="botfence-panel-title kl-panel-title"><?php esc_html_e( 'Submission Frequency & Rate Limits', 'botfence' ); ?></h2>
 						<div class="botfence-form-grid kl-form-grid">
@@ -957,7 +1020,7 @@ class Admin {
 			</div>
 
 			<!-- TAB 5: LOGS -->
-			<div id="tab-logs" class="botfence-tab-pane kl-tab-pane" style="display: none;">
+			<div id="tab-logs" class="botfence-tab-pane kl-tab-pane" style="<?php echo 'logs' === $active_tab ? '' : 'display: none;'; ?>">
 				<div class="botfence-panel kl-panel">
 					<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
 						<h2 class="botfence-panel-title kl-panel-title" style="margin: 0;"><?php esc_html_e( 'Submission Audit Logs', 'botfence' ); ?></h2>
@@ -1038,7 +1101,7 @@ class Admin {
 			</div>
 
 			<!-- TAB 6: DIAGNOSTICS & SIMULATOR -->
-			<div id="tab-diagnostics" class="botfence-tab-pane kl-tab-pane" style="display: none;">
+			<div id="tab-diagnostics" class="botfence-tab-pane kl-tab-pane" style="<?php echo 'diagnostics' === $active_tab ? '' : 'display: none;'; ?>">
 				<div class="botfence-panel kl-panel">
 					<h2 class="botfence-panel-title kl-panel-title"><?php esc_html_e( 'Interactive Protection Simulator', 'botfence' ); ?></h2>
 					<p class="description">

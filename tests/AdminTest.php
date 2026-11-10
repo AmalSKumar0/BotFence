@@ -41,7 +41,27 @@ class AdminTest extends TestCase {
 		$this->assertStringContainsString( 'Protected Adapters', $output );
 		$this->assertStringContainsString( '/ 10', $output );
 		$this->assertStringContainsString( 'Spams Blocked Till Now', $output );
-		$this->assertStringContainsString( 'Form Integrations', $output );
+		$this->assertStringContainsString( 'id="tab-dashboard"', $output );
+		$this->assertStringContainsString( 'id="tab-integrations"', $output );
+		$this->assertStringContainsString( 'id="tab-risk"', $output );
+		$this->assertStringContainsString( 'id="tab-rates"', $output );
+		$this->assertStringContainsString( 'id="tab-logs"', $output );
+		$this->assertStringContainsString( 'id="tab-diagnostics"', $output );
+	}
+
+	public function test_all_six_tabs_accessible_via_query_param(): void {
+		$tabs = array( 'dashboard', 'integrations', 'risk', 'rates', 'logs', 'diagnostics' );
+
+		foreach ( $tabs as $tab ) {
+			$_GET['tab'] = $tab;
+			ob_start();
+			$this->admin->render_admin_page();
+			$output = ob_get_clean();
+
+			$this->assertStringContainsString( 'href="#tab-' . $tab . '" class="botfence-nav-tab kl-nav-tab active"', $output );
+			$this->assertStringContainsString( 'id="tab-' . $tab . '" class="botfence-tab-pane kl-tab-pane" style=""', $output );
+		}
+		unset( $_GET['tab'] );
 	}
 
 	public function test_adapters_implement_is_detected_alias(): void {
