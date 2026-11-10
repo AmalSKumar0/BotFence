@@ -178,6 +178,22 @@ if ( ! function_exists( 'botfence_activate' ) ) {
 					wp_schedule_event( time() + 3600, 'hourly', 'botfence_cleanup_cron' );
 				}
 			}
+
+			// Clean up any stale active_plugins entries from legacy plugin filenames to prevent file_get_contents warnings.
+			if ( function_exists( 'get_option' ) && function_exists( 'update_option' ) ) {
+				$active_plugins = get_option( 'active_plugins' );
+				if ( is_array( $active_plugins ) ) {
+					$legacy_entries = array(
+						'botfence/BotFence.php',
+						'botfence/kl-universal-anti-spam.php',
+						'kl-universal-anti-spam/kl-universal-anti-spam.php',
+					);
+					$clean_plugins  = array_values( array_diff( $active_plugins, $legacy_entries ) );
+					if ( count( $clean_plugins ) !== count( $active_plugins ) ) {
+						update_option( 'active_plugins', $clean_plugins );
+					}
+				}
+			}
 		} catch ( \Throwable $e ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( 'BotFence activation error: ' . $e->getMessage() );

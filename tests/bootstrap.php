@@ -321,8 +321,33 @@ function esc_html__( $text, $domain = 'default' ) {
 	return htmlspecialchars( $text, ENT_NOQUOTES, 'UTF-8' );
 }
 
+function esc_html_e( $text, $domain = 'default' ) {
+	echo htmlspecialchars( $text, ENT_NOQUOTES, 'UTF-8' );
+}
+
 function esc_attr__( $text, $domain = 'default' ) {
 	return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' );
+}
+
+function esc_attr_e( $text, $domain = 'default' ) {
+	echo htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' );
+}
+
+function checked( $checked, $current = true, $echo = true ) {
+	$result = ( (string) $checked === (string) $current ) ? ' checked="checked"' : '';
+	if ( $echo ) {
+		echo $result;
+	}
+	return $result;
+}
+
+function wp_nonce_field( $action = -1, $name = '_wpnonce', $referer = true, $echo = true ) {
+	$nonce = wp_create_nonce( $action );
+	$html  = '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( $nonce ) . '" />';
+	if ( $echo ) {
+		echo $html;
+	}
+	return $html;
 }
 
 function number_format_i18n( $number ) {

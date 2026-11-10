@@ -38,6 +38,15 @@ interface Form_Adapter_Interface {
 	public function is_available(): bool;
 
 	/**
+	 * Detects whether the form builder plugin is currently active / detected.
+	 *
+	 * Alias of is_available().
+	 *
+	 * @return bool
+	 */
+	public function is_detected(): bool;
+
+	/**
 	 * Checks whether protection for this form builder is enabled in settings.
 	 *
 	 * @return bool

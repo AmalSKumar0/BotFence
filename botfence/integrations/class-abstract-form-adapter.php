@@ -58,6 +58,17 @@ abstract class Abstract_Form_Adapter implements Form_Adapter_Interface {
 	}
 
 	/**
+	 * Detects whether the form builder plugin is currently active / detected.
+	 *
+	 * Alias for is_available().
+	 *
+	 * @return bool
+	 */
+	public function is_detected(): bool {
+		return $this->is_available();
+	}
+
+	/**
 	 * Generates hidden anti-spam fields (honeypot, cryptographic token, telemetry placeholder).
 	 *
 	 * @param string $form_id Form identifier.

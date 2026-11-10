@@ -566,7 +566,24 @@ class Admin {
 						<div class="botfence-metric-label kl-metric-label"><?php esc_html_e( 'Protected Adapters', 'botfence' ); ?></div>
 						<div class="botfence-metric-value kl-metric-value">
 							<?php
-							$active_adapters = count( array_filter( $adapters, fn( $a ) => $a['adapter']->is_detected() ) );
+							$active_adapters = count(
+								array_filter(
+									$adapters,
+									static function( $a ) {
+										if ( is_object( $a ) && method_exists( $a, 'is_available' ) ) {
+											return $a->is_available() && ( ! method_exists( $a, 'is_enabled' ) || $a->is_enabled() );
+										}
+										if ( is_array( $a ) ) {
+											$adapter = $a['adapter'] ?? null;
+											if ( is_object( $adapter ) && method_exists( $adapter, 'is_available' ) ) {
+												return $adapter->is_available() && ( ! method_exists( $adapter, 'is_enabled' ) || $adapter->is_enabled() );
+											}
+											return ! empty( $a['is_available'] ) && ! empty( $a['is_enabled'] );
+										}
+										return false;
+									}
+								)
+							);
 							echo esc_html( $active_adapters . ' / ' . count( $adapters ) );
 							?>
 						</div>
