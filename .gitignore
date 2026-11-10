@@ -6,3 +6,4 @@
 !.env.example
 frontend/node_modules/
 frontend/dist/
+.aistudio/
