@@ -14,26 +14,24 @@ export default function App() {
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#FAF9FD] text-[#0D0C15] font-sans antialiased selection:bg-[#EDE9FE] selection:text-[#5B42F3]">
-      {/* 
-        NO NAVBAR as explicitly requested in prompt:
-        "i want you to create a site with no navbar, herosection 'Stop Bots. Protect Every Form'"
-      */}
-      <main>
-        {/* 1. Hero Section with 3D Three.js Suspended Kinetic Defense Core */}
-        <HeroSection onOpenDownload={() => setIsDownloadOpen(true)} />
+    <div className="min-h-screen bg-[#EFE8DE] text-[#121110] font-sans antialiased selection:bg-[#E8A588]/30 selection:text-[#121110] p-2 sm:p-6 lg:p-8 flex flex-col items-center justify-start">
+      <div className="w-full max-w-[1380px] bg-white rounded-[32px] sm:rounded-[48px] shadow-2xl border border-[#E5DDCF] overflow-hidden flex flex-col">
+        <main className="w-full">
+          {/* 1. Hero Section inspired by Editorial Design */}
+          <HeroSection onOpenDownload={() => setIsDownloadOpen(true)} />
 
-        {/* 2. Key Features Section with Animated Icon Cards */}
-        <KeyFeaturesSection />
+          {/* 2. Key Features & How It Works */}
+          <KeyFeaturesSection />
 
-        {/* 3. Rapid 60-Second Installation, Comparison Matrix & FAQ */}
-        <FaqAndInstallSection onOpenDownload={() => setIsDownloadOpen(true)} />
-      </main>
+          {/* 3. Installation, Comparison Matrix & FAQ */}
+          <FaqAndInstallSection onOpenDownload={() => setIsDownloadOpen(true)} />
+        </main>
 
-      {/* 4. Redesigned Minimal Mobbin Footer with Developer Credit */}
-      <FooterSection onOpenDownload={() => setIsDownloadOpen(true)} />
+        {/* 4. Minimalist Editorial Footer */}
+        <FooterSection onOpenDownload={() => setIsDownloadOpen(true)} />
+      </div>
 
-      {/* 5. Requested Download Modal */}
+      {/* 5. Download Modal */}
       <DownloadModal
         isOpen={isDownloadOpen}
         onClose={() => setIsDownloadOpen(false)}
