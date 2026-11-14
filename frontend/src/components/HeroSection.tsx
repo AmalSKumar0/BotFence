@@ -66,27 +66,27 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDownload }) => {
           </button>
         </div>
 
-        {/* Massive Headline (Exact Match to Reference Layout) */}
+        {/* Massive Headline */}
         <div className="text-left space-y-1 sm:space-y-2">
           
-          <div className="text-5xl sm:text-7xl md:text-8xl lg:text-[104px] font-[850] tracking-tight leading-[0.92] text-white">
-            WE ARE
+          <div className="text-4xl sm:text-6xl md:text-7xl lg:text-[96px] font-[850] tracking-tight leading-[0.92] text-white">
+            WE PREVENT BOTS
           </div>
 
-          <div className="text-5xl sm:text-7xl md:text-8xl lg:text-[104px] font-[850] tracking-tight leading-[0.92] text-white">
-            FULL–STACK
+          <div className="text-4xl sm:text-6xl md:text-7xl lg:text-[96px] font-[850] tracking-tight leading-[0.92] text-white">
+            FROM SPAMMING
           </div>
 
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pt-1 sm:pt-2">
             
             {/* Serif Italic Accent Word */}
-            <div className="font-serif italic text-5xl sm:text-7xl md:text-8xl lg:text-[104px] font-normal tracking-wide text-white leading-[0.92]">
-              DEFENSE
+            <div className="font-serif italic text-4xl sm:text-6xl md:text-7xl lg:text-[96px] font-normal tracking-wide text-white leading-[0.92]">
+              YOUR FORMS.
             </div>
 
             {/* Micro Paragraph to the Right of Headline */}
             <div className="max-w-md text-xs sm:text-sm text-[#8E8E8E] leading-relaxed pb-2">
-              The premier invisible WordPress anti-spam plugin integrating local heuristics, dynamic honeypots, and HMAC signatures to deliver best-in-class form protection.
+              Invisible anti-spam protection for WordPress. Blocks automated bot submissions with zero puzzles, zero tracking, and zero external SaaS dependencies.
             </div>
 
           </div>

@@ -203,27 +203,22 @@ export const FaqAndInstallSection: React.FC<FaqAndInstallSectionProps> = ({ onOp
           </div>
         </div>
 
-        {/* 4. Bottom Studio CTA Callout with Radial Glow */}
-        <div className="relative rounded-[32px] overflow-hidden border border-[#222222] bg-[#121212] p-8 sm:p-16 text-center space-y-6">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_70%)] pointer-events-none" />
+        {/* 4. Minimal Studio CTA Callout */}
+        <div className="relative rounded-[28px] overflow-hidden border border-[#222222] bg-[#121212] p-8 sm:p-14 text-center space-y-4">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06),transparent_70%)] pointer-events-none" />
 
-          <div className="relative z-10 w-12 h-12 rounded-2xl bg-[#1C1C1C] border border-[#2E2E2E] text-white flex items-center justify-center mx-auto">
-            <ShieldCheck className="w-6 h-6 stroke-[2.2] text-[#FF4D6D]" />
-          </div>
-
-          <h2 className="relative z-10 text-3xl sm:text-5xl font-[850] tracking-tight text-white">
-            Ready to protect your WordPress forms?
+          <h2 className="relative z-10 text-2xl sm:text-4xl font-[850] tracking-tight text-white">
+            We prevent bots from spamming your forms.
           </h2>
-          <p className="relative z-10 text-xs sm:text-sm text-[#8E8E8E] max-w-lg mx-auto leading-relaxed">
-            Download the free plugin package now. Takes under a minute to install with zero configuration needed.
+          <p className="relative z-10 text-xs sm:text-sm text-[#8E8E8E] max-w-md mx-auto leading-relaxed">
+            100% free, privacy-first, zero-configuration WordPress plugin.
           </p>
           <div className="relative z-10 pt-2">
             <button
               type="button"
               onClick={onOpenDownload}
-              className="pill-button inline-flex items-center gap-2 bg-white text-black font-semibold text-sm px-8 py-4 hover:bg-neutral-200 cursor-pointer shadow-lg transition-all"
+              className="pill-button inline-flex items-center gap-2 bg-white text-black font-semibold text-xs sm:text-sm px-7 py-3.5 hover:bg-neutral-200 cursor-pointer shadow-md transition-all"
             >
-              <Download className="w-4 h-4" />
               <span>Download Vighnaghna (.zip)</span>
               <ArrowRight className="w-4 h-4" />
             </button>
