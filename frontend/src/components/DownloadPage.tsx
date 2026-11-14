@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, Check, ShieldCheck, ArrowLeft, Download, Copy, CheckCheck } from 'lucide-react';
+import { Download, Check, ShieldCheck, ArrowLeft, ArrowRight, Copy, CheckCheck } from 'lucide-react';
 import { validateDownloadForm } from '../utils/vighnaghna-engine';
 import { sendTelegramNotification } from '../utils/telegram';
 
@@ -7,28 +7,10 @@ interface DownloadPageProps {
   onBackHome: () => void;
 }
 
-// Decorative floating petals matching the reference design screenshot
-const PETALS = [
-  { top: '15%', left: '15%', rotate: '-25deg', size: '14px', opacity: 0.35 },
-  { top: '13%', left: '21%', rotate: '15deg', size: '18px', opacity: 0.45 },
-  { top: '19%', left: '27%', rotate: '45deg', size: '13px', opacity: 0.3 },
-  { top: '22%', left: '14%', rotate: '-65deg', size: '15px', opacity: 0.38 },
-  { top: '29%', left: '28%', rotate: '30deg', size: '12px', opacity: 0.25 },
-  { top: '22%', left: '61%', rotate: '18deg', size: '15px', opacity: 0.4 },
-  { top: '28%', left: '62%', rotate: '-35deg', size: '12px', opacity: 0.3 },
-  { top: '58%', left: '58%', rotate: '70deg', size: '16px', opacity: 0.35 },
-  { top: '66%', left: '69%', rotate: '-15deg', size: '17px', opacity: 0.3 },
-  { top: '57%', left: '84%', rotate: '-45deg', size: '18px', opacity: 0.4 },
-  { top: '78%', left: '83%', rotate: '35deg', size: '16px', opacity: 0.35 },
-  { top: '79%', left: '84%', rotate: '-70deg', size: '13px', opacity: 0.4 },
-];
-
 export const DownloadPage: React.FC<DownloadPageProps> = ({ onBackHome }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [projectDescription, setProjectDescription] = useState('');
-  const [wouldReview, setWouldReview] = useState(true);
+  const [sendUpdates, setSendUpdates] = useState(true);
 
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,11 +36,10 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onBackHome }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
     const validation = validateDownloadForm({
-      name: fullName || firstName.trim(),
+      name: name.trim(),
       email: email.trim(),
-      wouldReview,
+      wouldReview: sendUpdates,
     });
 
     if (!validation.valid) {
@@ -70,16 +51,15 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onBackHome }) => {
     setIsSubmitting(true);
 
     try {
-      // 1. Dispatch Telegram notification to site owner
+      // 1. Send download notification via Telegram
       await sendTelegramNotification({
-        name: fullName,
+        name: name.trim(),
         email: email.trim(),
-        wouldReview,
-        projectDescription: projectDescription.trim(),
+        wouldReview: sendUpdates,
         timestamp: new Date().toLocaleString(),
       });
 
-      // 2. Trigger automatic direct download of the official zip package
+      // 2. Trigger direct zip package download in browser
       triggerZipDownload();
       setDownloadSuccess(true);
     } catch (err) {
@@ -97,247 +77,197 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onBackHome }) => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#0E0C12] text-white flex flex-col justify-between p-6 sm:p-12 lg:p-16 select-none overflow-x-hidden">
+    <div className="min-h-screen w-full bg-[#0A0A0A] dark-studio-glow text-white flex flex-col justify-between p-6 sm:p-12 lg:p-16 select-none overflow-x-hidden">
       
-      {/* Decorative Scattered Floating Petals from Reference Design */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-        {PETALS.map((petal, i) => (
-          <svg
-            key={i}
-            className="absolute transition-transform duration-1000 ease-out"
-            style={{
-              top: petal.top,
-              left: petal.left,
-              transform: `rotate(${petal.rotate})`,
-              width: petal.size,
-              height: petal.size,
-              opacity: petal.opacity,
-            }}
-            viewBox="0 0 24 24"
-            fill="#7C6E96"
-          >
-            <path d="M12 2C7 8 2 12 2 17a10 10 0 0 0 20 0c0-5-5-9-10-15z" />
-          </svg>
-        ))}
-      </div>
-
-      {/* Top Bar: Back to Home Link */}
-      <header className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-between pb-8">
+      {/* 1. Header Bar: Return to Home + Brand Identity */}
+      <header className="w-full max-w-7xl mx-auto flex items-center justify-between pb-8 border-b border-[#1C1C1C]">
         <button
           type="button"
           onClick={onBackHome}
-          className="inline-flex items-center gap-2 text-xs text-[#8E869E] hover:text-white transition-colors cursor-pointer group tracking-wide"
+          className="inline-flex items-center gap-2 text-xs text-[#8E8E8E] hover:text-white transition-colors cursor-pointer group tracking-wide"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span>Back to home</span>
+          <span>Back to site</span>
         </button>
 
-        <div className="text-xs tracking-[0.2em] uppercase font-bold text-white">
-          VIGHNAGHNA
+        <div className="flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-bold text-white">
+          <span>VIGHNAGHNA</span>
+          <span className="font-serif italic text-[#8E8E8E] font-normal normal-case hidden sm:inline">
+            (विघ्नघ्न)
+          </span>
         </div>
       </header>
 
 
-      {/* Main Two-Column Content Layout (Exact Match to Screenshot) */}
-      <main className="relative z-10 w-full max-w-7xl mx-auto my-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start py-8">
+      {/* 2. Main Body Grid: Product Architecture & Specifications on Left, Underline Form on Right */}
+      <main className="w-full max-w-7xl mx-auto my-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start py-12 sm:py-16">
         
-        {/* Left Column: Heading + Contact Info */}
-        <div className="lg:col-span-5 text-left flex flex-col justify-between space-y-12">
+        {/* Left Column: Product Identity & Architecture */}
+        <div className="lg:col-span-5 text-left flex flex-col justify-between space-y-10">
           
-          {/* Giant Title */}
-          <div>
-            <h1 className="text-6xl sm:text-7xl lg:text-[88px] font-[850] text-white tracking-tight leading-[0.95] mb-12 sm:mb-16">
-              Get plugin
-            </h1>
-
-            {/* LOCATION & YEAR */}
-            <div className="space-y-1 mb-10">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-[#7E778B] font-semibold">
-                LOCATION & YEAR
-              </div>
-              <div className="text-sm text-[#B2A9C4] font-medium">
-                Kerala, India © 2026
-              </div>
+          {/* Display Typography (Matches Hero Editorial Style) */}
+          <div className="space-y-1 sm:space-y-2">
+            <div className="text-5xl sm:text-7xl lg:text-[84px] font-[850] tracking-tight leading-[0.92] text-white">
+              GET
             </div>
-
-            {/* Contact Details */}
-            <div className="space-y-3">
-              <a
-                href="mailto:amalskumardev@gmail.com"
-                className="block text-2xl sm:text-3xl font-[800] text-white hover:text-neutral-300 transition-colors tracking-tight"
-              >
-                amalskumardev@gmail.com
-              </a>
-              <a
-                href="tel:+918590774603"
-                className="block text-2xl sm:text-3xl font-[800] text-white hover:text-neutral-300 transition-colors tracking-tight"
-              >
-                +91 85907 74603
-              </a>
+            <div className="font-serif italic text-5xl sm:text-7xl lg:text-[84px] font-normal tracking-wide text-white leading-[0.92]">
+              VIGHNAGHNA
             </div>
           </div>
 
-          {/* Left Footer Bar */}
-          <div className="pt-8 border-t border-[#231E2D] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-[#7E778B]">
-            <div>
-              <div>Kerala, India / 2026</div>
-              <div>Say hello: Work with us</div>
+          <p className="text-xs sm:text-sm text-[#8E8E8E] leading-relaxed max-w-md">
+            Lightweight, invisible anti-spam protection for WordPress forms. Blocks automated bot submissions with zero puzzles, zero tracking cookies, and zero external SaaS dependencies.
+          </p>
+
+          {/* Technical Specifications */}
+          <div className="grid grid-cols-2 gap-6 pt-2 border-t border-[#1C1C1C]">
+            <div className="space-y-1">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-[#8E8E8E] font-semibold">
+                COMPATIBILITY
+              </div>
+              <div className="text-xs sm:text-sm text-neutral-300 font-medium">
+                WordPress 5.9+ • PHP 7.4–8.5+
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <a
-                href="https://github.com/AmalSKumar0/BotFence"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-white transition-colors"
-              >
-                GitHub
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-white transition-colors"
-              >
-                LinkedIn
-              </a>
-              <a
-                href="mailto:amalskumardev@gmail.com"
-                className="hover:text-white transition-colors"
-              >
-                Email
-              </a>
+
+            <div className="space-y-1">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-[#8E8E8E] font-semibold">
+                PACKAGE
+              </div>
+              <div className="text-xs sm:text-sm text-neutral-300 font-medium">
+                v1.0.0 • GPL-2.0+ License
+              </div>
+            </div>
+          </div>
+
+          {/* Core Defense Pillars */}
+          <div className="space-y-2.5 pt-2 text-xs text-[#8E8E8E]">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D]" />
+              <span>Sub-2ms in-memory execution with zero database bloat</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D]" />
+              <span>Polymorphic honeypots invisible to legitimate human visitors</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D]" />
+              <span>Native hooks for Contact Form 7, WPForms, Gravity & WooCommerce</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D]" />
+              <span>100% GDPR compliant with zero external cloud requests</span>
             </div>
           </div>
 
         </div>
 
 
-        {/* Right Column: Underline Form Fields (Exact Match to Screenshot) */}
+        {/* Right Column: Underline Form matching Dark Studio Theme */}
         <div className="lg:col-span-7 w-full text-left">
           
           {!downloadSuccess ? (
             <form onSubmit={handleSubmit} noValidate className="space-y-8 max-w-xl lg:ml-auto">
               
-              {/* Row 1: FIRST NAME & LAST NAME */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                
-                {/* First Name */}
-                <div className="space-y-2">
-                  <label htmlFor="first-name" className="block text-[11px] uppercase tracking-[0.22em] text-[#7E778B] font-semibold">
-                    FIRST NAME
-                  </label>
-                  <input
-                    id="first-name"
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => {
-                      setFirstName(e.target.value);
-                      if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
-                    }}
-                    placeholder="Amal S"
-                    className="w-full bg-transparent border-b border-[#2C2538] focus:border-white focus:outline-none py-2 text-white placeholder-[#514B60] text-base transition-colors"
-                  />
-                  {errors.name && (
-                    <p className="text-xs text-rose-400 font-medium pt-1">{errors.name}</p>
-                  )}
-                </div>
-
-                {/* Last Name */}
-                <div className="space-y-2">
-                  <label htmlFor="last-name" className="block text-[11px] uppercase tracking-[0.22em] text-[#7E778B] font-semibold">
-                    LAST NAME
-                  </label>
-                  <input
-                    id="last-name"
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Kumar"
-                    className="w-full bg-transparent border-b border-[#2C2538] focus:border-white focus:outline-none py-2 text-white placeholder-[#514B60] text-base transition-colors"
-                  />
-                </div>
-
+              <div>
+                <h2 className="text-xl sm:text-2xl font-[850] text-white tracking-tight">
+                  Download Official Package
+                </h2>
+                <p className="text-xs text-[#8E8E8E] mt-1">
+                  Enter your details to generate your verified plugin download (.zip).
+                </p>
               </div>
 
-              {/* Row 2: EMAIL ADDRESS (REQUIRED) */}
+              {/* Field 1: NAME */}
               <div className="space-y-2">
-                <label htmlFor="email-address" className="block text-[11px] uppercase tracking-[0.22em] text-[#7E778B] font-semibold">
+                <label htmlFor="user-name" className="block text-[11px] uppercase tracking-[0.22em] text-[#8E8E8E] font-semibold">
+                  NAME OR AGENCY
+                </label>
+                <input
+                  id="user-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                  }}
+                  placeholder="e.g. Alex Rivera or Agency Name"
+                  className="w-full bg-transparent border-b border-[#222222] focus:border-white focus:outline-none py-3 text-white placeholder-neutral-600 text-sm sm:text-base transition-colors"
+                />
+                {errors.name && (
+                  <p className="text-xs text-rose-400 font-medium pt-1">{errors.name}</p>
+                )}
+              </div>
+
+              {/* Field 2: EMAIL ADDRESS (REQUIRED) */}
+              <div className="space-y-2">
+                <label htmlFor="user-email" className="block text-[11px] uppercase tracking-[0.22em] text-[#8E8E8E] font-semibold">
                   EMAIL ADDRESS (REQUIRED)
                 </label>
                 <input
-                  id="email-address"
+                  id="user-email"
                   type="email"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
                     if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
                   }}
-                  placeholder="amalskumar@gmail.com"
-                  className="w-full bg-transparent border-b border-[#2C2538] focus:border-white focus:outline-none py-2 text-white placeholder-[#514B60] text-base transition-colors"
+                  placeholder="e.g. alex@example.com"
+                  className="w-full bg-transparent border-b border-[#222222] focus:border-white focus:outline-none py-3 text-white placeholder-neutral-600 text-sm sm:text-base transition-colors"
                 />
                 {errors.email && (
                   <p className="text-xs text-rose-400 font-medium pt-1">{errors.email}</p>
                 )}
               </div>
 
-              {/* Row 3: PROJECT DESCRIPTION */}
-              <div className="space-y-2">
-                <label htmlFor="project-desc" className="block text-[11px] uppercase tracking-[0.22em] text-[#7E778B] font-semibold">
-                  PROJECT DESCRIPTION
-                </label>
-                <textarea
-                  id="project-desc"
-                  rows={3}
-                  value={projectDescription}
-                  onChange={(e) => setProjectDescription(e.target.value)}
-                  placeholder="Tell me about your project details, goals, timeline..."
-                  className="w-full bg-transparent border-b border-[#2C2538] focus:border-white focus:outline-none py-2 text-white placeholder-[#514B60] text-base resize-none transition-colors"
-                />
-              </div>
-
-              {/* Row 4: Review Option */}
+              {/* Field 3: Willing to Send Updation Mail Checkbox */}
               <div className="pt-2">
                 <label
-                  htmlFor="review-check"
+                  htmlFor="updates-check"
                   className="inline-flex items-center gap-3 cursor-pointer select-none group"
                 >
                   <input
-                    id="review-check"
+                    id="updates-check"
                     type="checkbox"
-                    checked={wouldReview}
-                    onChange={(e) => setWouldReview(e.target.checked)}
+                    checked={sendUpdates}
+                    onChange={(e) => setSendUpdates(e.target.checked)}
                     className="sr-only"
                   />
                   <div
                     aria-hidden="true"
                     className={`w-4 h-4 rounded-[4px] flex items-center justify-center transition-colors ${
-                      wouldReview ? 'bg-white text-black' : 'bg-transparent border border-[#3E354F]'
+                      sendUpdates ? 'bg-white text-black' : 'bg-transparent border border-[#333333]'
                     }`}
                   >
-                    {wouldReview && <Check className="w-3 h-3 stroke-[3]" />}
+                    {sendUpdates && <Check className="w-3 h-3 stroke-[3]" />}
                   </div>
-                  <span className="text-xs text-[#988EA8] group-hover:text-white transition-colors">
-                    Would love to give review after using this plugin
+                  <span className="text-xs text-[#8E8E8E] group-hover:text-white transition-colors">
+                    Send me plugin updates, security advisories, and release notes
                   </span>
                 </label>
               </div>
 
-              {/* Row 5: Submit Button (Exact Pill Button from Reference Image) */}
+              {/* Submit Button */}
               <div className="pt-4">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="pill-button px-8 py-3 bg-white text-black font-semibold text-sm hover:bg-neutral-200 transition-all cursor-pointer inline-flex items-center gap-2 shadow-lg disabled:opacity-60"
+                  className="pill-button px-8 py-3.5 bg-white text-black font-semibold text-sm hover:bg-neutral-200 transition-all cursor-pointer inline-flex items-center gap-2 shadow-lg disabled:opacity-60"
                 >
-                  <span>{isSubmitting ? 'Preparing...' : 'Submit'}</span>
-                  <Send className="w-3.5 h-3.5 -rotate-45" />
+                  <Download className="w-4 h-4" />
+                  <span>{isSubmitting ? 'Preparing plugin...' : 'Download Vighnaghna (.zip)'}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
+              </div>
+
+              <div className="text-[11px] text-[#555555]">
+                100% Free forever under GNU General Public License v2+. No spam, unsubscribe anytime.
               </div>
 
             </form>
           ) : (
             /* Instant Download Success State */
-            <div className="space-y-6 max-w-xl lg:ml-auto p-8 rounded-[28px] bg-[#16131C] border border-[#2B2438]">
+            <div className="card-dark-glass p-8 sm:p-10 space-y-6 max-w-xl lg:ml-auto">
               
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
@@ -347,21 +277,21 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onBackHome }) => {
                   <h3 className="text-xl font-bold text-white tracking-tight">
                     Download Started!
                   </h3>
-                  <p className="text-xs text-[#A79DBA] mt-1 leading-relaxed">
-                    Saved <span className="font-semibold text-white font-mono">{downloadedFileName}</span> to your computer.
+                  <p className="text-xs text-[#8E8E8E] mt-1 leading-relaxed">
+                    Saved <span className="font-semibold text-white font-mono">{downloadedFileName}</span> to your device.
                   </p>
                 </div>
               </div>
 
               {/* WP-CLI Quick Command */}
-              <div className="p-4 rounded-xl bg-[#0E0C12] border border-[#2B2438] flex items-center justify-between gap-3">
-                <code className="text-xs font-mono text-[#D4CDE3] truncate">
+              <div className="p-4 rounded-xl bg-[#0A0A0A] border border-[#222222] flex items-center justify-between gap-3">
+                <code className="text-xs font-mono text-neutral-300 truncate">
                   wp plugin install {downloadedFileName} --activate
                 </code>
                 <button
                   type="button"
                   onClick={handleCopyCli}
-                  className="pill-button px-3 py-1 bg-white/10 hover:bg-white hover:text-black text-white text-xs font-medium transition-colors cursor-pointer shrink-0 inline-flex items-center gap-1.5"
+                  className="pill-button px-3 py-1 bg-[#1F1F1F] hover:bg-white hover:text-black text-white text-xs font-medium transition-colors cursor-pointer shrink-0 inline-flex items-center gap-1.5"
                 >
                   {copiedCli ? (
                     <>
@@ -391,7 +321,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onBackHome }) => {
                 <button
                   type="button"
                   onClick={onBackHome}
-                  className="pill-button px-5 py-2.5 bg-transparent border border-[#3E354F] text-[#D4CDE3] hover:text-white hover:border-white font-medium text-xs transition-colors cursor-pointer"
+                  className="pill-button px-5 py-2.5 bg-transparent border border-[#2B2B2B] text-neutral-300 hover:text-white hover:border-white font-medium text-xs transition-colors cursor-pointer"
                 >
                   Return to Home
                 </button>
@@ -404,9 +334,9 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onBackHome }) => {
 
       </main>
 
-      {/* Subtle Bottom Credit */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto pt-8 text-center text-xs text-[#5E566E]">
-        Vighnaghna WordPress Plugin • Free & Open Source under GPL-2.0-or-later
+      {/* 3. Footer Bar */}
+      <footer className="w-full max-w-7xl mx-auto pt-8 border-t border-[#1C1C1C] text-center text-xs text-[#555555]">
+        Vighnaghna WordPress Plugin • Free & Open Source under GPL-2.0-or-later • No external SaaS calls
       </footer>
 
     </div>

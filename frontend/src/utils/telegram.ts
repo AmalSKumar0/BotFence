@@ -65,7 +65,7 @@ export async function sendTelegramNotification(
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 👤 <b>Name / Agency:</b> ${escapeHtml(data.name)}
 📧 <b>Email:</b> ${escapeHtml(data.email)}
-⭐ <b>Willing to Review:</b> ${data.wouldReview ? '✅ Yes' : '❌ No'}${projectDescLine}
+📬 <b>Updates & Release Notes:</b> ${data.wouldReview ? '✅ Subscribed' : '❌ Opted out'}${projectDescLine}
 🕒 <b>Timestamp:</b> ${escapeHtml(formattedTime)}
 📦 <b>Package:</b> vighnaghna.zip (WordPress Plugin v1.0.0)
 `.trim();
