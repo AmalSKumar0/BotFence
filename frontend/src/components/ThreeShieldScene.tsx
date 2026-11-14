@@ -78,15 +78,15 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     }
     scene.add(keyLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x141414, 1.25);
+    const hemiLight = new THREE.HemisphereLight(0xF7F1ED, 0x210918, 1.25);
     scene.add(hemiLight);
 
-    const rimLight = new THREE.DirectionalLight(0xdde5ff, 1.7);
+    const rimLight = new THREE.DirectionalLight(0xDCC9BE, 1.8);
     rimLight.position.set(-4, -1, -3);
     scene.add(rimLight);
 
-    // Electric cobalt core point light
-    const corePointLight = new THREE.PointLight(0x0066ff, 2.4, 6);
+    // Warm champagne & rose gold kinetic core point light
+    const corePointLight = new THREE.PointLight(0xDCC9BE, 2.6, 6);
     corePointLight.position.set(0, 0, 0);
     scene.add(corePointLight);
 
@@ -98,37 +98,37 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     kineticMasterGroup.scale.set(0.72, 0.72, 0.72); // Enlarged 3D figure as requested
     scene.add(kineticMasterGroup);
 
-    // --- Part 1: Outer Graphite Meridian Ring (Slow orbital track) ---
+    // --- Part 1: Outer Deep Wine-Plum Meridian Ring (#38142A) ---
     const outerRingGeo = new THREE.TorusGeometry(2.18, 0.024, 16, 80);
     const outerRingMat = new THREE.MeshStandardMaterial({
-      color: 0x1f1f23,
-      metalness: 0.92,
-      roughness: 0.28,
+      color: 0x38142A,
+      metalness: 0.88,
+      roughness: 0.22,
     });
     disposables.push(outerRingGeo, outerRingMat);
     const outerRingMesh = new THREE.Mesh(outerRingGeo, outerRingMat);
     kineticMasterGroup.add(outerRingMesh);
 
-    // --- Part 2: Middle Polished Chrome Gyro Ring ---
+    // --- Part 2: Middle Polished Champagne Gyro Ring (#DCC9BE) ---
     const midRingGeo = new THREE.TorusGeometry(1.86, 0.036, 16, 80);
     const midRingMat = new THREE.MeshPhysicalMaterial({
-      color: 0xf5f5f5,
-      metalness: 0.98,
-      roughness: 0.07,
-      clearcoat: 0.9,
+      color: 0xDCC9BE,
+      metalness: 0.96,
+      roughness: 0.08,
+      clearcoat: 0.92,
     });
     disposables.push(midRingGeo, midRingMat);
     const midRingMesh = new THREE.Mesh(midRingGeo, midRingMat);
     midRingMesh.rotation.x = Math.PI / 4;
     kineticMasterGroup.add(midRingMesh);
 
-    // --- Part 3: Inner Satin Titanium Equatorial Ring ---
+    // --- Part 3: Inner Royal Plum Equatorial Ring (#4E223C) ---
     const innerRingGeo = new THREE.TorusGeometry(1.54, 0.044, 16, 80);
     const innerRingMat = new THREE.MeshPhysicalMaterial({
-      color: 0x141414,
+      color: 0x4E223C,
       metalness: 0.9,
-      roughness: 0.2,
-      clearcoat: 0.6,
+      roughness: 0.18,
+      clearcoat: 0.7,
     });
     disposables.push(innerRingGeo, innerRingMat);
     const innerRingMesh = new THREE.Mesh(innerRingGeo, innerRingMat);
@@ -139,10 +139,10 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     const notchCount = 18;
     const notchGeo = new THREE.BoxGeometry(0.025, 0.07, 0.04);
     const notchMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
+      color: 0xDCC9BE,
       metalness: 0.95,
       roughness: 0.1,
-      emissive: 0x333333,
+      emissive: 0x38142A,
     });
     disposables.push(notchGeo, notchMat);
     const notchInstances = new THREE.InstancedMesh(notchGeo, notchMat, notchCount);
@@ -159,16 +159,16 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     notchInstances.instanceMatrix.needsUpdate = true;
     innerRingMesh.add(notchInstances);
 
-    // --- Part 5: Central Obsidian Polyhedral Prism Core (Translucent Facets + Crisp Diamond Edges) ---
+    // --- Part 5: Central Deep Plum Polyhedral Prism Core (#210918) ---
     const coreGeo = new THREE.IcosahedronGeometry(0.85, 0);
     const coreMat = new THREE.MeshPhysicalMaterial({
-      color: 0x141418,
-      metalness: 0.86,
+      color: 0x210918,
+      metalness: 0.85,
       roughness: 0.12,
       clearcoat: 1.0,
       clearcoatRoughness: 0.08,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.88,
     });
     disposables.push(coreGeo, coreMat);
     const coreMesh = new THREE.Mesh(coreGeo, coreMat);
@@ -176,41 +176,41 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     coreMesh.receiveShadow = !isSoftwareGl;
     kineticMasterGroup.add(coreMesh);
 
-    // Crisp diamond-cut wireframe edges overlay
+    // Crisp champagne diamond-cut wireframe edges overlay (#DCC9BE)
     const coreEdgesGeo = new THREE.EdgesGeometry(coreGeo);
     const coreEdgesMat = new THREE.LineBasicMaterial({
-      color: 0xffffff,
+      color: 0xDCC9BE,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.75,
     });
     disposables.push(coreEdgesGeo, coreEdgesMat);
     const coreEdgesMesh = new THREE.LineSegments(coreEdgesGeo, coreEdgesMat);
     coreMesh.add(coreEdgesMesh);
 
-    // --- Part 6: Nested Quantum Luminescent Heart (Vibrant Glowing Blue Octahedron) ---
+    // --- Part 6: Nested Rose Gold & Royal Plum Luminescent Heart ---
     const heartGeo = new THREE.OctahedronGeometry(0.5, 0);
     const heartMat = new THREE.MeshStandardMaterial({
-      color: 0x0066ff,
-      emissive: 0x0066ff,
-      emissiveIntensity: 1.9,
-      metalness: 0.7,
-      roughness: 0.2,
+      color: 0xB49F99,
+      emissive: 0x4E223C,
+      emissiveIntensity: 1.8,
+      metalness: 0.8,
+      roughness: 0.16,
       wireframe: false,
     });
     disposables.push(heartGeo, heartMat);
     const heartMesh = new THREE.Mesh(heartGeo, heartMat);
     kineticMasterGroup.add(heartMesh);
 
-    // --- Part 7: Planetary Defense Sentinels (Orbiting Micro-Octahedra) ---
+    // --- Part 7: Planetary Defense Sentinels (Orbiting Champagne Micro-Octahedra) ---
     const sentinelGroup = new THREE.Group();
     kineticMasterGroup.add(sentinelGroup);
 
     const sentinelGeo = new THREE.OctahedronGeometry(0.12, 0);
     const sentinelMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
+      color: 0xDCC9BE,
       metalness: 0.95,
-      roughness: 0.12,
-      emissive: 0x333333,
+      roughness: 0.1,
+      emissive: 0x38142A,
     });
     disposables.push(sentinelGeo, sentinelMat);
 
@@ -243,11 +243,11 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
       });
     });
 
-    // --- Part 8: Faint Orbital Trajectory Guide Lines ---
+    // --- Part 8: Faint Orbital Trajectory Guide Lines (#B49F99 Rose Gold) ---
     const lineMat = new THREE.LineBasicMaterial({
-      color: 0x888888,
+      color: 0xB49F99,
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.28,
     });
     disposables.push(lineMat);
     [2.25, 2.55].forEach((r) => {
@@ -264,7 +264,7 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
       kineticMasterGroup.add(orbitLine);
     });
 
-    // --- Part 9: Ambient Data Sparkles (Cryptographic Dust) ---
+    // --- Part 9: Ambient Data Sparkles (Royal Plum Dust #4E223C) ---
     const particleCount = 36;
     const particleGeo = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particleCount * 3);
@@ -280,25 +280,25 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     }
     particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
     const particleMat = new THREE.PointsMaterial({
-      color: 0x141414,
+      color: 0x4E223C,
       size: 0.045,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.45,
     });
     disposables.push(particleGeo, particleMat);
     const particlePoints = new THREE.Points(particleGeo, particleMat);
     kineticMasterGroup.add(particlePoints);
 
-    // --- Part 10: Ground Contact Shadow (Soft procedural radial wash) ---
+    // --- Part 10: Ground Contact Shadow (Soft Deep Plum radial wash #210918) ---
     const shadowCanvas = document.createElement('canvas');
     shadowCanvas.width = 128;
     shadowCanvas.height = 128;
     const sCtx = shadowCanvas.getContext('2d');
     if (sCtx) {
       const grad = sCtx.createRadialGradient(64, 64, 10, 64, 64, 60);
-      grad.addColorStop(0, 'rgba(20,20,20,0.18)');
-      grad.addColorStop(0.45, 'rgba(20,20,20,0.06)');
-      grad.addColorStop(1, 'rgba(20,20,20,0)');
+      grad.addColorStop(0, 'rgba(33, 9, 24, 0.16)');
+      grad.addColorStop(0.45, 'rgba(33, 9, 24, 0.05)');
+      grad.addColorStop(1, 'rgba(33, 9, 24, 0)');
       sCtx.fillStyle = grad;
       sCtx.fillRect(0, 0, 128, 128);
     }

@@ -4,8 +4,8 @@
   "description": "Lightweight, invisible anti-spam protection for WordPress forms. No CAPTCHA, no external requests.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#141414",
+  "background_color": "#F7F1ED",
+  "theme_color": "#38142A",
   "icons": [
     {
       "src": "/favicon.png",

@@ -93,20 +93,20 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.5)] overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#210918]/65 backdrop-blur-sm overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      {/* Mobbin 24px Card Geometry (rounded-[24px]) */}
-      <div className="relative w-full max-w-md bg-[#ffffff] rounded-[24px] p-6 sm:p-8 my-8 shadow-2xl border border-[#f0f0f0] text-left">
+      {/* 24px Card Geometry with Warm Ivory & Wine-Plum Palette */}
+      <div className="relative w-full max-w-md bg-[#FFFFFF] rounded-[24px] p-6 sm:p-8 my-8 shadow-2xl border border-[#E7DCD7] text-left">
         {/* Header */}
-        <div className="flex items-center justify-between pb-5 border-b border-[#f0f0f0]">
+        <div className="flex items-center justify-between pb-5 border-b border-[#E7DCD7]">
           <div>
-            <h2 id="modal-title" className="text-xl font-[650] text-[#141414] tracking-tight">
+            <h2 id="modal-title" className="text-xl font-[650] text-[#210918] tracking-tight">
               {downloadSuccess ? 'Download ready' : 'Download Vighnaghna'}
             </h2>
-            <p className="text-xs text-[#707070] mt-0.5">
+            <p className="text-xs text-[#74656C] mt-0.5">
               WordPress plugin package (v1.0.0 • GPL-2.0-or-later)
             </p>
           </div>
@@ -114,7 +114,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
             type="button"
             onClick={onClose}
             aria-label="Close download modal"
-            className="w-8 h-8 rounded-full bg-[#f3f3f3] text-[#141414] hover:bg-[#e0e0e0] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[#F7F1ED] text-[#210918] hover:bg-[#DCC9BE] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -124,9 +124,9 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
         <div className="pt-5">
           {!downloadSuccess ? (
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
-              {/* Name Field (Mobbin 16px field fill) */}
+              {/* Name Field */}
               <div>
-                <label htmlFor="user-name" className="block text-xs font-semibold text-[#141414] mb-1.5">
+                <label htmlFor="user-name" className="block text-xs font-semibold text-[#210918] mb-1.5">
                   Name or agency
                 </label>
                 <input
@@ -138,8 +138,8 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
                     setName(e.target.value);
                     if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
                   }}
-                  className={`w-full px-4 py-3 bg-[#f0f0f0] text-[#141414] placeholder-[#adadad] text-sm rounded-[16px] border-0 focus:ring-2 focus:ring-[#141414] focus:outline-none transition-all ${
-                    errors.name ? 'ring-2 ring-red-500' : ''
+                  className={`w-full px-4 py-3 bg-[#F7F1ED] text-[#210918] placeholder-[#74656C]/60 text-sm rounded-[16px] border border-[#E7DCD7] focus:ring-2 focus:ring-[#38142A] focus:border-transparent focus:outline-none transition-all ${
+                    errors.name ? 'ring-2 ring-red-500 border-red-500' : ''
                   }`}
                 />
                 {errors.name && (
@@ -151,7 +151,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
 
               {/* Email Field */}
               <div>
-                <label htmlFor="user-email" className="block text-xs font-semibold text-[#141414] mb-1.5">
+                <label htmlFor="user-email" className="block text-xs font-semibold text-[#210918] mb-1.5">
                   Email address
                 </label>
                 <input
@@ -163,8 +163,8 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
                     setEmail(e.target.value);
                     if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
                   }}
-                  className={`w-full px-4 py-3 bg-[#f0f0f0] text-[#141414] placeholder-[#adadad] text-sm rounded-[16px] border-0 focus:ring-2 focus:ring-[#141414] focus:outline-none transition-all ${
-                    errors.email ? 'ring-2 ring-red-500' : ''
+                  className={`w-full px-4 py-3 bg-[#F7F1ED] text-[#210918] placeholder-[#74656C]/60 text-sm rounded-[16px] border border-[#E7DCD7] focus:ring-2 focus:ring-[#38142A] focus:border-transparent focus:outline-none transition-all ${
+                    errors.email ? 'ring-2 ring-red-500 border-red-500' : ''
                   }`}
                 />
                 {errors.email && (
@@ -174,11 +174,11 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
                 )}
               </div>
 
-              {/* Review Checkbox - User friendly pill control */}
+              {/* Review Checkbox */}
               <div className="pt-1">
                 <label
                   htmlFor="review-checkbox"
-                  className="flex items-center gap-3 p-3 rounded-[16px] bg-[#f3f3f3] hover:bg-[#ebebeb] cursor-pointer transition-colors select-none"
+                  className="flex items-center gap-3 p-3 rounded-[16px] bg-[#F7F1ED] hover:bg-[#E7DCD7]/60 border border-[#E7DCD7] cursor-pointer transition-colors select-none"
                 >
                   <input
                     id="review-checkbox"
@@ -190,64 +190,64 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
                   <div
                     aria-hidden="true"
                     className={`w-5 h-5 rounded-[6px] flex items-center justify-center transition-colors ${
-                      wouldReview ? 'bg-[#141414] text-white' : 'bg-white border border-[#e0e0e0]'
+                      wouldReview ? 'bg-[#38142A] text-white' : 'bg-white border border-[#DCC9BE]'
                     }`}
                   >
                     {wouldReview && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}
                   </div>
-                  <span className="text-xs font-medium text-[#141414] leading-snug">
+                  <span className="text-xs font-medium text-[#210918] leading-snug">
                     Would love to give review after using this plugin
                   </span>
                 </label>
               </div>
 
-              {/* Submit Button (button-primary stadium pill) */}
+              {/* Submit Button */}
               <div className="pt-2">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="pill-button w-full flex items-center justify-center gap-2 bg-[#141414] text-[#ffffff] font-semibold text-sm py-3.5 px-6 hover:bg-[#262626] cursor-pointer disabled:opacity-70"
+                  className="pill-button w-full flex items-center justify-center gap-2 bg-[#38142A] text-[#FFFFFF] font-semibold text-sm py-3.5 px-6 hover:bg-[#4E223C] cursor-pointer shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-[#38142A] focus:ring-offset-2 disabled:opacity-70"
                 >
                   <Download className="w-4 h-4" />
                   <span>{isSubmitting ? 'Preparing plugin...' : 'Download Vighnaghna (.zip)'}</span>
                 </button>
               </div>
 
-              <div className="text-center text-[11px] text-[#adadad]">
+              <div className="text-center text-[11px] text-[#74656C]">
                 Free forever under GNU General Public License v2+
               </div>
             </form>
           ) : (
             /* Instant Download Success State */
             <div className="space-y-4">
-              <div className="bg-[#f3f3f3] rounded-[16px] p-4 flex items-start gap-3">
-                <ShieldCheck className="w-5 h-5 text-[#141414] shrink-0 mt-0.5" />
+              <div className="bg-[#F7F1ED] border border-[#E7DCD7] rounded-[16px] p-4 flex items-start gap-3">
+                <ShieldCheck className="w-5 h-5 text-[#38142A] shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-sm font-semibold text-[#141414]">Download started.</div>
-                  <div className="text-xs text-[#707070] mt-0.5">
-                    Saved <span className="font-medium text-[#141414]">{downloadedFileName}</span> to your device.
+                  <div className="text-sm font-semibold text-[#210918]">Download started.</div>
+                  <div className="text-xs text-[#74656C] mt-0.5">
+                    Saved <span className="font-semibold text-[#38142A]">{downloadedFileName}</span> to your device.
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#ffffff] rounded-[16px] border border-[#f0f0f0] p-4 space-y-2 text-xs">
-                <div className="font-semibold text-[#141414]">Installation steps:</div>
-                <ol className="list-decimal list-inside space-y-1 text-[#707070]">
+              <div className="bg-[#FFFFFF] rounded-[16px] border border-[#E7DCD7] p-4 space-y-2 text-xs">
+                <div className="font-semibold text-[#210918]">Installation steps:</div>
+                <ol className="list-decimal list-inside space-y-1 text-[#74656C]">
                   <li>In WordPress Admin, go to <strong>Plugins ➔ Add New ➔ Upload</strong></li>
-                  <li>Select the downloaded <code className="bg-[#f0f0f0] px-1 py-0.5 rounded text-[#141414] font-medium">{downloadedFileName}</code> file</li>
+                  <li>Select the downloaded <code className="bg-[#F7F1ED] text-[#38142A] border border-[#E7DCD7] px-1 py-0.5 rounded font-medium">{downloadedFileName}</code> file</li>
                   <li>Click <strong>Activate</strong></li>
                 </ol>
               </div>
 
               {/* WP-CLI command */}
-              <div className="bg-[#f3f3f3] rounded-[16px] p-3 text-xs flex items-center justify-between gap-2">
-                <div className="truncate font-mono text-[11px] text-[#707070]">
+              <div className="bg-[#F7F1ED] border border-[#E7DCD7] rounded-[16px] p-3 text-xs flex items-center justify-between gap-2">
+                <div className="truncate font-mono text-[11px] text-[#74656C]">
                   wp plugin install {downloadedFileName} --activate
                 </div>
                 <button
                   type="button"
                   onClick={handleCopyCli}
-                  className="pill-button shrink-0 px-3 py-1 bg-[#ffffff] border border-[#e0e0e0] text-[#141414] text-[11px] font-medium hover:bg-[#f3f3f3]"
+                  className="pill-button shrink-0 px-3 py-1 bg-[#FFFFFF] border border-[#E7DCD7] text-[#38142A] text-[11px] font-medium hover:bg-[#F7F1ED] transition-colors"
                 >
                   {copiedCli ? 'Copied' : 'Copy'}
                 </button>
@@ -257,7 +257,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
                 <button
                   type="button"
                   onClick={onClose}
-                  className="pill-button w-full bg-[#141414] text-[#ffffff] font-semibold text-xs py-3 hover:bg-[#262626] cursor-pointer"
+                  className="pill-button w-full bg-[#38142A] text-[#FFFFFF] font-semibold text-xs py-3 hover:bg-[#4E223C] cursor-pointer shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#38142A] focus:ring-offset-2"
                 >
                   Done
                 </button>

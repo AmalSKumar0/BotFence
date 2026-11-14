@@ -95,10 +95,10 @@ const ParallaxCard: React.FC<ParallaxCardProps> = ({ feature, progress, isHovere
       style={{ y }}
       onMouseEnter={() => onHover(feature.id)}
       onMouseLeave={() => onHover(null)}
-      className={`relative flex flex-col justify-between rounded-[24px] p-7 transition-colors duration-200 text-left border will-change-transform ${
+      className={`relative flex flex-col justify-between rounded-[24px] p-7 transition-all duration-200 text-left border will-change-transform ${
         isHovered 
-          ? 'bg-[#f3f3f3] border-transparent' 
-          : 'bg-[#ffffff] border-[#f0f0f0]'
+          ? 'bg-[#FFFFFF] border-[#DCC9BE] shadow-[0_10px_28px_rgba(33,9,24,0.09)]' 
+          : 'bg-[#FFFFFF] border-[#E7DCD7] shadow-[0_2px_8px_rgba(33,9,24,0.03)]'
       }`}
     >
       <div>
@@ -106,21 +106,21 @@ const ParallaxCard: React.FC<ParallaxCardProps> = ({ feature, progress, isHovere
           {/* iOS-style 30% squircle icon with micro-parallax translation */}
           <motion.div 
             style={{ y: iconY }}
-            className="w-12 h-12 squircle-icon bg-[#f3f3f3] flex items-center justify-center text-[#141414] transition-transform duration-200 group-hover:scale-105"
+            className="w-12 h-12 squircle-icon bg-[#38142A] flex items-center justify-center text-[#DCC9BE] shadow-xs transition-transform duration-200 group-hover:scale-105"
           >
             <Icon className="w-6 h-6 stroke-[2]" />
           </motion.div>
 
-          <span className="text-xs font-medium text-[#707070] bg-[#f3f3f3] px-3 py-1 rounded-full">
+          <span className="text-xs font-semibold text-[#38142A] bg-[#F7F1ED] border border-[#E7DCD7] px-3 py-1 rounded-full">
             {feature.badge}
           </span>
         </div>
 
-        <h3 className="text-xl font-[650] text-[#141414] tracking-tight mb-2 leading-snug">
+        <h3 className="text-xl font-[650] text-[#210918] tracking-tight mb-2 leading-snug">
           {feature.title}
         </h3>
 
-        <p className="text-sm font-[450] text-[#707070] leading-relaxed">
+        <p className="text-sm font-[400] text-[#74656C] leading-relaxed">
           {feature.description}
         </p>
       </div>
@@ -142,19 +142,20 @@ export const KeyFeaturesSection: React.FC = () => {
     <section 
       ref={sectionRef}
       id="features"
-      className="relative w-full bg-[#ffffff] py-20 sm:py-28 border-t border-[#f0f0f0] overflow-hidden"
+      className="relative w-full bg-[#F7F1ED] py-20 sm:py-28 border-t border-[#E7DCD7] overflow-hidden"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-2xl mb-16 text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f3f3f3] text-xs font-semibold text-[#141414] mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFFFFF] border border-[#E7DCD7] text-xs font-semibold text-[#38142A] mb-4 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-[#38142A]"></span>
             <span>Core features</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-[650] tracking-tight text-[#141414] leading-[1.13]">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-[650] tracking-tight text-[#210918] leading-[1.13]">
             Engineered to disappear behind your content.
           </h2>
-          <p className="mt-3 text-base sm:text-lg font-[300] text-[#707070] leading-relaxed">
+          <p className="mt-3 text-base sm:text-lg font-[350] text-[#74656C] leading-relaxed">
             Vighnaghna sits quietly between your visitors and your database, keeping conversions high and spam at zero.
           </p>
         </div>

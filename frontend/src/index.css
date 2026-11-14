@@ -1,34 +1,62 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #38142A;
+  --color-primary-dark: #210918;
+  --color-primary-light: #4E223C;
+
+  --color-accent: #DCC9BE;
+  --color-accent-muted: #B49F99;
+
+  --color-background: #F7F1ED;
+  --color-surface: #FFFFFF;
+
+  --color-text: #210918;
+  --color-text-muted: #74656C;
+
+  --color-border: #E7DCD7;
+}
+
 @layer base {
   :root {
     --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     
-    /* Mobbin Design System Color Palette */
-    --color-ink: #141414;
-    --color-ink-soft: #262626;
-    --color-text-muted: #707070;
-    --color-text-faint: #adadad;
-    --color-canvas: #ffffff;
-    --color-canvas-soft: #f3f3f3;
-    --color-field: #f0f0f0;
-    --color-hairline-soft: #f0f0f0;
-    --color-hairline: #e0e0e0;
-    --color-accent: #0066ff;
+    /* Vighnaghna Wine-Plum & Champagne Palette */
+    --color-primary: #38142A;
+    --color-primary-dark: #210918;
+    --color-primary-light: #4E223C;
+
+    --color-accent: #DCC9BE;
+    --color-accent-muted: #B49F99;
+
+    --color-background: #F7F1ED;
+    --color-surface: #FFFFFF;
+
+    --color-text: #210918;
+    --color-text-muted: #74656C;
+
+    --color-border: #E7DCD7;
+
+    /* Semantic mappings */
+    --color-canvas: var(--color-background);
+    --color-canvas-soft: #EDE4DE;
+    --color-card: var(--color-surface);
+    --color-input: #F3EBE6;
   }
   
   body {
     font-family: var(--font-sans);
-    background-color: var(--color-canvas);
-    color: var(--color-ink);
+    background-color: var(--color-background);
+    color: var(--color-text);
     letter-spacing: 0;
   }
 
   /* Headings with tight leading and bold 650 weight */
   h1, h2, h3, h4, h5, h6 {
     font-weight: 650;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
+    color: var(--color-text);
   }
 }
 
@@ -40,8 +68,62 @@
 /* Stadium Pill Button Transitions */
 .pill-button {
   border-radius: 9999px;
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .pill-button:active {
   transform: scale(0.98);
+}
+
+/* Design System Buttons */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  border-radius: 9999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(56, 20, 42, 0.15);
+}
+.btn-primary:hover {
+  background-color: var(--color-primary-light);
+  box-shadow: 0 4px 14px rgba(56, 20, 42, 0.25);
+}
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-primary);
+}
+
+.btn-secondary {
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-secondary:hover {
+  background-color: var(--color-background);
+  border-color: var(--color-accent);
+}
+.btn-secondary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-primary);
+}
+
+/* Card Geometry */
+.card-surface {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  box-shadow: 0 2px 8px rgba(33, 9, 24, 0.04);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-surface:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 24px rgba(33, 9, 24, 0.08);
 }
