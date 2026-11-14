@@ -1,5 +1,5 @@
 /**
- * Telegram notification dispatcher for BotFence plugin downloads.
+ * Telegram notification dispatcher for Vighnaghna plugin downloads.
  * Uses credentials configured in .env:
  * - VITE_TELEGRAM_BOT_TOKEN or TELEGRAM_BOT_TOKEN
  * - VITE_TELEGRAM_CHAT_ID or TELEGRAM_CHAT_ID
@@ -48,7 +48,7 @@ export async function sendTelegramNotification(
 
   if (!botToken || !chatId) {
     const warning =
-      '[BotFence] Telegram credentials missing in .env (VITE_TELEGRAM_BOT_TOKEN and VITE_TELEGRAM_CHAT_ID).';
+      '[Vighnaghna] Telegram credentials missing in .env (VITE_TELEGRAM_BOT_TOKEN and VITE_TELEGRAM_CHAT_ID).';
     console.warn(warning);
     return { success: false, error: warning };
   }
@@ -56,13 +56,13 @@ export async function sendTelegramNotification(
   const formattedTime = data.timestamp || new Date().toLocaleString();
 
   const text = `
-🛡️ <b>New BotFence Plugin Download</b>
+🛡️ <b>New Vighnaghna Plugin Download</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 👤 <b>Name / Agency:</b> ${escapeHtml(data.name)}
 📧 <b>Email:</b> ${escapeHtml(data.email)}
 ⭐ <b>Willing to Review:</b> ${data.wouldReview ? '✅ Yes' : '❌ No'}
 🕒 <b>Timestamp:</b> ${escapeHtml(formattedTime)}
-📦 <b>Package:</b> BotFence.zip (WordPress Plugin v1.0.2)
+📦 <b>Package:</b> vighnaghna.zip (WordPress Plugin v1.0.0)
 `.trim();
 
   try {
@@ -81,7 +81,7 @@ export async function sendTelegramNotification(
     const result = await response.json();
     if (!response.ok || !result.ok) {
       console.error(
-        '[BotFence] Telegram API error:',
+        '[Vighnaghna] Telegram API error:',
         result?.description || response.statusText
       );
       return {
@@ -93,7 +93,7 @@ export async function sendTelegramNotification(
     return { success: true };
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown network error';
-    console.error('[BotFence] Failed to send Telegram notification:', errorMessage);
+    console.error('[Vighnaghna] Failed to send Telegram notification:', errorMessage);
     return { success: false, error: errorMessage };
   }
 }

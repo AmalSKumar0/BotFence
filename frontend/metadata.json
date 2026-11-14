@@ -1,6 +1,6 @@
 {
-  "name": "BotFence - WordPress Anti-Bot Plugin",
-  "description": "Minimalist neo-brutalist landing page for BotFence, the zero-CAPTCHA WordPress security plugin that protects every form.",
+  "name": "Vighnaghna - WordPress Anti-Spam Plugin",
+  "description": "Minimalist neo-brutalist landing page for Vighnaghna, the zero-CAPTCHA WordPress security plugin that protects every form.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

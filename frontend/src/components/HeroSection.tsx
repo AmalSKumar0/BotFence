@@ -18,10 +18,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDownload }) => {
             </div>
             <div>
               <span className="font-semibold text-lg text-[#141414] tracking-tight">
-                BotFence
+                Vighnaghna
               </span>
               <span className="text-xs text-[#707070] ml-2 hidden sm:inline">
-                WordPress Form Security
+                विघ्नघ्न — Destroyer of Obstacles
               </span>
             </div>
           </div>

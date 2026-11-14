@@ -1,10 +1,10 @@
 {
-  "name": "react-example",
+  "name": "vighnaghna-web",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "sync-zip": "cp -f ../BotFence.zip public/BotFence.zip 2>/dev/null || true",
+    "sync-zip": "cp -f ../vighnaghna.zip public/vighnaghna.zip 2>/dev/null || true; cp -f ../vighnaghna.zip public/BotFence.zip 2>/dev/null || true",
     "predev": "npm run sync-zip",
     "dev": "vite --port=3000 --host=0.0.0.0",
     "prebuild": "npm run sync-zip",

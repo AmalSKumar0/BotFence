@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Download, Check, ShieldCheck } from 'lucide-react';
-import { validateDownloadForm } from '../utils/botfence-engine';
+import { validateDownloadForm } from '../utils/vighnaghna-engine';
 import { sendTelegramNotification } from '../utils/telegram';
 
 interface DownloadModalProps {
@@ -15,7 +15,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
-  const [downloadedFileName, setDownloadedFileName] = useState('BotFence.zip');
+  const [downloadedFileName, setDownloadedFileName] = useState('vighnaghna.zip');
   const [copiedCli, setCopiedCli] = useState(false);
 
   useEffect(() => {
@@ -59,8 +59,8 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
         timestamp: new Date().toLocaleString(),
       });
 
-      // Trigger browser download for BotFence.zip from public directory
-      const fileName = 'BotFence.zip';
+      // Trigger browser download for vighnaghna.zip from public directory
+      const fileName = 'vighnaghna.zip';
       const anchor = document.createElement('a');
       anchor.href = `/${fileName}`;
       anchor.download = fileName;
@@ -82,7 +82,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
   };
 
   const handleCopyCli = () => {
-    const cmd = `wp plugin install ${downloadedFileName || 'BotFence.zip'} --activate`;
+    const cmd = `wp plugin install ${downloadedFileName || 'vighnaghna.zip'} --activate`;
     navigator.clipboard?.writeText(cmd);
     setCopiedCli(true);
     setTimeout(() => setCopiedCli(false), 2000);
@@ -104,10 +104,10 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
         <div className="flex items-center justify-between pb-5 border-b border-[#f0f0f0]">
           <div>
             <h2 id="modal-title" className="text-xl font-[650] text-[#141414] tracking-tight">
-              {downloadSuccess ? 'Download ready' : 'Download BotFence'}
+              {downloadSuccess ? 'Download ready' : 'Download Vighnaghna'}
             </h2>
             <p className="text-xs text-[#707070] mt-0.5">
-              WordPress plugin package (v1.0.2 • GPL-2.0-or-later)
+              WordPress plugin package (v1.0.0 • GPL-2.0-or-later)
             </p>
           </div>
           <button
@@ -209,7 +209,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
                   className="pill-button w-full flex items-center justify-center gap-2 bg-[#141414] text-[#ffffff] font-semibold text-sm py-3.5 px-6 hover:bg-[#262626] cursor-pointer disabled:opacity-70"
                 >
                   <Download className="w-4 h-4" />
-                  <span>{isSubmitting ? 'Preparing plugin...' : 'Download BotFence (.zip)'}</span>
+                  <span>{isSubmitting ? 'Preparing plugin...' : 'Download Vighnaghna (.zip)'}</span>
                 </button>
               </div>
 
@@ -234,7 +234,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
                 <div className="font-semibold text-[#141414]">Installation steps:</div>
                 <ol className="list-decimal list-inside space-y-1 text-[#707070]">
                   <li>In WordPress Admin, go to <strong>Plugins ➔ Add New ➔ Upload</strong></li>
-                  <li>Select the downloaded <code className="bg-[#f0f0f0] px-1 py-0.5 rounded text-[#141414] font-medium">BotFence.zip</code> file</li>
+                  <li>Select the downloaded <code className="bg-[#f0f0f0] px-1 py-0.5 rounded text-[#141414] font-medium">{downloadedFileName}</code> file</li>
                   <li>Click <strong>Activate</strong></li>
                 </ol>
               </div>

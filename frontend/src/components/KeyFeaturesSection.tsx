@@ -155,7 +155,7 @@ export const KeyFeaturesSection: React.FC = () => {
             Engineered to disappear behind your content.
           </h2>
           <p className="mt-3 text-base sm:text-lg font-[300] text-[#707070] leading-relaxed">
-            BotFence sits quietly between your visitors and your database, keeping conversions high and spam at zero.
+            Vighnaghna sits quietly between your visitors and your database, keeping conversions high and spam at zero.
           </p>
         </div>
 

@@ -4,8 +4,8 @@ import { createZipBlob } from './zip-packer';
 
 test('createZipBlob returns a non-empty application/zip blob with correct PK signatures', async () => {
   const files = [
-    { name: 'botfence/botfence.php', content: '<?php echo "hello"; ?>' },
-    { name: 'botfence/readme.txt', content: '=== BotFence ===' },
+    { name: 'vighnaghna/vighnaghna.php', content: '<?php echo "hello"; ?>' },
+    { name: 'vighnaghna/readme.txt', content: '=== Vighnaghna ===' },
   ];
   const blob = createZipBlob(files);
   assert.equal(blob.type, 'application/zip');

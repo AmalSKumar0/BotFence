@@ -45,7 +45,7 @@ test('sendTelegramNotification posts formatted payload to Telegram API when cred
     assert.equal(capturedBody.parse_mode, 'HTML');
     assert.ok(capturedBody.text.includes('Amal S Kumar'));
     assert.ok(capturedBody.text.includes('amal@example.com'));
-    assert.ok(capturedBody.text.includes('BotFence.zip'));
+    assert.ok(capturedBody.text.includes('vighnaghna.zip'));
   } finally {
     globalThis.fetch = originalFetch;
     delete process.env.VITE_TELEGRAM_BOT_TOKEN;

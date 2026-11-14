@@ -8,14 +8,20 @@
     <priority>1.0</priority>
     <image:image>
       <image:loc>https://bot-fence.vercel.app/og-image.png</image:loc>
-      <image:title>BotFence — Zero-CAPTCHA Anti-Spam Plugin for WordPress</image:title>
-      <image:caption>Stop Bots. Protect Every WordPress Form without visual puzzles.</image:caption>
+      <image:title>Vighnaghna — Zero-CAPTCHA Anti-Spam Plugin for WordPress</image:title>
+      <image:caption>Intelligent Form Protection. Invisible to Your Visitors.</image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://bot-fence.vercel.app/BotFence.zip</loc>
-    <lastmod>2026-11-08</lastmod>
+    <loc>https://bot-fence.vercel.app/vighnaghna.zip</loc>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://bot-fence.vercel.app/BotFence.zip</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>

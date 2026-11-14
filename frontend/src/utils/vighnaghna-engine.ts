@@ -1,5 +1,5 @@
 /**
- * BotFence Core Engine & Plugin Package Generator
+ * Vighnaghna Core Engine & Plugin Package Generator
  * Contains pure verification logic, heuristic threat simulation,
  * and WordPress plugin package builder.
  */
@@ -114,25 +114,25 @@ export function analyzeFormSubmission(input: ThreatAnalysisInput): ThreatAnalysi
 }
 
 /**
- * Generates the authentic WordPress plugin source files for BotFence v2.4.1
+ * Generates the authentic WordPress plugin source files for Vighnaghna v1.0.0
  */
 export function generatePluginManifest(user: DownloadFormData) {
-  const pluginVersion = '2.4.1';
+  const pluginVersion = '1.0.0';
   const timestamp = new Date().toISOString();
 
   const mainPhp = `<?php
 /**
- * Plugin Name:       BotFence - Zero-CAPTCHA Form Shield
- * Plugin URI:        https://botfence.io
- * Description:       Ultra-lightweight, zero-puzzle anti-bot protection for all WordPress forms.
+ * Plugin Name:       Vighnaghna - Intelligent Form Protection
+ * Plugin URI:        https://vighnaghna.org
+ * Description:       Lightweight, invisible anti-spam protection for WordPress forms. No CAPTCHA, no external requests.
  * Version:           ${pluginVersion}
  * Requires at least: 5.8
  * Requires PHP:      7.4
- * Author:            BotFence Security Labs
- * Author URI:        https://botfence.io
+ * Author:            Amal S Kumar
+ * Author URI:        https://amalskumar.dev
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       botfence
+ * Text Domain:       vighnaghna
  * 
  * Registered for:    ${user.name} <${user.email}>
  * Generated on:      ${timestamp}
@@ -142,7 +142,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-final class BotFence_Shield {
+final class Vighnaghna_Shield {
     const VERSION = '${pluginVersion}';
     private static $instance = null;
 
@@ -159,20 +159,20 @@ final class BotFence_Shield {
     }
 
     public function enqueue_stealth_scripts() {
-        $token = wp_create_nonce('botfence_guard_nonce');
+        $token = wp_create_nonce('vighnaghna_guard_nonce');
         wp_register_script(
-            'botfence-stealth',
-            plugins_url('assets/botfence.js', __FILE__),
+            'vighnaghna-stealth',
+            plugins_url('assets/vighnaghna.js', __FILE__),
             array(),
             self::VERSION,
             true
         );
-        wp_localize_script('botfence-stealth', 'BotFenceConfig', array(
+        wp_localize_script('vighnaghna-stealth', 'VighnaghnaConfig', array(
             'nonce' => $token,
-            'trap_id' => 'bf_hp_' . substr(md5($token), 0, 8),
+            'trap_id' => 'vighnaghna_hp_' . substr(md5($token), 0, 8),
             'min_time' => 1200
         ));
-        wp_enqueue_script('botfence-stealth');
+        wp_enqueue_script('vighnaghna-stealth');
     }
 
     public function register_form_interceptors() {
@@ -190,7 +190,7 @@ final class BotFence_Shield {
 
     public function validate_wpforms($entry, $form_data) {
         if ($this->is_bot_detected()) {
-            wpforms()->process->errors[$form_data['id']]['header'] = __('Automated submission blocked by BotFence.', 'botfence');
+            wpforms()->process->errors[$form_data['id']]['header'] = __('Automated submission blocked by Vighnaghna.', 'vighnaghna');
         }
     }
 
@@ -203,7 +203,7 @@ final class BotFence_Shield {
 
     public function guard_wp_login($user, $username, $password) {
         if (!empty($username) && $this->is_bot_detected()) {
-            return new WP_Error('botfence_blocked', __('Automated authentication attempt blocked.', 'botfence'));
+            return new WP_Error('vighnaghna_blocked', __('Automated authentication attempt blocked.', 'vighnaghna'));
         }
         return $user;
     }
@@ -211,7 +211,7 @@ final class BotFence_Shield {
     private function is_bot_detected() {
         // Check dynamic honeypot presence
         foreach ($_POST as $key => $val) {
-            if (strpos($key, 'bf_hp_') === 0 && !empty($val)) {
+            if (strpos($key, 'vighnaghna_hp_') === 0 && !empty($val)) {
                 return true;
             }
         }
@@ -219,21 +219,21 @@ final class BotFence_Shield {
     }
 }
 
-BotFence_Shield::instance();
+Vighnaghna_Shield::instance();
 `;
 
-  const readmeTxt = `=== BotFence - Zero-CAPTCHA Form Shield ===
-Contributors: botfencelabs
-Tags: security, antispam, captcha, forms, botfence
+  const readmeTxt = `=== Vighnaghna - Intelligent Form Protection ===
+Contributors: amalskumar
+Tags: security, antispam, captcha, forms, vighnaghna
 Requires at least: 5.8
 Tested up to: 6.7
 Stable tag: ${pluginVersion}
 License: GPLv2 or later
 
-Stop spam bots on every WordPress form without ugly puzzles, distorted text, or tracking cookies.
+Lightweight, invisible anti-spam protection for WordPress forms. No CAPTCHA, no external requests.
 
 == Description ==
-BotFence provides invisible, frictionless form security for WordPress.
+Vighnaghna provides invisible, frictionless form security for WordPress.
 Compatible with:
 * Contact Form 7
 * WPForms & WPForms Pro
@@ -243,27 +243,27 @@ Compatible with:
 * WooCommerce Checkout & Login
 
 == Installation ==
-1. Upload \`botfence\` folder to \`/wp-content/plugins/\` or upload zip in WordPress Admin.
+1. Upload \`vighnaghna\` folder to \`/wp-content/plugins/\` or upload zip in WordPress Admin.
 2. Activate through the 'Plugins' menu in WordPress.
-3. BotFence automatically secures all forms out of the box with zero configuration needed.
+3. Vighnaghna automatically secures all forms out of the box with zero configuration needed.
 
 == Changelog ==
-= 2.4.1 =
-* Enhanced headless browser detection heuristics.
-* Added micro-jitter timing analysis.
+= 1.0.0 =
+* Initial WordPress.org compliant release of Vighnaghna.
+* Cryptographic HMAC token lifecycle and multi-signal risk engine.
 `;
 
   return {
-    filename: `botfence-wordpress-v${pluginVersion}.zip`,
+    filename: `vighnaghna-wordpress-v${pluginVersion}.zip`,
     version: pluginVersion,
     registeredTo: user.name,
     registeredEmail: user.email,
     files: [
-      { name: 'botfence/botfence.php', content: mainPhp },
-      { name: 'botfence/readme.txt', content: readmeTxt },
+      { name: 'vighnaghna/vighnaghna.php', content: mainPhp },
+      { name: 'vighnaghna/readme.txt', content: readmeTxt },
       {
-        name: 'botfence/uninstall.php',
-        content: `<?php\nif (!defined('WP_UNINSTALL_PLUGIN')) { exit; }\ndelete_option('botfence_settings');\n`,
+        name: 'vighnaghna/uninstall.php',
+        content: `<?php\nif (!defined('WP_UNINSTALL_PLUGIN')) { exit; }\ndelete_option('vighnaghna_settings');\n`,
       },
     ],
   };

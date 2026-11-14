@@ -4,7 +4,7 @@ import {
   validateDownloadForm,
   analyzeFormSubmission,
   generatePluginManifest,
-} from './botfence-engine';
+} from './vighnaghna-engine';
 
 test('validateDownloadForm rejects empty fields', () => {
   const result = validateDownloadForm({ name: '', email: '', wouldReview: false });
@@ -60,13 +60,13 @@ test('generatePluginManifest produces complete WordPress package with correct he
     email: 'marcus@archaeology.org',
     wouldReview: true,
   });
-  assert.equal(manifest.version, '2.4.1');
-  assert.ok(manifest.filename.includes('2.4.1'));
+  assert.equal(manifest.version, '1.0.0');
+  assert.ok(manifest.filename.includes('1.0.0'));
   assert.equal(manifest.files.length, 3);
   
-  const mainPhp = manifest.files.find(f => f.name === 'botfence/botfence.php');
+  const mainPhp = manifest.files.find(f => f.name === 'vighnaghna/vighnaghna.php');
   assert.ok(mainPhp);
-  assert.ok(mainPhp.content.includes('Plugin Name:       BotFence'));
+  assert.ok(mainPhp.content.includes('Plugin Name:       Vighnaghna'));
   assert.ok(mainPhp.content.includes('Marcus Brody'));
   assert.ok(mainPhp.content.includes('add_action(\'init\''));
 });

@@ -1,7 +1,7 @@
 {
-  "name": "BotFence — Zero-CAPTCHA Anti-Spam Plugin for WordPress",
-  "short_name": "BotFence",
-  "description": "Enterprise-grade, autonomous, zero-CAPTCHA WordPress security plugin that eliminates form spam and malicious bots.",
+  "name": "Vighnaghna — Zero-CAPTCHA Anti-Spam Plugin for WordPress",
+  "short_name": "Vighnaghna",
+  "description": "Lightweight, invisible anti-spam protection for WordPress forms. No CAPTCHA, no external requests.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

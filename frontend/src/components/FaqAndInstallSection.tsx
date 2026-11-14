@@ -7,24 +7,24 @@ interface FaqAndInstallSectionProps {
 
 const FAQS = [
   {
-    q: 'Does BotFence require API keys from Google or Cloudflare?',
-    a: 'No. BotFence operates independently on your server using local behavioral heuristics and polymorphic honeypots. No third-party accounts or API credentials are required.',
+    q: 'Does Vighnaghna require API keys from Google or Cloudflare?',
+    a: 'No. Vighnaghna operates independently on your server using local behavioral heuristics and polymorphic honeypots. No third-party accounts or API credentials are required.',
   },
   {
     q: 'Will legitimate visitors ever see puzzles or CAPTCHAs?',
-    a: 'Never. BotFence is entirely invisible to humans. Legitimate visitors submit forms seamlessly without audio puzzles or selecting crosswalk images, boosting conversion rates.',
+    a: 'Never. Vighnaghna is entirely invisible to humans. Legitimate visitors submit forms seamlessly without audio puzzles or selecting crosswalk images, boosting conversion rates.',
   },
   {
     q: 'Which WordPress form builders are supported out of the box?',
-    a: 'BotFence automatically integrates with Contact Form 7, WPForms, Gravity Forms, Elementor Forms, Fluent Forms, Formidable Forms, WooCommerce checkout, and wp-login.',
+    a: 'Vighnaghna automatically integrates with Contact Form 7, WPForms, Gravity Forms, Elementor Forms, Fluent Forms, Formidable Forms, WooCommerce checkout, and wp-login.',
   },
   {
-    q: 'Does BotFence impact website load times or speed?',
+    q: 'Does Vighnaghna impact website load times or speed?',
     a: 'No. The client-side asset is under 3.2KB and loads asynchronously. Server-side verification takes under 2 milliseconds on typical hosting, saving database resources by dropping spam early.',
   },
   {
-    q: 'Is BotFence compliant with GDPR, CCPA, and European privacy regulations?',
-    a: 'Yes, 100%. BotFence sets no third-party tracking cookies, collects no personally identifiable browsing profiles, and sends zero data to external third parties.',
+    q: 'Is Vighnaghna compliant with GDPR, CCPA, and European privacy regulations?',
+    a: 'Yes, 100%. Vighnaghna sets no third-party tracking cookies, collects no personally identifiable browsing profiles, and sends zero data to external third parties.',
   },
 ];
 
@@ -88,7 +88,7 @@ export const FaqAndInstallSection: React.FC<FaqAndInstallSectionProps> = ({ onOp
                 Activate and relax
               </h3>
               <p className="text-sm font-[450] text-[#707070] leading-relaxed">
-                Click Activate. BotFence immediately protects all existing forms across your website automatically.
+                Click Activate. Vighnaghna immediately protects all existing forms across your website automatically.
               </p>
             </div>
           </div>
@@ -98,7 +98,7 @@ export const FaqAndInstallSection: React.FC<FaqAndInstallSectionProps> = ({ onOp
         <div className="rounded-[24px] border border-[#f0f0f0] p-6 sm:p-8 text-left">
           <div className="mb-6">
             <h3 className="text-2xl font-[650] text-[#141414] tracking-tight">
-              BotFence vs. traditional solutions.
+              Vighnaghna vs. traditional solutions.
             </h3>
             <p className="text-sm text-[#707070] mt-1">
               Engineered to eliminate friction without sacrificing security.
@@ -111,7 +111,7 @@ export const FaqAndInstallSection: React.FC<FaqAndInstallSectionProps> = ({ onOp
                 <tr className="border-b border-[#f0f0f0]">
                   <th className="py-3 px-4 font-semibold text-xs text-[#707070]">Capability</th>
                   <th className="py-3 px-4 font-semibold text-xs text-[#141414] bg-[#f3f3f3] rounded-t-xl">
-                    BotFence (WP)
+                    Vighnaghna (WP)
                   </th>
                   <th className="py-3 px-4 font-semibold text-xs text-[#707070]">reCAPTCHA v2/v3</th>
                   <th className="py-3 px-4 font-semibold text-xs text-[#707070]">Basic Honeypots</th>
@@ -209,7 +209,7 @@ export const FaqAndInstallSection: React.FC<FaqAndInstallSectionProps> = ({ onOp
               className="pill-button inline-flex items-center gap-2 bg-[#141414] text-[#ffffff] font-semibold text-base px-7 py-3.5 hover:bg-[#262626] cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>Download BotFence (.zip)</span>
+              <span>Download Vighnaghna (.zip)</span>
             </button>
           </div>
         </div>

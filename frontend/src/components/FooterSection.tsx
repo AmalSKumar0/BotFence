@@ -15,7 +15,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenDownload }) 
           {/* Brand & Description Column (Left) */}
           <div className="md:col-span-6 lg:col-span-6 space-y-4">
             <div className="text-xl font-bold tracking-tight text-[#ffffff]">
-              BOTFENCE
+              VIGHNAGHNA
             </div>
             <p className="font-mono text-xs sm:text-sm text-[#8c8c8c] leading-relaxed max-w-sm">
               The invisible anti-bot plugin for WordPress. Completely blocks spam submissions across CF7, WPForms, Gravity Forms, and WooCommerce.
@@ -112,7 +112,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenDownload }) 
         <div className="pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono text-xs text-[#8c8c8c]">
           
           <div className="flex flex-wrap items-center gap-2">
-            <span>&copy; {new Date().getFullYear()} BOTFENCE. All rights reserved.</span>
+            <span>&copy; {new Date().getFullYear()} VIGHNAGHNA. All rights reserved.</span>
             <span className="text-[#383838] hidden sm:inline">|</span>
             <span>
               Developed by{' '}

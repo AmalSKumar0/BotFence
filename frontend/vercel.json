@@ -24,7 +24,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!assets/|BotFence.zip|.*\\..*).*)",
+      "source": "/((?!assets/|vighnaghna.zip|BotFence.zip|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]

@@ -1,12 +1,12 @@
 <div align="center">
-<img width="1200" height="475" alt="BotFence Banner" src="../assets/banner-1544x500.png" />
+<img width="1200" height="475" alt="Vighnaghna Banner" src="../assets/banner-1544x500.png" />
 </div>
 
-# BotFence — Official Web Portal & Download Hub
+# Vighnaghna — Official Web Portal & Download Hub
 
 Live Website: **[https://bot-fence.vercel.app/](https://bot-fence.vercel.app/)**
 
-Minimalist neo-brutalist landing page and direct package distribution portal for **BotFence**, the zero-CAPTCHA WordPress security plugin that protects every form.
+Minimalist neo-brutalist landing page and direct package distribution portal for **Vighnaghna** (विघ्नघ्न — *Destroyer of Obstacles*), the zero-CAPTCHA WordPress security plugin that protects every form.
 
 ## Deployment on Vercel
 

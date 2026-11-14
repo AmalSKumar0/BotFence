@@ -1,4 +1,4 @@
-# User-agent rules for BotFence Web Portal
+# User-agent rules for Vighnaghna Web Portal
 User-agent: *
 Allow: /
 Disallow: /api/
