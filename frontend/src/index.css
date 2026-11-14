@@ -1,105 +1,101 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #121110;
-  --color-primary-light: #2E2C29;
+  --color-primary: #FFFFFF;
+  --color-primary-dark: #A1A1AA;
 
-  --color-accent: #E8A588;
-  --color-accent-soft: #F9EFEA;
-  --color-accent-sand: #EFE8DE;
+  --color-accent-pink: #FF4D6D;
+  --color-accent-coral: #F43F5E;
+  
+  --color-background: #0A0A0A;
+  --color-surface: #121212;
+  --color-card: #151515;
+  --color-card-border: #222222;
 
-  --color-background: #EFE8DE;
-  --color-surface: #FFFFFF;
-  --color-card: #FAF7F2;
+  --color-text: #FFFFFF;
+  --color-text-muted: #8E8E8E;
 
-  --color-text: #121110;
-  --color-text-muted: #7C7872;
-
-  --color-border: #ECE5DA;
+  --color-border: #222222;
 }
 
 @layer base {
   :root {
-    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --font-serif: "Editorial New", "Playfair Display", Georgia, Cambria, "Times New Roman", serif;
+    --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-serif: "Playfair Display", "Cormorant Garamond", Georgia, Cambria, "Times New Roman", serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     
-    /* Editorial Minimal Design Tokens */
-    --color-primary: #121110;
-    --color-primary-light: #2E2C29;
+    /* Dark Luxury Studio Tokens */
+    --color-background: #0A0A0A;
+    --color-surface: #121212;
+    --color-card: #151515;
+    --color-card-border: #222222;
 
-    --color-accent: #E8A588;
-    --color-accent-soft: #F9EFEA;
-    --color-accent-sand: #EFE8DE;
+    --color-text: #FFFFFF;
+    --color-text-muted: #8E8E8E;
 
-    --color-background: #EFE8DE;
-    --color-surface: #FFFFFF;
-    --color-card: #FAF7F2;
-
-    --color-text: #121110;
-    --color-text-muted: #7C7872;
-
-    --color-border: #ECE5DA;
+    --color-border: #222222;
   }
   
   body {
     font-family: var(--font-sans);
-    background-color: var(--color-background);
-    color: var(--color-text);
-    letter-spacing: -0.01em;
+    background-color: #0A0A0A;
+    color: #FFFFFF;
+    letter-spacing: -0.015em;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 750;
-    letter-spacing: -0.025em;
-    color: var(--color-text);
+    letter-spacing: -0.03em;
+    color: #FFFFFF;
   }
 }
 
-/* Rounded geometry & micro-interactions */
-.squircle-icon {
-  border-radius: 28%;
+/* Luxury Editorial Typography */
+.font-editorial-serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
 }
 
+/* Subtle Metallic Top Spotlight Background */
+.dark-studio-glow {
+  background: 
+    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 80% 40%, rgba(255, 77, 109, 0.04) 0%, transparent 50%),
+    #0A0A0A;
+}
+
+/* Circular Rotating Stamp Badge */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 24s linear infinite;
+}
+
+/* Micro-interactions & Buttons */
 .pill-button {
   border-radius: 9999px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .pill-button:active {
   transform: scale(0.97);
 }
 
-/* Minimalist Button Styles */
-.btn-primary {
-  background-color: #121110;
-  color: #FFFFFF;
-  border-radius: 9999px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+.card-dark-glass {
+  background-color: #141414;
+  border: 1px solid #222222;
+  border-radius: 24px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.btn-primary:hover {
-  background-color: #2E2C29;
-}
-.btn-primary:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px #EFE8DE, 0 0 0 4px #121110;
-}
-
-.btn-outline {
-  background-color: transparent;
-  color: #121110;
-  border: 1px solid #121110;
-  border-radius: 9999px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.btn-outline:hover {
-  background-color: #121110;
-  color: #FFFFFF;
+.card-dark-glass:hover {
+  border-color: #383838;
+  background-color: #171717;
+  transform: translateY(-2px);
 }

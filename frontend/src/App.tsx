@@ -14,22 +14,20 @@ export default function App() {
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#EFE8DE] text-[#121110] font-sans antialiased selection:bg-[#E8A588]/30 selection:text-[#121110] p-2 sm:p-6 lg:p-8 flex flex-col items-center justify-start">
-      <div className="w-full max-w-[1380px] bg-white rounded-[32px] sm:rounded-[48px] shadow-2xl border border-[#E5DDCF] overflow-hidden flex flex-col">
-        <main className="w-full">
-          {/* 1. Hero Section inspired by Editorial Design */}
-          <HeroSection onOpenDownload={() => setIsDownloadOpen(true)} />
+    <div className="min-h-screen bg-[#0A0A0A] text-white font-sans antialiased selection:bg-[#FF4D6D]/30 selection:text-white">
+      <main className="w-full">
+        {/* 1. Dark Luxury Studio Hero Section (Exact Reference Layout) */}
+        <HeroSection onOpenDownload={() => setIsDownloadOpen(true)} />
 
-          {/* 2. Key Features & How It Works */}
-          <KeyFeaturesSection />
+        {/* 2. FEATURES & "OUR WORKS" 3D Digital Art Showcase */}
+        <KeyFeaturesSection onOpenDownload={() => setIsDownloadOpen(true)} />
 
-          {/* 3. Installation, Comparison Matrix & FAQ */}
-          <FaqAndInstallSection onOpenDownload={() => setIsDownloadOpen(true)} />
-        </main>
+        {/* 3. Installation, Comparison Matrix & FAQ */}
+        <FaqAndInstallSection onOpenDownload={() => setIsDownloadOpen(true)} />
+      </main>
 
-        {/* 4. Minimalist Editorial Footer */}
-        <FooterSection onOpenDownload={() => setIsDownloadOpen(true)} />
-      </div>
+      {/* 4. Sleek Dark Studio Footer */}
+      <FooterSection onOpenDownload={() => setIsDownloadOpen(true)} />
 
       {/* 5. Download Modal */}
       <DownloadModal
