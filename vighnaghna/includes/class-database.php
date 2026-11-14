@@ -145,6 +145,8 @@ class Database {
 			'weight_excessive_urls',
 			'weight_suspicious_telemetry',
 			'weight_repeated_message',
+			'weight_headless_browser',
+			'weight_untrusted_event',
 			'rate_limit_ip_per_minute',
 			'rate_limit_ip_per_hour',
 			'quarantine_duration',
@@ -177,8 +179,176 @@ class Database {
 			}
 		}
 
+		// Migrate legacy database records (botfence_logs, botfence_rate_limits).
+		self::migrate_legacy_records();
+
 		update_option( 'vighnaghna_migrated_from_legacy', 1 );
 		return true;
+	}
+
+	/**
+	 * Migrates records from legacy tables (botfence_logs, botfence_rate_limits)
+	 * into Vighnaghna tables.
+	 *
+	 * - Preserves record IDs where possible.
+	 * - Prevents duplicate records.
+	 * - Uses safe database queries using $wpdb.
+	 * - Does not delete legacy tables during migration.
+	 * - Idempotent.
+	 *
+	 * @return array Counts of migrated rows ['logs' => int, 'rate_limits' => int].
+	 */
+	public static function migrate_legacy_records(): array {
+		global $wpdb;
+
+		$results = array(
+			'logs'        => 0,
+			'rate_limits' => 0,
+		);
+
+		try {
+			self::create_tables();
+
+			$dest_logs  = self::get_logs_table();
+			$dest_rates = self::get_rates_table();
+
+			// 1. Migrate legacy logs.
+			$legacy_logs_tables = array(
+				$wpdb->prefix . 'botfence_logs',
+				$wpdb->prefix . 'kl_antispam_logs',
+			);
+
+			foreach ( $legacy_logs_tables as $legacy_table ) {
+				$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $legacy_table ) );
+				if ( $exists === $legacy_table ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$legacy_rows = $wpdb->get_results( "SELECT * FROM {$legacy_table}" );
+					if ( ! empty( $legacy_rows ) && is_iterable( $legacy_rows ) ) {
+						foreach ( $legacy_rows as $raw_row ) {
+							$row    = (array) $raw_row;
+							$row_id = isset( $row['id'] ) ? (int) $row['id'] : 0;
+							if ( $row_id > 0 ) {
+								// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+								$id_exists = $wpdb->get_var(
+									$wpdb->prepare( "SELECT id FROM {$dest_logs} WHERE id = %d", $row_id )
+								);
+								if ( $id_exists ) {
+									continue; // Prevent duplicates.
+								}
+
+								// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+								$inserted = $wpdb->query(
+									$wpdb->prepare(
+										"INSERT INTO {$dest_logs} (id, created_at, form_type, form_id, risk_score, action_taken, reasons, ip_hash, masked_ip, user_agent, submission_time, is_spam)
+										VALUES (%d, %s, %s, %s, %d, %s, %s, %s, %s, %s, %f, %d)",
+										$row_id,
+										$row['created_at'] ?? gmdate( 'Y-m-d H:i:s' ),
+										$row['form_type'] ?? 'unknown',
+										$row['form_id'] ?? '',
+										isset( $row['risk_score'] ) ? (int) $row['risk_score'] : 0,
+										$row['action_taken'] ?? 'allow',
+										$row['reasons'] ?? '',
+										$row['ip_hash'] ?? '',
+										$row['masked_ip'] ?? '',
+										$row['user_agent'] ?? '',
+										isset( $row['submission_time'] ) ? (float) $row['submission_time'] : 0.0,
+										isset( $row['is_spam'] ) ? (int) $row['is_spam'] : 0
+									)
+								);
+								if ( $inserted ) {
+									$results['logs']++;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			// 2. Migrate legacy rate limits.
+			$legacy_rate_tables = array(
+				$wpdb->prefix . 'botfence_rate_limits',
+				$wpdb->prefix . 'kl_antispam_rate_limits',
+			);
+
+			foreach ( $legacy_rate_tables as $legacy_table ) {
+				$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $legacy_table ) );
+				if ( $exists === $legacy_table ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$legacy_rows = $wpdb->get_results( "SELECT * FROM {$legacy_table}" );
+					if ( ! empty( $legacy_rows ) && is_iterable( $legacy_rows ) ) {
+						foreach ( $legacy_rows as $raw_row ) {
+							$row        = (array) $raw_row;
+							$identifier = $row['identifier'] ?? '';
+							$limit_type = $row['limit_type'] ?? 'ip';
+
+							if ( empty( $identifier ) ) {
+								continue;
+							}
+
+							// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+							$exists_in_dest = $wpdb->get_var(
+								$wpdb->prepare(
+									"SELECT id FROM {$dest_rates} WHERE identifier = %s AND limit_type = %s",
+									$identifier,
+									$limit_type
+								)
+							);
+							if ( $exists_in_dest ) {
+								continue; // Prevent duplicates.
+							}
+
+							$row_id = isset( $row['id'] ) ? (int) $row['id'] : 0;
+							if ( $row_id > 0 ) {
+								// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+								$id_collision = $wpdb->get_var(
+									$wpdb->prepare( "SELECT id FROM {$dest_rates} WHERE id = %d", $row_id )
+								);
+								if ( ! $id_collision ) {
+									// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+									$inserted = $wpdb->query(
+										$wpdb->prepare(
+											"INSERT INTO {$dest_rates} (id, identifier, limit_type, count, first_seen, expires_at)
+											VALUES (%d, %s, %s, %d, %s, %s)",
+											$row_id,
+											$identifier,
+											$limit_type,
+											isset( $row['count'] ) ? (int) $row['count'] : 1,
+											$row['first_seen'] ?? gmdate( 'Y-m-d H:i:s' ),
+											$row['expires_at'] ?? gmdate( 'Y-m-d H:i:s', time() + 3600 )
+										)
+									);
+									if ( $inserted ) {
+										$results['rate_limits']++;
+									}
+									continue;
+								}
+							}
+
+							// If ID collided or was 0, insert without specifying ID to auto-assign ID while preserving unique record data.
+							// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+							$inserted = $wpdb->query(
+								$wpdb->prepare(
+									"INSERT INTO {$dest_rates} (identifier, limit_type, count, first_seen, expires_at)
+									VALUES (%s, %s, %d, %s, %s)",
+									$identifier,
+									$limit_type,
+									isset( $row['count'] ) ? (int) $row['count'] : 1,
+									$row['first_seen'] ?? gmdate( 'Y-m-d H:i:s' ),
+									$row['expires_at'] ?? gmdate( 'Y-m-d H:i:s', time() + 3600 )
+								)
+							);
+							if ( $inserted ) {
+								$results['rate_limits']++;
+							}
+						}
+					}
+				}
+			}
+		} catch ( \Throwable $e ) {
+			// Fail gracefully if database constraints occur.
+		}
+
+		return $results;
 	}
 
 	/**

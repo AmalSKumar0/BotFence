@@ -35,10 +35,6 @@ abstract class Abstract_Form_Adapter implements Form_Adapter_Interface {
 			$this->engine = $engine;
 		} elseif ( function_exists( 'vighnaghna' ) ) {
 			$this->engine = vighnaghna()->get_captcha_engine();
-		} elseif ( function_exists( 'botfence' ) ) {
-			$this->engine = botfence()->get_captcha_engine();
-		} elseif ( function_exists( 'kl_anti_spam' ) ) {
-			$this->engine = kl_anti_spam()->get_captcha_engine();
 		} else {
 			$this->engine = new Captcha_Engine();
 		}

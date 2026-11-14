@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name:       Vighnaghna
- * Plugin URI:        https://amalskumar.dev
+ * Plugin URI:        https://vighnaghna.amalskumar.dev
  * Description:       Lightweight, invisible anti-spam protection for WordPress forms. No CAPTCHA, no external requests.
  * Version:           1.0.0
- * Requires at least: 5.9
+ * Requires at least: 6.0
  * Requires PHP:      8.1
  * Author:            Amal S Kumar
  * Author URI:        https://amalskumar.dev
@@ -70,13 +70,6 @@ if ( ! defined( 'KL_ANTISPAM_URL' ) ) {
 }
 if ( ! defined( 'KL_ANTISPAM_BASENAME' ) ) {
 	define( 'KL_ANTISPAM_BASENAME', VIGHNAGHNA_BASENAME );
-}
-
-// Compatibility helper for PHP < 8.0.
-if ( ! function_exists( 'str_starts_with' ) ) {
-	function str_starts_with( string $haystack, string $needle ): bool {
-		return '' === $needle || 0 === strncmp( $haystack, $needle, strlen( $needle ) );
-	}
 }
 
 /**
@@ -251,28 +244,6 @@ register_deactivation_hook( __FILE__, 'vighnaghna_deactivate' );
 if ( ! function_exists( 'vighnaghna' ) ) {
 	function vighnaghna() {
 		return \Vighnaghna\Plugin::get_instance();
-	}
-}
-
-/**
- * Backwards compatibility helper for BotFence.
- *
- * @return \Vighnaghna\Plugin
- */
-if ( ! function_exists( 'botfence' ) ) {
-	function botfence() {
-		return vighnaghna();
-	}
-}
-
-/**
- * Backwards compatibility helper for KL Anti-Spam.
- *
- * @return \Vighnaghna\Plugin
- */
-if ( ! function_exists( 'kl_anti_spam' ) ) {
-	function kl_anti_spam() {
-		return vighnaghna();
 	}
 }
 

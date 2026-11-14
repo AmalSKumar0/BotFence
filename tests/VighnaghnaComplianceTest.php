@@ -206,4 +206,138 @@ class VighnaghnaComplianceTest extends TestCase {
 		Database::migrate_from_legacy();
 		$this->assertSame( 85, (int) get_option( 'vighnaghna_risk_threshold_block' ) );
 	}
+
+	/**
+	 * Test 7: Legacy options migration includes weight_headless_browser and weight_untrusted_event.
+	 */
+	public function test_legacy_weights_migration_includes_headless_and_untrusted(): void {
+		delete_option( 'vighnaghna_migrated_from_legacy' );
+		delete_option( 'vighnaghna_weight_headless_browser' );
+		delete_option( 'vighnaghna_weight_untrusted_event' );
+
+		update_option( 'botfence_weight_headless_browser', 55 );
+		update_option( 'botfence_weight_untrusted_event', 48 );
+
+		Database::migrate_from_legacy();
+
+		$this->assertSame( 55, (int) get_option( 'vighnaghna_weight_headless_browser' ) );
+		$this->assertSame( 48, (int) get_option( 'vighnaghna_weight_untrusted_event' ) );
+	}
+
+	/**
+	 * Test 8: Legacy database table records migration for botfence_logs and botfence_rate_limits.
+	 *
+	 * - Preserves record IDs where possible.
+	 * - Prevents duplicate records.
+	 * - Does not delete legacy tables.
+	 * - Is idempotent.
+	 */
+	public function test_legacy_table_records_migration(): void {
+		global $wpdb;
+
+		$wpdb->logs_table          = array();
+		$wpdb->rates_table         = array();
+		$wpdb->legacy_logs_table   = array(
+			array(
+				'id'              => 42,
+				'created_at'      => '2026-10-01 12:00:00',
+				'form_type'       => 'contact_form_7',
+				'form_id'         => '123',
+				'risk_score'      => 85,
+				'action_taken'    => 'block',
+				'reasons'         => 'Honeypot trap triggered',
+				'ip_hash'         => 'hash42',
+				'masked_ip'       => '203.0.113.xxx',
+				'user_agent'      => 'BotCrawler/1.0',
+				'submission_time' => 0.4,
+				'is_spam'         => 1,
+			),
+			array(
+				'id'              => 43,
+				'created_at'      => '2026-10-01 12:05:00',
+				'form_type'       => 'wpforms',
+				'form_id'         => '456',
+				'risk_score'      => 10,
+				'action_taken'    => 'allow',
+				'reasons'         => 'Clean submission',
+				'ip_hash'         => 'hash43',
+				'masked_ip'       => '198.51.100.xxx',
+				'user_agent'      => 'Mozilla/5.0',
+				'submission_time' => 4.2,
+				'is_spam'         => 0,
+			),
+		);
+		$wpdb->legacy_rates_table  = array(
+			array(
+				'id'         => 10,
+				'identifier' => '192.0.2.100',
+				'limit_type' => 'ip',
+				'count'      => 4,
+				'first_seen' => '2026-10-01 11:00:00',
+				'expires_at' => '2026-10-01 13:00:00',
+			),
+		);
+
+		// Execute table records migration
+		$results = Database::migrate_legacy_records();
+
+		$this->assertSame( 2, $results['logs'], 'Must migrate 2 legacy log records' );
+		$this->assertSame( 1, $results['rate_limits'], 'Must migrate 1 legacy rate limit record' );
+
+		// Verify record IDs are preserved
+		$this->assertArrayHasKey( 42, $wpdb->logs_table, 'Record ID 42 must be preserved' );
+		$this->assertArrayHasKey( 43, $wpdb->logs_table, 'Record ID 43 must be preserved' );
+		$this->assertSame( 42, $wpdb->logs_table[42]->id );
+		$this->assertSame( 'contact_form_7', $wpdb->logs_table[42]->form_type );
+
+		// Verify rates table migration
+		$rate_key = '192.0.2.100:ip';
+		$this->assertArrayHasKey( $rate_key, $wpdb->rates_table );
+		$this->assertSame( 4, $wpdb->rates_table[ $rate_key ]->count );
+
+		// Verify legacy tables were NOT deleted
+		$this->assertCount( 2, $wpdb->legacy_logs_table, 'Legacy logs table must not be deleted' );
+		$this->assertCount( 1, $wpdb->legacy_rates_table, 'Legacy rates table must not be deleted' );
+
+		// Verify idempotence: re-running migration does not duplicate records
+		$second_run = Database::migrate_legacy_records();
+		$this->assertSame( 0, $second_run['logs'], 'Second migration must insert 0 duplicates' );
+		$this->assertSame( 0, $second_run['rate_limits'], 'Second migration must insert 0 duplicate rates' );
+		$this->assertCount( 2, $wpdb->logs_table, 'Total logs must remain exactly 2' );
+	}
+
+	/**
+	 * Test 9: Activation and deactivation callbacks execute safely without altering active_plugins.
+	 */
+	public function test_activation_and_deactivation_lifecycle(): void {
+		global $kl_test_options;
+
+		// Seed initial state with a simulated active_plugins list
+		$initial_active_plugins = array( 'vighnaghna/vighnaghna.php', 'woocommerce/woocommerce.php', 'contact-form-7/wp-contact-form-7.php' );
+		$kl_test_options['active_plugins'] = $initial_active_plugins;
+
+		// Trigger plugin activation
+		require_once VIGHNAGHNA_PATH . 'vighnaghna.php';
+		vighnaghna_activate();
+
+		// Verify active_plugins was NOT touched or modified
+		$this->assertSame( $initial_active_plugins, $kl_test_options['active_plugins'], 'Activation must never alter active_plugins' );
+
+		// Verify secret key and default options were written
+		$this->assertNotEmpty( get_option( 'vighnaghna_secret_key' ) );
+		$this->assertSame( 1, (int) get_option( 'vighnaghna_enabled' ) );
+		$this->assertSame( 100, (int) get_option( 'vighnaghna_weight_honeypot' ) );
+
+		// Verify cron event was scheduled
+		$this->assertNotFalse( wp_next_scheduled( 'vighnaghna_cleanup_cron' ) );
+
+		// Trigger plugin deactivation
+		vighnaghna_deactivate();
+
+		// Verify cron event was cleanly unscheduled
+		$this->assertFalse( wp_next_scheduled( 'vighnaghna_cleanup_cron' ) );
+
+		// Verify active_plugins remains completely unchanged
+		$this->assertSame( $initial_active_plugins, $kl_test_options['active_plugins'], 'Deactivation must never alter active_plugins' );
+	}
 }

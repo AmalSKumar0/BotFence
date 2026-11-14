@@ -231,6 +231,14 @@ function sanitize_textarea_field( $str ) {
 	return wp_strip_all_tags( (string) $str );
 }
 
+function register_activation_hook( $file, $callback ) {
+	return true;
+}
+
+function register_deactivation_hook( $file, $callback ) {
+	return true;
+}
+
 function wp_unslash( $val ) {
 	if ( is_array( $val ) ) {
 		return array_map( 'wp_unslash', $val );
@@ -305,15 +313,23 @@ function comments_open() {
 	return ! empty( $post->comment_status ) && 'open' === $post->comment_status;
 }
 
+global $kl_test_crons;
+$kl_test_crons = array();
+
 function wp_next_scheduled( $hook ) {
-	return false;
+	global $kl_test_crons;
+	return $kl_test_crons[ $hook ] ?? false;
 }
 
 function wp_schedule_event( $timestamp, $recurrence, $hook ) {
+	global $kl_test_crons;
+	$kl_test_crons[ $hook ] = $timestamp;
 	return true;
 }
 
 function wp_unschedule_event( $timestamp, $hook ) {
+	global $kl_test_crons;
+	unset( $kl_test_crons[ $hook ] );
 	return true;
 }
 
@@ -506,6 +522,16 @@ function register_rest_route( $namespace, $route, $args = array() ) {
 	return true;
 }
 
+if ( ! defined( 'OBJECT' ) ) {
+	define( 'OBJECT', 'OBJECT' );
+}
+if ( ! defined( 'ARRAY_A' ) ) {
+	define( 'ARRAY_A', 'ARRAY_A' );
+}
+if ( ! defined( 'ARRAY_N' ) ) {
+	define( 'ARRAY_N', 'ARRAY_N' );
+}
+
 /**
  * Database Test Double (Mock WPDB).
  */
@@ -515,6 +541,8 @@ class Mock_WPDB {
 	public array $logs_table = array();
 	public array $rates_table = array();
 	public array $used_tokens_table = array();
+	public array $legacy_logs_table = array();
+	public array $legacy_rates_table = array();
 	public bool $suppress_errors = false;
 
 	public function suppress_errors( bool $suppress = true ): bool {
@@ -635,6 +663,33 @@ class Mock_WPDB {
 			}
 		}
 
+		if ( str_contains( $query, 'INSERT INTO' ) && str_contains( $query, 'vighnaghna_logs' ) ) {
+			if ( preg_match( "/VALUES \((\d+),\s*'([^']+)',\s*'([^']+)'/", $query, $m ) ) {
+				$id = (int) $m[1];
+				$this->logs_table[ $id ] = (object) array(
+					'id'         => $id,
+					'created_at' => $m[2],
+					'form_type'  => $m[3],
+				);
+				return 1;
+			}
+		}
+
+		if ( str_contains( $query, 'INSERT INTO' ) && str_contains( $query, 'vighnaghna_rate_limits' ) ) {
+			if ( preg_match( "/VALUES \((?:(\d+),\s*)?'([^']+)',\s*'([^']+)',\s*(\d+)/", $query, $m ) ) {
+				$ident = $m[2];
+				$type  = $m[3];
+				$key   = $ident . ':' . $type;
+				$this->rates_table[ $key ] = (object) array(
+					'id'         => ! empty( $m[1] ) ? (int) $m[1] : 1,
+					'identifier' => $ident,
+					'limit_type' => $type,
+					'count'      => (int) $m[4],
+				);
+				return 1;
+			}
+		}
+
 		if ( str_contains( $query, 'TRUNCATE' ) ) {
 			$this->logs_table = array();
 			$this->used_tokens_table = array();
@@ -654,12 +709,26 @@ class Mock_WPDB {
 				return str_contains( $query, 'vighnaghna' ) ? 'wp_vighnaghna_used_tokens' : 'wp_botfence_used_tokens';
 			}
 			if ( str_contains( $query, 'rate_limits' ) ) {
-				return str_contains( $query, 'vighnaghna' ) ? 'wp_vighnaghna_rate_limits' : 'wp_botfence_rate_limits';
+				if ( str_contains( $query, 'botfence' ) || str_contains( $query, 'kl_antispam' ) ) {
+					return ! empty( $this->legacy_rates_table ) ? 'wp_botfence_rate_limits' : null;
+				}
+				return 'wp_vighnaghna_rate_limits';
 			}
 			if ( str_contains( $query, 'logs' ) ) {
-				return str_contains( $query, 'vighnaghna' ) ? 'wp_vighnaghna_logs' : 'wp_botfence_logs';
+				if ( str_contains( $query, 'botfence' ) || str_contains( $query, 'kl_antispam' ) ) {
+					return ! empty( $this->legacy_logs_table ) ? 'wp_botfence_logs' : null;
+				}
+				return 'wp_vighnaghna_logs';
 			}
 			return 'wp_vighnaghna_logs';
+		}
+		if ( preg_match( '/SELECT id FROM .*vighnaghna_logs WHERE id = (\d+)/', $query, $m ) ) {
+			$id = (int) $m[1];
+			return isset( $this->logs_table[ $id ] ) ? $id : null;
+		}
+		if ( preg_match( "/SELECT id FROM .*vighnaghna_rate_limits WHERE identifier = '([^']+)' AND limit_type = '([^']+)'/", $query, $m ) ) {
+			$key = $m[1] . ':' . $m[2];
+			return isset( $this->rates_table[ $key ] ) ? 1 : null;
 		}
 		if ( str_contains( $query, 'COUNT(id)' ) ) {
 			if ( str_contains( $query, "action_taken = 'block'" ) ) {
@@ -700,6 +769,12 @@ class Mock_WPDB {
 		}
 
 		if ( str_contains( $query, 'SELECT * FROM' ) ) {
+			if ( str_contains( $query, 'botfence_logs' ) || str_contains( $query, 'kl_antispam_logs' ) ) {
+				return $this->legacy_logs_table;
+			}
+			if ( str_contains( $query, 'botfence_rate_limits' ) || str_contains( $query, 'kl_antispam_rate_limits' ) ) {
+				return $this->legacy_rates_table;
+			}
 			if ( str_contains( $query, "action_taken = 'block'" ) ) {
 				return array_values( array_filter( $this->logs_table, fn( $e ) => ( $e->action_taken ?? '' ) === 'block' ) );
 			}
