@@ -1,20 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #38142A;
-  --color-primary-dark: #210918;
-  --color-primary-light: #4E223C;
+  --color-primary: #5B42F3;
+  --color-primary-dark: #0D0C15;
+  --color-primary-light: #7B68EE;
 
-  --color-accent: #DCC9BE;
-  --color-accent-muted: #B49F99;
+  --color-accent: #8B7DFF;
+  --color-accent-soft: #F1EFFE;
+  --color-accent-peach: #FFF7F0;
 
-  --color-background: #F7F1ED;
+  --color-background: #FAF9FD;
   --color-surface: #FFFFFF;
 
-  --color-text: #210918;
-  --color-text-muted: #74656C;
+  --color-text: #0D0C15;
+  --color-text-muted: #6C6A7B;
 
-  --color-border: #E7DCD7;
+  --color-border: #ECEAF5;
 }
 
 @layer base {
@@ -22,61 +23,61 @@
     --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     
-    /* Vighnaghna Wine-Plum & Champagne Palette */
-    --color-primary: #38142A;
-    --color-primary-dark: #210918;
-    --color-primary-light: #4E223C;
+    /* Serene Minimal Design Tokens */
+    --color-primary: #5B42F3;
+    --color-primary-dark: #0D0C15;
+    --color-primary-light: #7B68EE;
 
-    --color-accent: #DCC9BE;
-    --color-accent-muted: #B49F99;
+    --color-accent: #8B7DFF;
+    --color-accent-soft: #F1EFFE;
+    --color-accent-peach: #FFF7F0;
 
-    --color-background: #F7F1ED;
+    --color-background: #FAF9FD;
     --color-surface: #FFFFFF;
 
-    --color-text: #210918;
-    --color-text-muted: #74656C;
+    --color-text: #0D0C15;
+    --color-text-muted: #6C6A7B;
 
-    --color-border: #E7DCD7;
-
-    /* Semantic mappings */
-    --color-canvas: var(--color-background);
-    --color-canvas-soft: #EDE4DE;
-    --color-card: var(--color-surface);
-    --color-input: #F3EBE6;
+    --color-border: #ECEAF5;
   }
   
   body {
     font-family: var(--font-sans);
     background-color: var(--color-background);
     color: var(--color-text);
-    letter-spacing: 0;
+    letter-spacing: -0.01em;
   }
 
-  /* Headings with tight leading and bold 650 weight */
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 650;
-    letter-spacing: -0.015em;
+    font-weight: 750;
+    letter-spacing: -0.025em;
     color: var(--color-text);
   }
 }
 
-/* iOS 30% Squircle Icon */
+/* Rounded geometry & micro-interactions */
 .squircle-icon {
-  border-radius: 30%;
+  border-radius: 28%;
 }
 
-/* Stadium Pill Button Transitions */
 .pill-button {
   border-radius: 9999px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .pill-button:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
-/* Design System Buttons */
+/* Gradient Display Text */
+.text-gradient-purple {
+  background: linear-gradient(135deg, #5B42F3 0%, #7B68EE 50%, #9381FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Minimalist Button Styles */
 .btn-primary {
-  background-color: var(--color-primary);
+  background-color: #0D0C15;
   color: #FFFFFF;
   border-radius: 9999px;
   font-weight: 600;
@@ -84,46 +85,31 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 6px rgba(56, 20, 42, 0.15);
 }
 .btn-primary:hover {
-  background-color: var(--color-primary-light);
-  box-shadow: 0 4px 14px rgba(56, 20, 42, 0.25);
+  background-color: #242236;
 }
 .btn-primary:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-primary);
+  box-shadow: 0 0 0 2px #FAF9FD, 0 0 0 4px #5B42F3;
 }
 
-.btn-secondary {
-  background-color: var(--color-surface);
-  color: var(--color-primary);
-  border: 1px solid var(--color-border);
+.btn-purple {
+  background-color: #5B42F3;
+  color: #FFFFFF;
   border-radius: 9999px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(91, 66, 243, 0.28);
 }
-.btn-secondary:hover {
-  background-color: var(--color-background);
-  border-color: var(--color-accent);
+.btn-purple:hover {
+  background-color: #4933DC;
+  box-shadow: 0 6px 20px rgba(91, 66, 243, 0.38);
 }
-.btn-secondary:focus-visible {
+.btn-purple:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-primary);
-}
-
-/* Card Geometry */
-.card-surface {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 24px;
-  box-shadow: 0 2px 8px rgba(33, 9, 24, 0.04);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.card-surface:hover {
-  border-color: var(--color-accent);
-  box-shadow: 0 8px 24px rgba(33, 9, 24, 0.08);
+  box-shadow: 0 0 0 2px #FAF9FD, 0 0 0 4px #5B42F3;
 }

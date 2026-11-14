@@ -14,7 +14,7 @@ export default function App() {
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F7F1ED] text-[#210918] font-sans antialiased selection:bg-[#DCC9BE] selection:text-[#210918]">
+    <div className="min-h-screen bg-[#FAF9FD] text-[#0D0C15] font-sans antialiased selection:bg-[#EDE9FE] selection:text-[#5B42F3]">
       {/* 
         NO NAVBAR as explicitly requested in prompt:
         "i want you to create a site with no navbar, herosection 'Stop Bots. Protect Every Form'"

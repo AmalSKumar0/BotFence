@@ -78,15 +78,15 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     }
     scene.add(keyLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xF7F1ED, 0x210918, 1.25);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x5B42F3, 1.25);
     scene.add(hemiLight);
 
-    const rimLight = new THREE.DirectionalLight(0xDCC9BE, 1.8);
+    const rimLight = new THREE.DirectionalLight(0xA594FD, 1.8);
     rimLight.position.set(-4, -1, -3);
     scene.add(rimLight);
 
-    // Warm champagne & rose gold kinetic core point light
-    const corePointLight = new THREE.PointLight(0xDCC9BE, 2.6, 6);
+    // Warm radiant violet-periwinkle kinetic core point light
+    const corePointLight = new THREE.PointLight(0x7B68EE, 2.8, 6);
     corePointLight.position.set(0, 0, 0);
     scene.add(corePointLight);
 
@@ -98,37 +98,37 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     kineticMasterGroup.scale.set(0.72, 0.72, 0.72); // Enlarged 3D figure as requested
     scene.add(kineticMasterGroup);
 
-    // --- Part 1: Outer Deep Wine-Plum Meridian Ring (#38142A) ---
+    // --- Part 1: Outer Dark Indigo Meridian Ring ---
     const outerRingGeo = new THREE.TorusGeometry(2.18, 0.024, 16, 80);
     const outerRingMat = new THREE.MeshStandardMaterial({
-      color: 0x38142A,
-      metalness: 0.88,
+      color: 0x1E1B4B,
+      metalness: 0.9,
       roughness: 0.22,
     });
     disposables.push(outerRingGeo, outerRingMat);
     const outerRingMesh = new THREE.Mesh(outerRingGeo, outerRingMat);
     kineticMasterGroup.add(outerRingMesh);
 
-    // --- Part 2: Middle Polished Champagne Gyro Ring (#DCC9BE) ---
+    // --- Part 2: Middle Polished Platinum Gyro Ring ---
     const midRingGeo = new THREE.TorusGeometry(1.86, 0.036, 16, 80);
     const midRingMat = new THREE.MeshPhysicalMaterial({
-      color: 0xDCC9BE,
-      metalness: 0.96,
+      color: 0xF5F3FF,
+      metalness: 0.98,
       roughness: 0.08,
-      clearcoat: 0.92,
+      clearcoat: 0.95,
     });
     disposables.push(midRingGeo, midRingMat);
     const midRingMesh = new THREE.Mesh(midRingGeo, midRingMat);
     midRingMesh.rotation.x = Math.PI / 4;
     kineticMasterGroup.add(midRingMesh);
 
-    // --- Part 3: Inner Royal Plum Equatorial Ring (#4E223C) ---
+    // --- Part 3: Inner Vibrant Royal Purple Equatorial Ring ---
     const innerRingGeo = new THREE.TorusGeometry(1.54, 0.044, 16, 80);
     const innerRingMat = new THREE.MeshPhysicalMaterial({
-      color: 0x4E223C,
-      metalness: 0.9,
-      roughness: 0.18,
-      clearcoat: 0.7,
+      color: 0x635BFF,
+      metalness: 0.88,
+      roughness: 0.16,
+      clearcoat: 0.8,
     });
     disposables.push(innerRingGeo, innerRingMat);
     const innerRingMesh = new THREE.Mesh(innerRingGeo, innerRingMat);
@@ -139,10 +139,10 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     const notchCount = 18;
     const notchGeo = new THREE.BoxGeometry(0.025, 0.07, 0.04);
     const notchMat = new THREE.MeshStandardMaterial({
-      color: 0xDCC9BE,
+      color: 0xF5F3FF,
       metalness: 0.95,
       roughness: 0.1,
-      emissive: 0x38142A,
+      emissive: 0x5B42F3,
     });
     disposables.push(notchGeo, notchMat);
     const notchInstances = new THREE.InstancedMesh(notchGeo, notchMat, notchCount);
@@ -159,10 +159,10 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     notchInstances.instanceMatrix.needsUpdate = true;
     innerRingMesh.add(notchInstances);
 
-    // --- Part 5: Central Deep Plum Polyhedral Prism Core (#210918) ---
+    // --- Part 5: Central Deep Indigo Polyhedral Prism Core ---
     const coreGeo = new THREE.IcosahedronGeometry(0.85, 0);
     const coreMat = new THREE.MeshPhysicalMaterial({
-      color: 0x210918,
+      color: 0x0F0D24,
       metalness: 0.85,
       roughness: 0.12,
       clearcoat: 1.0,
@@ -176,41 +176,41 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     coreMesh.receiveShadow = !isSoftwareGl;
     kineticMasterGroup.add(coreMesh);
 
-    // Crisp champagne diamond-cut wireframe edges overlay (#DCC9BE)
+    // Crisp luminous violet diamond-cut wireframe edges overlay
     const coreEdgesGeo = new THREE.EdgesGeometry(coreGeo);
     const coreEdgesMat = new THREE.LineBasicMaterial({
-      color: 0xDCC9BE,
+      color: 0x8B7DFF,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.8,
     });
     disposables.push(coreEdgesGeo, coreEdgesMat);
     const coreEdgesMesh = new THREE.LineSegments(coreEdgesGeo, coreEdgesMat);
     coreMesh.add(coreEdgesMesh);
 
-    // --- Part 6: Nested Rose Gold & Royal Plum Luminescent Heart ---
+    // --- Part 6: Nested Glowing Purple Luminescent Heart ---
     const heartGeo = new THREE.OctahedronGeometry(0.5, 0);
     const heartMat = new THREE.MeshStandardMaterial({
-      color: 0xB49F99,
-      emissive: 0x4E223C,
-      emissiveIntensity: 1.8,
+      color: 0x635BFF,
+      emissive: 0x5B42F3,
+      emissiveIntensity: 2.2,
       metalness: 0.8,
-      roughness: 0.16,
+      roughness: 0.15,
       wireframe: false,
     });
     disposables.push(heartGeo, heartMat);
     const heartMesh = new THREE.Mesh(heartGeo, heartMat);
     kineticMasterGroup.add(heartMesh);
 
-    // --- Part 7: Planetary Defense Sentinels (Orbiting Champagne Micro-Octahedra) ---
+    // --- Part 7: Planetary Defense Sentinels (Orbiting Lilac Micro-Octahedra) ---
     const sentinelGroup = new THREE.Group();
     kineticMasterGroup.add(sentinelGroup);
 
     const sentinelGeo = new THREE.OctahedronGeometry(0.12, 0);
     const sentinelMat = new THREE.MeshStandardMaterial({
-      color: 0xDCC9BE,
+      color: 0xF5F3FF,
       metalness: 0.95,
       roughness: 0.1,
-      emissive: 0x38142A,
+      emissive: 0x635BFF,
     });
     disposables.push(sentinelGeo, sentinelMat);
 
@@ -243,9 +243,9 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
       });
     });
 
-    // --- Part 8: Faint Orbital Trajectory Guide Lines (#B49F99 Rose Gold) ---
+    // --- Part 8: Faint Orbital Trajectory Guide Lines ---
     const lineMat = new THREE.LineBasicMaterial({
-      color: 0xB49F99,
+      color: 0x8B7DFF,
       transparent: true,
       opacity: 0.28,
     });
@@ -264,7 +264,7 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
       kineticMasterGroup.add(orbitLine);
     });
 
-    // --- Part 9: Ambient Data Sparkles (Royal Plum Dust #4E223C) ---
+    // --- Part 9: Ambient Data Sparkles (Cryptographic Lavender Dust) ---
     const particleCount = 36;
     const particleGeo = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particleCount * 3);
@@ -280,7 +280,7 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     }
     particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
     const particleMat = new THREE.PointsMaterial({
-      color: 0x4E223C,
+      color: 0x7B68EE,
       size: 0.045,
       transparent: true,
       opacity: 0.45,
@@ -289,16 +289,16 @@ export const ThreeShieldScene: React.FC<ThreeShieldSceneProps> = () => {
     const particlePoints = new THREE.Points(particleGeo, particleMat);
     kineticMasterGroup.add(particlePoints);
 
-    // --- Part 10: Ground Contact Shadow (Soft Deep Plum radial wash #210918) ---
+    // --- Part 10: Ground Contact Shadow (Soft procedural radial wash) ---
     const shadowCanvas = document.createElement('canvas');
     shadowCanvas.width = 128;
     shadowCanvas.height = 128;
     const sCtx = shadowCanvas.getContext('2d');
     if (sCtx) {
       const grad = sCtx.createRadialGradient(64, 64, 10, 64, 64, 60);
-      grad.addColorStop(0, 'rgba(33, 9, 24, 0.16)');
-      grad.addColorStop(0.45, 'rgba(33, 9, 24, 0.05)');
-      grad.addColorStop(1, 'rgba(33, 9, 24, 0)');
+      grad.addColorStop(0, 'rgba(91, 66, 243, 0.12)');
+      grad.addColorStop(0.45, 'rgba(91, 66, 243, 0.04)');
+      grad.addColorStop(1, 'rgba(91, 66, 243, 0)');
       sCtx.fillStyle = grad;
       sCtx.fillRect(0, 0, 128, 128);
     }
