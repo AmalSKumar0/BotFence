@@ -37,7 +37,7 @@ class AdminTest extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertNotEmpty( $output );
-		$this->assertStringContainsString( 'BotFence', $output );
+		$this->assertTrue( str_contains( $output, 'Vighnaghna' ) || str_contains( $output, 'BotFence' ) );
 		$this->assertStringContainsString( 'Protected Adapters', $output );
 		$this->assertStringContainsString( '/ 10', $output );
 		$this->assertStringContainsString( 'Spams Blocked Till Now', $output );
@@ -58,8 +58,14 @@ class AdminTest extends TestCase {
 			$this->admin->render_admin_page();
 			$output = ob_get_clean();
 
-			$this->assertStringContainsString( 'href="#tab-' . $tab . '" class="botfence-nav-tab kl-nav-tab active"', $output );
-			$this->assertStringContainsString( 'id="tab-' . $tab . '" class="botfence-tab-pane kl-tab-pane" style=""', $output );
+			$this->assertTrue(
+				str_contains( $output, 'href="#tab-' . $tab . '" class="vighnaghna-nav-tab botfence-nav-tab kl-nav-tab active"' ) ||
+				str_contains( $output, 'href="#tab-' . $tab . '" class="botfence-nav-tab kl-nav-tab active"' )
+			);
+			$this->assertTrue(
+				str_contains( $output, 'id="tab-' . $tab . '" class="vighnaghna-tab-pane botfence-tab-pane kl-tab-pane" style=""' ) ||
+				str_contains( $output, 'id="tab-' . $tab . '" class="botfence-tab-pane kl-tab-pane" style=""' )
+			);
 		}
 		unset( $_GET['tab'] );
 	}

@@ -9,40 +9,56 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	define( 'ABSPATH', dirname( __DIR__ ) . '/botfence/' );
+	define( 'ABSPATH', dirname( __DIR__ ) . '/vighnaghna/' );
 }
 
-if ( ! defined( 'BOTFENCE_VERSION' ) ) {
-	define( 'BOTFENCE_VERSION', '1.0.2' );
+if ( ! defined( 'VIGHNAGHNA_VERSION' ) ) {
+	define( 'VIGHNAGHNA_VERSION', '1.0.0' );
 }
-if ( ! defined( 'BOTFENCE_FILE' ) ) {
-	define( 'BOTFENCE_FILE', ABSPATH . 'botfence.php' );
+if ( ! defined( 'VIGHNAGHNA_FILE' ) ) {
+	define( 'VIGHNAGHNA_FILE', ABSPATH . 'vighnaghna.php' );
 }
-if ( ! defined( 'BOTFENCE_PATH' ) ) {
-	define( 'BOTFENCE_PATH', ABSPATH );
+if ( ! defined( 'VIGHNAGHNA_PATH' ) ) {
+	define( 'VIGHNAGHNA_PATH', ABSPATH );
 }
-if ( ! defined( 'BOTFENCE_URL' ) ) {
-	define( 'BOTFENCE_URL', 'http://example.com/wp-content/plugins/botfence/' );
+if ( ! defined( 'VIGHNAGHNA_URL' ) ) {
+	define( 'VIGHNAGHNA_URL', 'http://example.com/wp-content/plugins/vighnaghna/' );
 }
-if ( ! defined( 'BOTFENCE_BASENAME' ) ) {
-	define( 'BOTFENCE_BASENAME', 'botfence/botfence.php' );
+if ( ! defined( 'VIGHNAGHNA_BASENAME' ) ) {
+	define( 'VIGHNAGHNA_BASENAME', 'vighnaghna/vighnaghna.php' );
 }
 
 // Backwards-compatibility aliases
+if ( ! defined( 'BOTFENCE_VERSION' ) ) {
+	define( 'BOTFENCE_VERSION', VIGHNAGHNA_VERSION );
+}
+if ( ! defined( 'BOTFENCE_FILE' ) ) {
+	define( 'BOTFENCE_FILE', VIGHNAGHNA_FILE );
+}
+if ( ! defined( 'BOTFENCE_PATH' ) ) {
+	define( 'BOTFENCE_PATH', VIGHNAGHNA_PATH );
+}
+if ( ! defined( 'BOTFENCE_URL' ) ) {
+	define( 'BOTFENCE_URL', VIGHNAGHNA_URL );
+}
+if ( ! defined( 'BOTFENCE_BASENAME' ) ) {
+	define( 'BOTFENCE_BASENAME', VIGHNAGHNA_BASENAME );
+}
+
 if ( ! defined( 'KL_ANTISPAM_VERSION' ) ) {
-	define( 'KL_ANTISPAM_VERSION', BOTFENCE_VERSION );
+	define( 'KL_ANTISPAM_VERSION', VIGHNAGHNA_VERSION );
 }
 if ( ! defined( 'KL_ANTISPAM_FILE' ) ) {
-	define( 'KL_ANTISPAM_FILE', BOTFENCE_FILE );
+	define( 'KL_ANTISPAM_FILE', VIGHNAGHNA_FILE );
 }
 if ( ! defined( 'KL_ANTISPAM_PATH' ) ) {
-	define( 'KL_ANTISPAM_PATH', BOTFENCE_PATH );
+	define( 'KL_ANTISPAM_PATH', VIGHNAGHNA_PATH );
 }
 if ( ! defined( 'KL_ANTISPAM_URL' ) ) {
-	define( 'KL_ANTISPAM_URL', BOTFENCE_URL );
+	define( 'KL_ANTISPAM_URL', VIGHNAGHNA_URL );
 }
 if ( ! defined( 'KL_ANTISPAM_BASENAME' ) ) {
-	define( 'KL_ANTISPAM_BASENAME', BOTFENCE_BASENAME );
+	define( 'KL_ANTISPAM_BASENAME', VIGHNAGHNA_BASENAME );
 }
 
 define( 'MINUTE_IN_SECONDS', 60 );
@@ -277,6 +293,16 @@ function current_user_can( $capability ) {
 
 function is_admin() {
 	return false;
+}
+
+function is_singular() {
+	global $post;
+	return ! empty( $post );
+}
+
+function comments_open() {
+	global $post;
+	return ! empty( $post->comment_status ) && 'open' === $post->comment_status;
 }
 
 function wp_next_scheduled( $hook ) {
@@ -551,7 +577,7 @@ class Mock_WPDB {
 
 	public function query( string $query ) {
 		// Handle atomic token consumption into used_tokens table.
-		if ( ( str_contains( $query, 'botfence_used_tokens' ) || str_contains( $query, 'kl_antispam_used_tokens' ) ) && str_contains( $query, 'INSERT INTO' ) ) {
+		if ( ( str_contains( $query, 'vighnaghna_used_tokens' ) || str_contains( $query, 'botfence_used_tokens' ) || str_contains( $query, 'kl_antispam_used_tokens' ) ) && str_contains( $query, 'INSERT INTO' ) ) {
 			preg_match( "/VALUES \('([^']+)',\s*'([^']+)',\s*'([^']+)',\s*'([^']+)'\)/", $query, $m );
 			if ( ! empty( $m ) ) {
 				$token_hash  = $m[1];
@@ -574,8 +600,8 @@ class Mock_WPDB {
 			}
 		}
 
-		// Handle ON DUPLICATE KEY UPDATE for both BotFence and legacy tables.
-		if ( ( str_contains( $query, 'botfence_rate_limits' ) || str_contains( $query, 'kl_antispam_rate_limits' ) ) && str_contains( $query, 'ON DUPLICATE KEY UPDATE' ) ) {
+		// Handle ON DUPLICATE KEY UPDATE for current and legacy tables.
+		if ( ( str_contains( $query, 'vighnaghna_rate_limits' ) || str_contains( $query, 'botfence_rate_limits' ) || str_contains( $query, 'kl_antispam_rate_limits' ) ) && str_contains( $query, 'ON DUPLICATE KEY UPDATE' ) ) {
 			preg_match( "/VALUES \('([^']+)',\s*'([^']+)',\s*1,\s*'([^']+)',\s*'([^']+)'\)/", $query, $m );
 			if ( ! empty( $m ) ) {
 				$ident = $m[1];
@@ -615,7 +641,7 @@ class Mock_WPDB {
 			return 1;
 		}
 
-		if ( str_contains( $query, 'DELETE FROM' ) && ( str_contains( $query, 'botfence_used_tokens' ) || str_contains( $query, 'kl_antispam_used_tokens' ) ) ) {
+		if ( str_contains( $query, 'DELETE FROM' ) && ( str_contains( $query, 'vighnaghna_used_tokens' ) || str_contains( $query, 'botfence_used_tokens' ) || str_contains( $query, 'kl_antispam_used_tokens' ) ) ) {
 			return 1;
 		}
 
@@ -625,15 +651,15 @@ class Mock_WPDB {
 	public function get_var( string $query ) {
 		if ( str_contains( $query, 'SHOW TABLES LIKE' ) ) {
 			if ( str_contains( $query, 'used_tokens' ) ) {
-				return 'wp_botfence_used_tokens';
+				return str_contains( $query, 'vighnaghna' ) ? 'wp_vighnaghna_used_tokens' : 'wp_botfence_used_tokens';
 			}
 			if ( str_contains( $query, 'rate_limits' ) ) {
-				return 'wp_botfence_rate_limits';
+				return str_contains( $query, 'vighnaghna' ) ? 'wp_vighnaghna_rate_limits' : 'wp_botfence_rate_limits';
 			}
-			if ( str_contains( $query, 'wp_botfence_logs' ) ) {
-				return 'wp_botfence_logs';
+			if ( str_contains( $query, 'logs' ) ) {
+				return str_contains( $query, 'vighnaghna' ) ? 'wp_vighnaghna_logs' : 'wp_botfence_logs';
 			}
-			return 'wp_botfence_logs';
+			return 'wp_vighnaghna_logs';
 		}
 		if ( str_contains( $query, 'COUNT(id)' ) ) {
 			if ( str_contains( $query, "action_taken = 'block'" ) ) {
@@ -770,10 +796,11 @@ function wc_add_notice( $message, $notice_type = 'success' ) {
 	$kl_test_wc_notices[] = array( 'msg' => $message, 'type' => $notice_type );
 }
 
-// Autoloader for both BotFence and KL_Anti_Spam namespaces.
+// Autoloader for Vighnaghna, BotFence, and KL_Anti_Spam namespaces.
 spl_autoload_register( function ( $class_name ) {
 	$prefixes = array(
-		'BotFence\\'    => BOTFENCE_PATH,
+		'Vighnaghna\\'   => VIGHNAGHNA_PATH,
+		'BotFence\\'     => BOTFENCE_PATH,
 		'KL_Anti_Spam\\' => KL_ANTISPAM_PATH,
 	);
 

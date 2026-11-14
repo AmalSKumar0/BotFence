@@ -29,14 +29,14 @@ class HoneypotTest extends TestCase {
 		$name_yesterday = $this->honeypot->get_dynamic_field_name( -1 );
 
 		$this->assertNotEmpty( $name_today );
-		$this->assertTrue( str_starts_with( $name_today, 'botfence_field_' ) || str_starts_with( $name_today, 'kl_field_' ) );
+		$this->assertTrue( str_starts_with( $name_today, 'vighnaghna_field_' ) || str_starts_with( $name_today, 'botfence_field_' ) || str_starts_with( $name_today, 'kl_field_' ) );
 		$this->assertNotSame( $name_today, $name_yesterday );
 	}
 
 	public function test_render_fields_markup(): void {
 		$html = $this->honeypot->render_fields( 'form_abc' );
 
-		$this->assertTrue( str_contains( $html, 'botfence-hp-wrap' ) || str_contains( $html, 'kl-hp-wrap' ) );
+		$this->assertTrue( str_contains( $html, 'vighnaghna-hp-wrap' ) || str_contains( $html, 'botfence-hp-wrap' ) || str_contains( $html, 'kl-hp-wrap' ) );
 		$this->assertStringContainsString( 'aria-hidden="true"', $html );
 		$this->assertStringContainsString( 'tabindex="-1"', $html );
 		$this->assertStringContainsString( 'position: absolute', $html );
@@ -44,7 +44,7 @@ class HoneypotTest extends TestCase {
 
 		$name_today = $this->honeypot->get_dynamic_field_name( 0 );
 		$this->assertStringContainsString( 'name="' . $name_today . '"', $html );
-		$this->assertTrue( str_contains( $html, 'name="botfence_url_website_hp"' ) || str_contains( $html, 'name="kl_url_website_hp"' ) );
+		$this->assertTrue( str_contains( $html, 'name="vighnaghna_url_website_hp"' ) || str_contains( $html, 'name="botfence_url_website_hp"' ) || str_contains( $html, 'name="kl_url_website_hp"' ) );
 	}
 
 	public function test_clean_submission_passes(): void {

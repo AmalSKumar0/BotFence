@@ -1,7 +1,7 @@
 {
-    "name": "amalskumar/botfence",
-    "description": "BotFence - Universal WordPress Anti-Spam & Automated CAPTCHA Plugin built by Amal S Kumar",
-    "homepage": "https://bot-fence.vercel.app/",
+    "name": "amalskumar/vighnaghna",
+    "description": "Vighnaghna - Lightweight, invisible anti-spam protection for WordPress forms. Built by Amal S Kumar",
+    "homepage": "https://amalskumar.dev",
     "authors": [
         {
             "name": "Amal S Kumar",
@@ -18,16 +18,19 @@
     },
     "autoload": {
         "psr-4": {
-            "BotFence\\": "botfence/includes/",
-            "BotFence\\Integrations\\": "botfence/integrations/",
-            "KL_Anti_Spam\\": "botfence/includes/",
-            "KL_Anti_Spam\\Integrations\\": "botfence/integrations/"
+            "Vighnaghna\\": "vighnaghna/includes/",
+            "Vighnaghna\\Integrations\\": "vighnaghna/integrations/",
+            "BotFence\\": "vighnaghna/includes/",
+            "BotFence\\Integrations\\": "vighnaghna/integrations/",
+            "KL_Anti_Spam\\": "vighnaghna/includes/",
+            "KL_Anti_Spam\\Integrations\\": "vighnaghna/integrations/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "BotFence\\Tests\\": "botfence/tests/",
-            "KL_Anti_Spam\\Tests\\": "botfence/tests/"
+            "Vighnaghna\\Tests\\": "tests/",
+            "BotFence\\Tests\\": "tests/",
+            "KL_Anti_Spam\\Tests\\": "tests/"
         }
     },
     "config": {

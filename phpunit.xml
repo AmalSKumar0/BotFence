@@ -9,14 +9,14 @@
          displayDetailsOnTestsThatTriggerNotices="true"
          displayDetailsOnTestsThatTriggerWarnings="true">
     <testsuites>
-        <testsuite name="BotFence Test Suite">
+        <testsuite name="Vighnaghna Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
     <source>
         <include>
-            <directory suffix=".php">botfence/includes</directory>
-            <directory suffix=".php">botfence/integrations</directory>
+            <directory suffix=".php">vighnaghna/includes</directory>
+            <directory suffix=".php">vighnaghna/integrations</directory>
         </include>
     </source>
 </phpunit>

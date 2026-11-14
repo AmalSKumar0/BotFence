@@ -7,11 +7,14 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
-    'KL_Anti_Spam\\Tests\\' => array($baseDir . '/botfence/tests'),
-    'KL_Anti_Spam\\Integrations\\' => array($baseDir . '/botfence/integrations'),
-    'KL_Anti_Spam\\' => array($baseDir . '/botfence/includes'),
+    'Vighnaghna\\Tests\\' => array($baseDir . '/tests'),
+    'Vighnaghna\\Integrations\\' => array($baseDir . '/vighnaghna/integrations'),
+    'Vighnaghna\\' => array($baseDir . '/vighnaghna/includes'),
+    'BotFence\\Tests\\' => array($baseDir . '/tests'),
+    'BotFence\\Integrations\\' => array($baseDir . '/vighnaghna/integrations'),
+    'BotFence\\' => array($baseDir . '/vighnaghna/includes'),
+    'KL_Anti_Spam\\Tests\\' => array($baseDir . '/tests'),
+    'KL_Anti_Spam\\Integrations\\' => array($baseDir . '/vighnaghna/integrations'),
+    'KL_Anti_Spam\\' => array($baseDir . '/vighnaghna/includes'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
-    'BotFence\\Tests\\' => array($baseDir . '/botfence/tests'),
-    'BotFence\\Integrations\\' => array($baseDir . '/botfence/integrations'),
-    'BotFence\\' => array($baseDir . '/botfence/includes'),
 );

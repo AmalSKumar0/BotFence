@@ -289,7 +289,7 @@ class IntegrationsTest extends TestCase {
 		// Registration validation: honeypot spam -> WP_Error populated.
 		$val_errors = new \WP_Error();
 		$adapter->validate_registration( 'spammer', 'spam@test.com', $val_errors );
-		$this->assertTrue( in_array( $val_errors->get_error_code(), array( 'botfence_spam_detected', 'kl_spam_detected' ), true ) );
+		$this->assertTrue( in_array( $val_errors->get_error_code(), array( 'vighnaghna_spam_detected', 'botfence_spam_detected', 'kl_spam_detected' ), true ) );
 
 		// Login validation: clean submission -> returns user.
 		$_SERVER['REQUEST_METHOD'] = 'POST';
@@ -303,7 +303,7 @@ class IntegrationsTest extends TestCase {
 		$_POST[ $hp_field ] = 'spam login bot';
 		$spam_res = $adapter->validate_login( $user_mock, 'legit_user', 'password' );
 		$this->assertTrue( is_wp_error( $spam_res ) );
-		$this->assertSame( 'botfence_spam_detected', $spam_res->get_error_code() );
+		$this->assertTrue( in_array( $spam_res->get_error_code(), array( 'vighnaghna_spam_detected', 'botfence_spam_detected' ), true ) );
 	}
 
 	/**
@@ -331,7 +331,7 @@ class IntegrationsTest extends TestCase {
 		$_POST[ $hp_field ] = 'cheap sunglasses http://spam.com';
 		$err = $adapter->validate_comment( $comment_data );
 		$this->assertTrue( is_wp_error( $err ) );
-		$this->assertTrue( in_array( $err->get_error_code(), array( 'botfence_comment_spam', 'kl_comment_spam' ), true ) );
+		$this->assertTrue( in_array( $err->get_error_code(), array( 'vighnaghna_comment_spam', 'botfence_comment_spam', 'kl_comment_spam' ), true ) );
 	}
 
 	/**
