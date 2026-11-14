@@ -5,9 +5,7 @@ import {
   Layers, 
   Database, 
   ArrowUpRight, 
-  CheckCircle2, 
   ShieldCheck, 
-  ArrowRight,
   Cpu
 } from 'lucide-react';
 
@@ -116,104 +114,10 @@ export const KeyFeaturesSection: React.FC<KeyFeaturesSectionProps> = ({ onOpenDo
 
       </section>
 
-
-      {/* =========================================================================
-          SECTION 2: "OUR WORKS" (Exact 3D Visual Showcase from Reference Image)
-         ========================================================================= */}
-      <section id="showcase" className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-16 sm:py-24 border-t border-[#1C1C1C]">
-        
-        {/* Centered Serif Section Title */}
-        <div className="text-center pb-12 sm:pb-16">
-          <h2 className="font-serif italic text-4xl sm:text-6xl tracking-widest text-white uppercase">
-            OUR WORKS
-          </h2>
-          <p className="text-xs sm:text-sm text-[#8E8E8E] mt-3 tracking-wider uppercase">
-            Protected Ecosystems & Form Architecture
-          </p>
-        </div>
-
-        {/* Visual Cards Grid */}
-        <div className="space-y-6">
-          
-          {/* Top Large Feature Card (Ruby 3D Render) */}
-          <div 
-            onClick={onOpenDownload}
-            className="group relative rounded-[28px] overflow-hidden border border-[#222222] bg-[#141414] aspect-[16/9] sm:aspect-[21/9] cursor-pointer hover:border-[#383838] transition-all"
-          >
-            <img
-              src="/images/showcase-ruby.jpg"
-              alt="Polygonal Ruby 3D Digital Art Render"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90"
-              loading="lazy"
-            />
-            {/* Dark Vignette Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-
-            {/* Bottom Bar Details */}
-            <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 flex items-center justify-between text-white z-10">
-              <span className="text-xs sm:text-sm font-medium tracking-wide">
-                Contact Form 7 & WPForms / In-Memory Form Guard
-              </span>
-              <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border border-white/20 group-hover:bg-white group-hover:text-black flex items-center justify-center transition-all">
-                <ArrowRight className="w-4 h-4 stroke-[2.2]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Row: 2 Split Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Left Card: Neon Cyber Landscape */}
-            <div 
-              onClick={onOpenDownload}
-              className="group relative rounded-[28px] overflow-hidden border border-[#222222] bg-[#141414] aspect-[4/3] sm:aspect-[16/10] cursor-pointer hover:border-[#383838] transition-all"
-            >
-              <img
-                src="/images/showcase-neon.jpg"
-                alt="Cyber Portal 3D Digital Art Render"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
-              
-              <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 flex items-center justify-between text-white z-10">
-                <span className="text-xs sm:text-sm font-medium tracking-wide">
-                  WooCommerce Checkout / Zero Abandonment
-                </span>
-                <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border border-white/20 group-hover:bg-white group-hover:text-black flex items-center justify-center transition-all">
-                  <ArrowRight className="w-4 h-4 stroke-[2.2]" />
-                </div>
-              </div>
-            </div>
-
-            {/* Right Card: Chrome Futuristic 3D Render */}
-            <div 
-              onClick={onOpenDownload}
-              className="group relative rounded-[28px] overflow-hidden border border-[#222222] bg-[#141414] aspect-[4/3] sm:aspect-[16/10] cursor-pointer hover:border-[#383838] transition-all"
-            >
-              <img
-                src="/images/showcase-chrome.jpg"
-                alt="Chrome Futuristic 3D Digital Art Render"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
-              
-              <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 flex items-center justify-between text-white z-10">
-                <span className="text-xs sm:text-sm font-medium tracking-wide">
-                  Gravity Forms & Fluent / Headless Scraper Defense
-                </span>
-                <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border border-white/20 group-hover:bg-white group-hover:text-black flex items-center justify-center transition-all">
-                  <ArrowRight className="w-4 h-4 stroke-[2.2]" />
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
+      {/* 
+        NOTE: "OUR WORKS" section hidden as requested. 
+        Will be re-enabled later when other portfolio items are added.
+      */}
 
     </div>
   );

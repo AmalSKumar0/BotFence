@@ -67,7 +67,7 @@ export default function App() {
         {/* 1. Dark Luxury Studio Hero Section */}
         <HeroSection onOpenDownload={navigateToDownload} />
 
-        {/* 2. FEATURES & "OUR WORKS" 3D Digital Art Showcase */}
+        {/* 2. Key Features Grid */}
         <KeyFeaturesSection onOpenDownload={navigateToDownload} />
 
         {/* 3. Installation, Comparison Matrix & FAQ */}

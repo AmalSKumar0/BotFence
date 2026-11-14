@@ -52,8 +52,8 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenDownload }) 
                   </a>
                 </li>
                 <li>
-                  <a href="#showcase" className="hover:text-white transition-colors">
-                    Showcase
+                  <a href="#installation" className="hover:text-white transition-colors">
+                    Installation
                   </a>
                 </li>
                 <li>

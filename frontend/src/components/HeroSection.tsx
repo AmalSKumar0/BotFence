@@ -15,7 +15,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDownload }) => {
         {/* Left Sub Links */}
         <nav className="flex items-center gap-6 text-[#8E8E8E] font-medium">
           <a href="#features" className="hover:text-white transition-colors">Features</a>
-          <a href="#showcase" className="hover:text-white transition-colors">Showcase</a>
+          <a href="#installation" className="hover:text-white transition-colors">Installation</a>
         </nav>
 
         {/* Center: Brand Name in Tracked Minimalist Uppercase */}
