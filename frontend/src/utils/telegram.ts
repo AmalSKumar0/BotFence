@@ -9,6 +9,7 @@ export interface DownloadSubmissionData {
   name: string;
   email: string;
   wouldReview: boolean;
+  projectDescription?: string;
   timestamp?: string;
 }
 
@@ -55,12 +56,16 @@ export async function sendTelegramNotification(
 
   const formattedTime = data.timestamp || new Date().toLocaleString();
 
+  const projectDescLine = data.projectDescription?.trim()
+    ? `\n📝 <b>Project / Notes:</b> ${escapeHtml(data.projectDescription.trim())}`
+    : '';
+
   const text = `
 🛡️ <b>New Vighnaghna Plugin Download</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 👤 <b>Name / Agency:</b> ${escapeHtml(data.name)}
 📧 <b>Email:</b> ${escapeHtml(data.email)}
-⭐ <b>Willing to Review:</b> ${data.wouldReview ? '✅ Yes' : '❌ No'}
+⭐ <b>Willing to Review:</b> ${data.wouldReview ? '✅ Yes' : '❌ No'}${projectDescLine}
 🕒 <b>Timestamp:</b> ${escapeHtml(formattedTime)}
 📦 <b>Package:</b> vighnaghna.zip (WordPress Plugin v1.0.0)
 `.trim();
