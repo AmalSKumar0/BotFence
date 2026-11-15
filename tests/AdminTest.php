@@ -92,4 +92,24 @@ class AdminTest extends TestCase {
 		// Custom forms + WooCommerce mock may still be active, but comments is excluded.
 		$this->assertStringContainsString( '/ 10', $output );
 	}
+
+	public function test_register_menu_uses_custom_svg_icon(): void {
+		global $wp_test_admin_menu;
+		$wp_test_admin_menu = array();
+
+		$this->admin->register_menu();
+
+		$this->assertNotEmpty( $wp_test_admin_menu );
+		$main_menu = $wp_test_admin_menu[0];
+		$this->assertSame( 'Vighnaghna', $main_menu['page_title'] );
+		$this->assertSame( 'vighnaghna', $main_menu['menu_slug'] );
+		$this->assertStringStartsWith( 'data:image/svg+xml;base64,', $main_menu['icon_url'] );
+
+		// Decode the SVG and ensure it contains standard valid attributes
+		$b64 = substr( $main_menu['icon_url'], strlen( 'data:image/svg+xml;base64,' ) );
+		$svg = base64_decode( $b64, true );
+		$this->assertNotFalse( $svg );
+		$this->assertStringContainsString( '<svg', $svg );
+		$this->assertStringContainsString( 'fill="black"', $svg );
+	}
 }

@@ -248,6 +248,28 @@ function register_deactivation_hook( $file, $callback ) {
 	return true;
 }
 
+if ( ! function_exists( 'add_menu_page' ) ) {
+	function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $icon_url = '', $position = null ) {
+		global $wp_test_admin_menu;
+		$wp_test_admin_menu[] = array(
+			'page_title' => $page_title,
+			'menu_title' => $menu_title,
+			'capability' => $capability,
+			'menu_slug'  => $menu_slug,
+			'callback'   => $callback,
+			'icon_url'   => $icon_url,
+			'position'   => $position,
+		);
+		return true;
+	}
+}
+
+if ( ! function_exists( 'add_submenu_page' ) ) {
+	function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+		return true;
+	}
+}
+
 function wp_unslash( $val ) {
 	if ( is_array( $val ) ) {
 		return array_map( 'wp_unslash', $val );
