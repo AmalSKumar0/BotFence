@@ -4,7 +4,7 @@ Allow: /
 Disallow: /api/
 
 # Host
-Host: https://bot-fence.vercel.app
+Host: https://vighnaghna.amalskumar.dev
 
 # Sitemaps
-Sitemap: https://bot-fence.vercel.app/sitemap.xml
+Sitemap: https://vighnaghna.amalskumar.dev/sitemap.xml

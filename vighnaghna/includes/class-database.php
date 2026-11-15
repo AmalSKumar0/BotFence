@@ -48,15 +48,39 @@ class Database {
 
 	/**
 	 * Creates or updates the plugin database tables.
+	 *
+	 * Verifies table existence after dbDelta execution to guarantee destination
+	 * tables are available before migration or runtime operations proceed.
+	 *
+	 * @return array{
+	 *     success: bool,
+	 *     created: array<int, string>,
+	 *     missing: array<int, string>,
+	 *     errors: array<int, string>
+	 * }
 	 */
-	public static function create_tables(): void {
+	public static function create_tables(): array {
 		global $wpdb;
+
+		$result = array(
+			'success' => true,
+			'created' => array(),
+			'missing' => array(),
+			'errors'  => array(),
+		);
+
+		$logs_table   = self::get_logs_table();
+		$rates_table  = self::get_rates_table();
+		$tokens_table = self::get_tokens_table();
+
+		$required_tables = array(
+			$logs_table,
+			$rates_table,
+			$tokens_table,
+		);
 
 		try {
 			$charset_collate = $wpdb->get_charset_collate();
-			$logs_table      = self::get_logs_table();
-			$rates_table     = self::get_rates_table();
-			$tokens_table    = self::get_tokens_table();
 
 			// Two spaces between PRIMARY KEY and definition required by dbDelta.
 			$sql_logs = "CREATE TABLE {$logs_table} (
@@ -105,13 +129,57 @@ class Database {
 			}
 
 			if ( function_exists( 'dbDelta' ) ) {
+				$wpdb->last_error = '';
 				dbDelta( $sql_logs );
 				dbDelta( $sql_rates );
 				dbDelta( $sql_tokens );
+			} else {
+				$wpdb->last_error = '';
+				$r1 = $wpdb->query( $sql_logs );
+				$r2 = $wpdb->query( $sql_rates );
+				$r3 = $wpdb->query( $sql_tokens );
+				if ( false === $r1 || false === $r2 || false === $r3 || ! empty( $wpdb->last_error ) ) {
+					$result['success']  = false;
+					$result['errors'][] = 'Database query failed during table creation: ' . ( ! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Query returned false' );
+				}
+			}
+
+			if ( ! empty( $wpdb->last_error ) && ! in_array( 'Database table creation error: ' . $wpdb->last_error, $result['errors'], true ) ) {
+				$result['success']  = false;
+				$result['errors'][] = 'Database table creation error: ' . $wpdb->last_error;
 			}
 		} catch ( \Throwable $e ) {
-			// Fail gracefully if database initialization encounters permission constraints.
+			$result['success']  = false;
+			$result['errors'][] = 'Table creation exception: ' . $e->getMessage();
 		}
+
+		// Verify table existence after creation.
+		// Do not assume that dbDelta() succeeded simply because it did not throw an exception.
+		foreach ( $required_tables as $table ) {
+			$wpdb->last_error = '';
+			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
+			if ( false === $exists || ! empty( $wpdb->last_error ) ) {
+				$result['success']   = false;
+				$result['missing'][] = $table;
+				$result['errors'][]  = sprintf(
+					'Table verification query failed for %s: %s',
+					$table,
+					! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Query returned false'
+				);
+			} elseif ( $exists !== $table ) {
+				$result['success']   = false;
+				$result['missing'][] = $table;
+				$result['errors'][]  = sprintf( 'Required destination table %s is missing after table creation.', $table );
+			} else {
+				$result['created'][] = $table;
+			}
+		}
+
+		if ( ! empty( $result['errors'] ) || ! empty( $result['missing'] ) ) {
+			$result['success'] = false;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -122,68 +190,133 @@ class Database {
 	 *
 	 * @return bool True if migration occurred or was already completed.
 	 */
-	public static function migrate_from_legacy(): bool {
+	/**
+	 * Migrates settings and database records from legacy plugin versions.
+	 *
+	 * - Only sets vighnaghna_migrated_from_legacy when all required migrations succeed.
+	 * - Does not set the flag when migration fails.
+	 * - Returns an explicit migration result with success and error details.
+	 * - Idempotent and safe to retry.
+	 * - Preserves all legacy options and tables intact.
+	 *
+	 * @return array{
+	 *     success: bool,
+	 *     options_migrated: int,
+	 *     records: array{logs: int, rate_limits: int},
+	 *     errors: array<int, string>,
+	 *     already_migrated?: bool
+	 * }
+	 */
+	public static function migrate_from_legacy(): array {
 		$migration_flag = get_option( 'vighnaghna_migrated_from_legacy' );
 		if ( $migration_flag ) {
-			return true;
+			return array(
+				'success'          => true,
+				'options_migrated' => 0,
+				'records'          => array(
+					'logs'        => 0,
+					'rate_limits' => 0,
+				),
+				'errors'           => array(),
+				'already_migrated' => true,
+			);
 		}
 
-		$keys = array(
-			'secret_key',
-			'enabled',
-			'min_submission_time',
-			'token_lifetime',
-			'honeypot_enabled',
-			'adaptive_challenge',
-			'risk_threshold_challenge',
-			'risk_threshold_block',
-			'weight_honeypot',
-			'weight_invalid_token',
-			'weight_expired_token',
-			'weight_fast_submit',
-			'weight_rate_limit',
-			'weight_excessive_urls',
-			'weight_suspicious_telemetry',
-			'weight_repeated_message',
-			'weight_headless_browser',
-			'weight_untrusted_event',
-			'rate_limit_ip_per_minute',
-			'rate_limit_ip_per_hour',
-			'quarantine_duration',
-			'log_retention_days',
-			'enable_cf7',
-			'enable_wpforms',
-			'enable_fluent_forms',
-			'enable_gravity_forms',
-			'enable_formidable',
-			'enable_ninja_forms',
-			'enable_elementor',
-			'enable_woocommerce',
-			'enable_comments',
-			'enable_custom_forms',
-			'trust_reverse_proxies',
-			'trusted_proxy_ips',
-			'excluded_forms',
-		);
+		$errors           = array();
+		$options_migrated = 0;
 
-		foreach ( $keys as $key ) {
-			$vighnaghna_val = get_option( 'vighnaghna_' . $key );
-			if ( false === $vighnaghna_val || null === $vighnaghna_val ) {
-				$legacy_val = get_option( 'botfence_' . $key );
-				if ( false === $legacy_val || null === $legacy_val ) {
-					$legacy_val = get_option( 'kl_antispam_' . $key );
-				}
-				if ( false !== $legacy_val && null !== $legacy_val ) {
-					update_option( 'vighnaghna_' . $key, $legacy_val );
+		try {
+			$keys = array(
+				'secret_key',
+				'enabled',
+				'min_submission_time',
+				'token_lifetime',
+				'honeypot_enabled',
+				'adaptive_challenge',
+				'risk_threshold_challenge',
+				'risk_threshold_block',
+				'weight_honeypot',
+				'weight_invalid_token',
+				'weight_expired_token',
+				'weight_fast_submit',
+				'weight_rate_limit',
+				'weight_excessive_urls',
+				'weight_suspicious_telemetry',
+				'weight_repeated_message',
+				'weight_headless_browser',
+				'weight_untrusted_event',
+				'rate_limit_ip_per_minute',
+				'rate_limit_ip_per_hour',
+				'quarantine_duration',
+				'log_retention_days',
+				'enable_cf7',
+				'enable_wpforms',
+				'enable_fluent_forms',
+				'enable_gravity_forms',
+				'enable_formidable',
+				'enable_ninja_forms',
+				'enable_elementor',
+				'enable_woocommerce',
+				'enable_comments',
+				'enable_custom_forms',
+				'trust_reverse_proxies',
+				'trusted_proxy_ips',
+				'excluded_forms',
+			);
+
+			foreach ( $keys as $key ) {
+				$vighnaghna_val = get_option( 'vighnaghna_' . $key );
+				if ( false === $vighnaghna_val || null === $vighnaghna_val ) {
+					$legacy_val = get_option( 'botfence_' . $key );
+					if ( false === $legacy_val || null === $legacy_val ) {
+						$legacy_val = get_option( 'kl_antispam_' . $key );
+					}
+					if ( false !== $legacy_val && null !== $legacy_val ) {
+						update_option( 'vighnaghna_' . $key, $legacy_val );
+						$stored_val = get_option( 'vighnaghna_' . $key );
+						if ( $stored_val !== $legacy_val ) {
+							$errors[] = sprintf(
+								'Failed to persist migrated legacy option vighnaghna_%s: expected value did not save.',
+								$key
+							);
+						} else {
+							$options_migrated++;
+						}
+					}
 				}
 			}
+		} catch ( \Throwable $e ) {
+			$errors[] = 'Options migration error: ' . $e->getMessage();
 		}
 
 		// Migrate legacy database records (botfence_logs, botfence_rate_limits).
-		self::migrate_legacy_records();
+		$records_result = self::migrate_legacy_records();
+		if ( ! empty( $records_result['errors'] ) ) {
+			$errors = array_merge( $errors, $records_result['errors'] );
+		}
 
-		update_option( 'vighnaghna_migrated_from_legacy', 1 );
-		return true;
+		$success = empty( $errors ) && ! empty( $records_result['success'] );
+
+		// Set the migration flag only after all required migrations succeed.
+		// Do not set vighnaghna_migrated_from_legacy when migration fails.
+		if ( $success ) {
+			$saved     = update_option( 'vighnaghna_migrated_from_legacy', 1 );
+			$persisted = ( 1 === (int) get_option( 'vighnaghna_migrated_from_legacy' ) );
+			if ( ! $saved || ! $persisted ) {
+				$success  = false;
+				$errors[] = 'Failed to persist legacy migration completion flag (vighnaghna_migrated_from_legacy) in WordPress options.';
+			}
+		}
+
+		return array(
+			'success'          => $success,
+			'options_migrated' => $options_migrated,
+			'records'          => array(
+				'logs'        => $records_result['logs'] ?? 0,
+				'rate_limits' => $records_result['rate_limits'] ?? 0,
+			),
+			'errors'           => $errors,
+		);
 	}
 
 	/**
@@ -194,20 +327,33 @@ class Database {
 	 * - Prevents duplicate records.
 	 * - Uses safe database queries using $wpdb.
 	 * - Does not delete legacy tables during migration.
-	 * - Idempotent.
+	 * - Idempotent and safe to retry.
+	 * - Captures detailed error information if any record insertion fails.
 	 *
-	 * @return array Counts of migrated rows ['logs' => int, 'rate_limits' => int].
+	 * @return array{
+	 *     success: bool,
+	 *     logs: int,
+	 *     rate_limits: int,
+	 *     errors: array<int, string>
+	 * } Counts of migrated rows and explicit error list.
 	 */
 	public static function migrate_legacy_records(): array {
 		global $wpdb;
 
 		$results = array(
+			'success'     => true,
 			'logs'        => 0,
 			'rate_limits' => 0,
+			'errors'      => array(),
 		);
 
 		try {
-			self::create_tables();
+			$tables_result = self::create_tables();
+			if ( empty( $tables_result['success'] ) ) {
+				$results['success'] = false;
+				$results['errors']  = array_merge( $results['errors'], $tables_result['errors'] );
+				return $results;
+			}
 
 			$dest_logs  = self::get_logs_table();
 			$dest_rates = self::get_rates_table();
@@ -219,23 +365,57 @@ class Database {
 			);
 
 			foreach ( $legacy_logs_tables as $legacy_table ) {
-				$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $legacy_table ) );
+				$wpdb->last_error = '';
+				$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $legacy_table ) ) );
+				if ( false === $exists || ! empty( $wpdb->last_error ) ) {
+					$results['success']  = false;
+					$results['errors'][] = sprintf(
+						'Table existence query failed for %s: %s',
+						$legacy_table,
+						! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Query returned false'
+					);
+					continue;
+				}
+
 				if ( $exists === $legacy_table ) {
+					$wpdb->last_error = '';
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$legacy_rows = $wpdb->get_results( "SELECT * FROM {$legacy_table}" );
-					if ( ! empty( $legacy_rows ) && is_iterable( $legacy_rows ) ) {
+					if ( false === $legacy_rows || null === $legacy_rows || ! empty( $wpdb->last_error ) ) {
+						$results['success']  = false;
+						$results['errors'][] = sprintf(
+							'SELECT query failed for legacy table %s: %s',
+							$legacy_table,
+							! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Query returned false or null'
+						);
+						continue;
+					}
+
+					if ( is_array( $legacy_rows ) && ! empty( $legacy_rows ) ) {
 						foreach ( $legacy_rows as $raw_row ) {
 							$row    = (array) $raw_row;
 							$row_id = isset( $row['id'] ) ? (int) $row['id'] : 0;
 							if ( $row_id > 0 ) {
+								$wpdb->last_error = '';
 								// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 								$id_exists = $wpdb->get_var(
 									$wpdb->prepare( "SELECT id FROM {$dest_logs} WHERE id = %d", $row_id )
 								);
-								if ( $id_exists ) {
+								if ( false === $id_exists || ! empty( $wpdb->last_error ) ) {
+									$results['success']  = false;
+									$results['errors'][] = sprintf(
+										'Destination duplicate-check query failed for log ID %d in %s: %s',
+										$row_id,
+										$dest_logs,
+										! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Query returned false'
+									);
+									continue;
+								}
+								if ( null !== $id_exists && '' !== $id_exists ) {
 									continue; // Prevent duplicates.
 								}
 
+								$wpdb->last_error = '';
 								// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 								$inserted = $wpdb->query(
 									$wpdb->prepare(
@@ -255,7 +435,14 @@ class Database {
 										isset( $row['is_spam'] ) ? (int) $row['is_spam'] : 0
 									)
 								);
-								if ( $inserted ) {
+								if ( false === $inserted || ! empty( $wpdb->last_error ) ) {
+									$results['success']  = false;
+									$results['errors'][] = sprintf(
+										'Failed to insert migrated legacy log record ID %d: %s',
+										$row_id,
+										! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Database query returned false'
+									);
+								} elseif ( $inserted ) {
 									$results['logs']++;
 								}
 							}
@@ -271,11 +458,33 @@ class Database {
 			);
 
 			foreach ( $legacy_rate_tables as $legacy_table ) {
-				$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $legacy_table ) );
+				$wpdb->last_error = '';
+				$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $legacy_table ) ) );
+				if ( false === $exists || ! empty( $wpdb->last_error ) ) {
+					$results['success']  = false;
+					$results['errors'][] = sprintf(
+						'Table existence query failed for %s: %s',
+						$legacy_table,
+						! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Query returned false'
+					);
+					continue;
+				}
+
 				if ( $exists === $legacy_table ) {
+					$wpdb->last_error = '';
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$legacy_rows = $wpdb->get_results( "SELECT * FROM {$legacy_table}" );
-					if ( ! empty( $legacy_rows ) && is_iterable( $legacy_rows ) ) {
+					if ( false === $legacy_rows || null === $legacy_rows || ! empty( $wpdb->last_error ) ) {
+						$results['success']  = false;
+						$results['errors'][] = sprintf(
+							'SELECT query failed for legacy table %s: %s',
+							$legacy_table,
+							! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Query returned false or null'
+						);
+						continue;
+					}
+
+					if ( is_array( $legacy_rows ) && ! empty( $legacy_rows ) ) {
 						foreach ( $legacy_rows as $raw_row ) {
 							$row        = (array) $raw_row;
 							$identifier = $row['identifier'] ?? '';
@@ -285,6 +494,7 @@ class Database {
 								continue;
 							}
 
+							$wpdb->last_error = '';
 							// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 							$exists_in_dest = $wpdb->get_var(
 								$wpdb->prepare(
@@ -293,17 +503,39 @@ class Database {
 									$limit_type
 								)
 							);
-							if ( $exists_in_dest ) {
+							if ( false === $exists_in_dest || ! empty( $wpdb->last_error ) ) {
+								$results['success']  = false;
+								$results['errors'][] = sprintf(
+									'Destination duplicate-check query failed for rate limit (%s:%s) in %s: %s',
+									$identifier,
+									$limit_type,
+									$dest_rates,
+									! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Query returned false'
+								);
+								continue;
+							}
+							if ( null !== $exists_in_dest && '' !== $exists_in_dest ) {
 								continue; // Prevent duplicates.
 							}
 
 							$row_id = isset( $row['id'] ) ? (int) $row['id'] : 0;
 							if ( $row_id > 0 ) {
+								$wpdb->last_error = '';
 								// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 								$id_collision = $wpdb->get_var(
 									$wpdb->prepare( "SELECT id FROM {$dest_rates} WHERE id = %d", $row_id )
 								);
-								if ( ! $id_collision ) {
+								if ( false === $id_collision || ! empty( $wpdb->last_error ) ) {
+									$results['success']  = false;
+									$results['errors'][] = sprintf(
+										'Destination ID collision check query failed for rate limit ID %d: %s',
+										$row_id,
+										! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Query returned false'
+									);
+									continue;
+								}
+								if ( null === $id_collision || '' === $id_collision ) {
+									$wpdb->last_error = '';
 									// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 									$inserted = $wpdb->query(
 										$wpdb->prepare(
@@ -317,7 +549,16 @@ class Database {
 											$row['expires_at'] ?? gmdate( 'Y-m-d H:i:s', time() + 3600 )
 										)
 									);
-									if ( $inserted ) {
+									if ( false === $inserted || ! empty( $wpdb->last_error ) ) {
+										$results['success']  = false;
+										$results['errors'][] = sprintf(
+											'Failed to insert migrated rate limit record ID %d (%s:%s): %s',
+											$row_id,
+											$identifier,
+											$limit_type,
+											! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Database query returned false'
+										);
+									} elseif ( $inserted ) {
 										$results['rate_limits']++;
 									}
 									continue;
@@ -325,6 +566,7 @@ class Database {
 							}
 
 							// If ID collided or was 0, insert without specifying ID to auto-assign ID while preserving unique record data.
+							$wpdb->last_error = '';
 							// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 							$inserted = $wpdb->query(
 								$wpdb->prepare(
@@ -337,7 +579,15 @@ class Database {
 									$row['expires_at'] ?? gmdate( 'Y-m-d H:i:s', time() + 3600 )
 								)
 							);
-							if ( $inserted ) {
+							if ( false === $inserted || ! empty( $wpdb->last_error ) ) {
+								$results['success']  = false;
+								$results['errors'][] = sprintf(
+									'Failed to insert migrated rate limit record (%s:%s): %s',
+									$identifier,
+									$limit_type,
+									! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Database query returned false'
+								);
+							} elseif ( $inserted ) {
 								$results['rate_limits']++;
 							}
 						}
@@ -345,7 +595,12 @@ class Database {
 				}
 			}
 		} catch ( \Throwable $e ) {
-			// Fail gracefully if database constraints occur.
+			$results['success']  = false;
+			$results['errors'][] = 'Database exception during record migration: ' . $e->getMessage();
+		}
+
+		if ( ! empty( $results['errors'] ) ) {
+			$results['success'] = false;
 		}
 
 		return $results;

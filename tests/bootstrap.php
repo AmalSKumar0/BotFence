@@ -67,7 +67,8 @@ define( 'DAY_IN_SECONDS', 86400 );
 define( 'SCRIPT_DEBUG', false );
 
 // Global in-memory storage for test environment.
-global $kl_test_options, $kl_test_transients, $kl_test_filters, $kl_test_actions, $wpdb;
+global $kl_test_options, $kl_test_transients, $kl_test_filters, $kl_test_actions, $wpdb, $wp_version;
+$wp_version         = '6.7';
 $kl_test_options    = array();
 $kl_test_transients = array();
 $kl_test_filters    = array();
@@ -81,8 +82,16 @@ function get_option( $name, $default = false ) {
 	return $kl_test_options[ $name ] ?? $default;
 }
 
+global $kl_simulate_option_update_failure;
+$kl_simulate_option_update_failure = false;
+
 function update_option( $name, $value, $autoload = null ) {
-	global $kl_test_options;
+	global $kl_test_options, $kl_simulate_option_update_failure;
+	if ( ! empty( $kl_simulate_option_update_failure ) ) {
+		if ( true === $kl_simulate_option_update_failure || ( is_array( $kl_simulate_option_update_failure ) && in_array( $name, $kl_simulate_option_update_failure, true ) ) || $kl_simulate_option_update_failure === $name ) {
+			return false;
+		}
+	}
 	$kl_test_options[ $name ] = $value;
 	return true;
 }
@@ -449,6 +458,11 @@ function wp_die( $message = '', $title = '', $args = array() ) {
 }
 
 function dbDelta( $queries = '', $execute = true ) {
+	global $wpdb;
+	if ( ! empty( $wpdb->simulate_destination_table_create_failure ) ) {
+		$wpdb->last_error = 'Simulated dbDelta table creation failure.';
+		throw new \RuntimeException( 'Simulated dbDelta table creation failure.' );
+	}
 	return array();
 }
 
@@ -543,7 +557,54 @@ class Mock_WPDB {
 	public array $used_tokens_table = array();
 	public array $legacy_logs_table = array();
 	public array $legacy_rates_table = array();
+	public bool $has_legacy_logs_table = true;
+	public bool $has_legacy_rates_table = true;
 	public bool $suppress_errors = false;
+	public bool $simulate_query_failure = false;
+	public bool $simulate_table_exists_failure = false;
+	public bool $simulate_select_failure = false;
+	public bool $simulate_duplicate_check_failure = false;
+	public bool $simulate_insert_failure = false;
+	public bool $simulate_destination_table_create_failure = false;
+	public bool $simulate_destination_table_verify_failure = false;
+	public bool $simulate_destination_table_missing = false;
+	public ?string $mock_table_like_result = null;
+	public ?string $last_table_like_query = null;
+	public array $fail_tables = array();
+	public string $last_error = '';
+
+	public function reset(): void {
+		$this->insert_id                              = 0;
+		$this->logs_table                             = array();
+		$this->rates_table                            = array();
+		$this->used_tokens_table                      = array();
+		$this->legacy_logs_table                      = array();
+		$this->legacy_rates_table                     = array();
+		$this->has_legacy_logs_table                  = true;
+		$this->has_legacy_rates_table                 = true;
+		$this->suppress_errors                        = false;
+		$this->simulate_query_failure                 = false;
+		$this->simulate_table_exists_failure          = false;
+		$this->simulate_select_failure                = false;
+		$this->simulate_duplicate_check_failure       = false;
+		$this->simulate_insert_failure                = false;
+		$this->simulate_destination_table_create_failure = false;
+		$this->simulate_destination_table_verify_failure = false;
+		$this->simulate_destination_table_missing     = false;
+		$this->mock_table_like_result                 = null;
+		$this->last_table_like_query                  = null;
+		$this->fail_tables                            = array();
+		$this->last_error                             = '';
+	}
+
+	public function is_query_table_failing( string $query ): bool {
+		foreach ( $this->fail_tables as $table ) {
+			if ( str_contains( $query, $table ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public function suppress_errors( bool $suppress = true ): bool {
 		$prev = $this->suppress_errors;
@@ -604,6 +665,18 @@ class Mock_WPDB {
 	}
 
 	public function query( string $query ) {
+		if ( $this->simulate_query_failure || ( ! empty( $this->fail_tables ) && $this->is_query_table_failing( $query ) ) ) {
+			$this->last_error = 'Simulated database query failure.';
+			return false;
+		}
+		if ( $this->simulate_destination_table_create_failure && str_contains( $query, 'CREATE TABLE' ) ) {
+			$this->last_error = 'Simulated destination table creation query failure.';
+			return false;
+		}
+		if ( $this->simulate_insert_failure && str_contains( $query, 'INSERT INTO' ) ) {
+			$this->last_error = 'Simulated database INSERT query failure.';
+			return false;
+		}
 		// Handle atomic token consumption into used_tokens table.
 		if ( ( str_contains( $query, 'vighnaghna_used_tokens' ) || str_contains( $query, 'botfence_used_tokens' ) || str_contains( $query, 'kl_antispam_used_tokens' ) ) && str_contains( $query, 'INSERT INTO' ) ) {
 			preg_match( "/VALUES \('([^']+)',\s*'([^']+)',\s*'([^']+)',\s*'([^']+)'\)/", $query, $m );
@@ -704,19 +777,43 @@ class Mock_WPDB {
 	}
 
 	public function get_var( string $query ) {
+		if ( $this->simulate_query_failure || ( ! empty( $this->fail_tables ) && $this->is_query_table_failing( $query ) ) ) {
+			$this->last_error = 'Simulated database query failure.';
+			return false;
+		}
+		if ( $this->simulate_destination_table_verify_failure && str_contains( $query, 'SHOW TABLES LIKE' ) && str_contains( $query, 'vighnaghna' ) ) {
+			$this->last_error = 'Simulated destination table verification query failure.';
+			return false;
+		}
+		if ( $this->simulate_destination_table_missing && str_contains( $query, 'SHOW TABLES LIKE' ) && str_contains( $query, 'vighnaghna' ) ) {
+			return null;
+		}
+		if ( $this->simulate_table_exists_failure && str_contains( $query, 'SHOW TABLES LIKE' ) && ( str_contains( $query, 'botfence' ) || str_contains( $query, 'kl_antispam' ) ) ) {
+			$this->last_error = 'Simulated table existence query failure.';
+			return false;
+		}
+		if ( $this->simulate_duplicate_check_failure && str_contains( $query, 'SELECT id FROM' ) ) {
+			$this->last_error = 'Simulated destination duplicate-check query failure.';
+			return false;
+		}
 		if ( str_contains( $query, 'SHOW TABLES LIKE' ) ) {
-			if ( str_contains( $query, 'used_tokens' ) ) {
-				return str_contains( $query, 'vighnaghna' ) ? 'wp_vighnaghna_used_tokens' : 'wp_botfence_used_tokens';
+			$this->last_table_like_query = $query;
+			if ( null !== $this->mock_table_like_result ) {
+				return $this->mock_table_like_result;
 			}
-			if ( str_contains( $query, 'rate_limits' ) ) {
-				if ( str_contains( $query, 'botfence' ) || str_contains( $query, 'kl_antispam' ) ) {
-					return ! empty( $this->legacy_rates_table ) ? 'wp_botfence_rate_limits' : null;
+			$clean = str_replace( '\\', '', $query );
+			if ( str_contains( $clean, 'used_tokens' ) ) {
+				return str_contains( $clean, 'vighnaghna' ) ? 'wp_vighnaghna_used_tokens' : 'wp_botfence_used_tokens';
+			}
+			if ( str_contains( $clean, 'rate_limits' ) ) {
+				if ( str_contains( $clean, 'botfence' ) || str_contains( $clean, 'kl_antispam' ) ) {
+					return $this->has_legacy_rates_table ? 'wp_botfence_rate_limits' : null;
 				}
 				return 'wp_vighnaghna_rate_limits';
 			}
-			if ( str_contains( $query, 'logs' ) ) {
-				if ( str_contains( $query, 'botfence' ) || str_contains( $query, 'kl_antispam' ) ) {
-					return ! empty( $this->legacy_logs_table ) ? 'wp_botfence_logs' : null;
+			if ( str_contains( $clean, 'logs' ) ) {
+				if ( str_contains( $clean, 'botfence' ) || str_contains( $clean, 'kl_antispam' ) ) {
+					return $this->has_legacy_logs_table ? 'wp_botfence_logs' : null;
 				}
 				return 'wp_vighnaghna_logs';
 			}
@@ -753,6 +850,14 @@ class Mock_WPDB {
 	}
 
 	public function get_results( string $query ) {
+		if ( $this->simulate_query_failure || ( ! empty( $this->fail_tables ) && $this->is_query_table_failing( $query ) ) ) {
+			$this->last_error = 'Simulated database query failure.';
+			return false;
+		}
+		if ( $this->simulate_select_failure && str_contains( $query, 'SELECT * FROM' ) ) {
+			$this->last_error = 'Simulated legacy SELECT query failure.';
+			return false;
+		}
 		if ( str_contains( $query, 'GROUP BY form_type' ) ) {
 			$tallies = array();
 			foreach ( $this->logs_table as $row ) {

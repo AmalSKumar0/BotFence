@@ -5,6 +5,7 @@
  * Description:       Lightweight, invisible anti-spam protection for WordPress forms. No CAPTCHA, no external requests.
  * Version:           1.0.0
  * Requires at least: 6.0
+ * Tested up to:      6.7
  * Requires PHP:      8.1
  * Author:            Amal S Kumar
  * Author URI:        https://amalskumar.dev
@@ -153,7 +154,7 @@ if ( ! function_exists( 'vighnaghna_activate' ) ) {
 				// Risk weights
 				'weight_honeypot'             => 100,
 				'weight_invalid_token'        => 100,
-				'weight_expired_token'        => 25,
+				'weight_expired_token'        => 80,
 				'weight_fast_submit'          => 30,
 				'weight_rate_limit'           => 40,
 				'weight_excessive_urls'       => 25,

@@ -143,19 +143,19 @@ class Logger {
 
 		// Check if table exists to prevent errors during early initialization.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
-		if ( ! $table_exists ) {
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
+		if ( $table_exists !== $table ) {
 			// Fallback check for legacy table names.
 			$bf_table = $wpdb->prefix . 'botfence_logs';
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$bf_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $bf_table ) );
-			if ( $bf_exists ) {
+			$bf_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $bf_table ) ) );
+			if ( $bf_exists === $bf_table ) {
 				$table = $bf_table;
 			} else {
 				$legacy_table = $wpdb->prefix . 'kl_antispam_logs';
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-				$legacy_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $legacy_table ) );
-				if ( $legacy_exists ) {
+				$legacy_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $legacy_table ) ) );
+				if ( $legacy_exists === $legacy_table ) {
 					$table = $legacy_table;
 				} else {
 					return array(

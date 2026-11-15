@@ -1,0 +1,214 @@
+================================================================================
+VIGHNAGHNA (विघ्नघ्न) — FINAL TEST & VALIDATION EXECUTION AUDIT
+Timestamp: 2026-11-15 05:22:51 UTC
+Environment: Linux 7.2.14-arch1-1 / PHP 8.5.12 / Node v26.13.0
+================================================================================
+
+--------------------------------------------------------------------------------
+1. PHPUNIT TEST SUITE EXECUTION
+Command: ./vendor/bin/phpunit
+--------------------------------------------------------------------------------
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.12
+Configuration: /home/amalskumar/projects/Plugins/BotFence/phpunit.xml
+
+...............................................................  63 / 113 ( 55%)
+..................................................              113 / 113 (100%)
+
+Time: 00:00.038, Memory: 10.00 MB
+
+OK (113 tests, 1002 assertions)
+
+--------------------------------------------------------------------------------
+2. PHP SYNTAX LINT CHECK (php -l)
+Command: find vighnaghna tests -name "*.php" -exec php -l {} \;
+--------------------------------------------------------------------------------
+No syntax errors detected in vighnaghna/includes/class-token-manager.php
+No syntax errors detected in vighnaghna/includes/class-plugin.php
+No syntax errors detected in vighnaghna/includes/class-rate-limiter.php
+No syntax errors detected in vighnaghna/includes/class-form-detector.php
+No syntax errors detected in vighnaghna/includes/class-database.php
+No syntax errors detected in vighnaghna/includes/class-honeypot.php
+No syntax errors detected in vighnaghna/includes/class-captcha-engine.php
+No syntax errors detected in vighnaghna/includes/class-admin.php
+No syntax errors detected in vighnaghna/includes/class-risk-engine.php
+No syntax errors detected in vighnaghna/includes/class-logger.php
+No syntax errors detected in vighnaghna/vighnaghna.php
+No syntax errors detected in vighnaghna/uninstall.php
+No syntax errors detected in vighnaghna/integrations/class-elementor-forms.php
+No syntax errors detected in vighnaghna/integrations/class-wp-comments.php
+No syntax errors detected in vighnaghna/integrations/class-fluent-forms.php
+No syntax errors detected in vighnaghna/integrations/class-contact-form-7.php
+No syntax errors detected in vighnaghna/integrations/class-ninja-forms.php
+No syntax errors detected in vighnaghna/integrations/class-wpforms.php
+No syntax errors detected in vighnaghna/integrations/class-custom-forms.php
+No syntax errors detected in vighnaghna/integrations/class-woocommerce.php
+No syntax errors detected in vighnaghna/integrations/class-formidable-forms.php
+No syntax errors detected in vighnaghna/integrations/interface-form-adapter.php
+No syntax errors detected in vighnaghna/integrations/class-abstract-form-adapter.php
+No syntax errors detected in vighnaghna/integrations/class-gravity-forms.php
+No syntax errors detected in vighnaghna/languages/index.php
+No syntax errors detected in tests/IntegrationsTest.php
+No syntax errors detected in tests/EndToEndTest.php
+No syntax errors detected in tests/AdminTest.php
+No syntax errors detected in tests/TokenManagerTest.php
+No syntax errors detected in tests/ContactForm7RegressionTest.php
+No syntax errors detected in tests/RateLimiterTest.php
+No syntax errors detected in tests/RiskEngineTest.php
+No syntax errors detected in tests/CaptchaEngineTest.php
+No syntax errors detected in tests/LoggerTest.php
+No syntax errors detected in tests/bootstrap.php
+No syntax errors detected in tests/FormDetectorTest.php
+No syntax errors detected in tests/HoneypotTest.php
+No syntax errors detected in tests/VighnaghnaComplianceTest.php
+
+--------------------------------------------------------------------------------
+3. JAVASCRIPT SYNTAX LINT CHECK (node -c)
+Command: find vighnaghna -name "*.js" -exec node -c {} \;
+--------------------------------------------------------------------------------
+Valid JS syntax: vighnaghna/assets/js/vighnaghna.min.js
+Valid JS syntax: vighnaghna/assets/js/vighnaghna.js
+Valid JS syntax: vighnaghna/assets/admin/vighnaghna-admin.js
+
+--------------------------------------------------------------------------------
+4. DISTRIBUTION ZIP INTEGRITY AND STRUCTURE VERIFICATION
+Command: zipinfo vighnaghna.zip
+--------------------------------------------------------------------------------
+-rw-r--r-- 1 amalskumar amalskumar 1.9M Nov 15 10:52 vighnaghna.zip
+Archive entry count: 46
+
+Archive entries (zipinfo -1 vighnaghna.zip):
+vighnaghna/
+vighnaghna/includes/
+vighnaghna/includes/class-token-manager.php
+vighnaghna/includes/class-plugin.php
+vighnaghna/includes/class-rate-limiter.php
+vighnaghna/includes/class-form-detector.php
+vighnaghna/includes/class-database.php
+vighnaghna/includes/class-honeypot.php
+vighnaghna/includes/class-captcha-engine.php
+vighnaghna/includes/class-admin.php
+vighnaghna/includes/class-risk-engine.php
+vighnaghna/includes/class-logger.php
+vighnaghna/vighnaghna.php
+vighnaghna/uninstall.php
+vighnaghna/integrations/
+vighnaghna/integrations/class-elementor-forms.php
+vighnaghna/integrations/class-wp-comments.php
+vighnaghna/integrations/class-fluent-forms.php
+vighnaghna/integrations/class-contact-form-7.php
+vighnaghna/integrations/class-ninja-forms.php
+vighnaghna/integrations/class-wpforms.php
+vighnaghna/integrations/class-custom-forms.php
+vighnaghna/integrations/class-woocommerce.php
+vighnaghna/integrations/class-formidable-forms.php
+vighnaghna/integrations/interface-form-adapter.php
+vighnaghna/integrations/class-abstract-form-adapter.php
+vighnaghna/integrations/class-gravity-forms.php
+vighnaghna/readme.txt
+vighnaghna/assets/
+vighnaghna/assets/css/
+vighnaghna/assets/css/vighnaghna-admin.css
+vighnaghna/assets/css/vighnaghna.css
+vighnaghna/assets/images/
+vighnaghna/assets/images/icon-256x256.png
+vighnaghna/assets/images/logo.png
+vighnaghna/assets/images/icon-128x128.png
+vighnaghna/assets/images/banner-772x250.png
+vighnaghna/assets/images/banner-1544x500.png
+vighnaghna/assets/js/
+vighnaghna/assets/js/vighnaghna.min.js
+vighnaghna/assets/js/vighnaghna.js
+vighnaghna/assets/admin/
+vighnaghna/assets/admin/vighnaghna-admin.js
+vighnaghna/languages/
+vighnaghna/languages/index.php
+vighnaghna/languages/vighnaghna.pot
+
+--------------------------------------------------------------------------------
+5. DIRECT VALIDATION OF EXTRACTED ZIP CONTENTS
+--------------------------------------------------------------------------------
+Extracted entries into temporary directory: /tmp/tmp.ltIjHmUjO9
+PHP linting inside extracted archive:
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/languages/index.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-gravity-forms.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-abstract-form-adapter.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/interface-form-adapter.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-formidable-forms.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-woocommerce.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-custom-forms.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-wpforms.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-ninja-forms.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-contact-form-7.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-fluent-forms.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-wp-comments.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/integrations/class-elementor-forms.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/uninstall.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/vighnaghna.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/includes/class-logger.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/includes/class-risk-engine.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/includes/class-admin.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/includes/class-captcha-engine.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/includes/class-honeypot.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/includes/class-database.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/includes/class-form-detector.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/includes/class-rate-limiter.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/includes/class-plugin.php
+No syntax errors detected in /tmp/tmp.ltIjHmUjO9/vighnaghna/includes/class-token-manager.php
+JavaScript linting inside extracted archive:
+Valid JS syntax: /tmp/tmp.ltIjHmUjO9/vighnaghna/assets/admin/vighnaghna-admin.js
+Valid JS syntax: /tmp/tmp.ltIjHmUjO9/vighnaghna/assets/js/vighnaghna.js
+Valid JS syntax: /tmp/tmp.ltIjHmUjO9/vighnaghna/assets/js/vighnaghna.min.js
+Extracted temporary directory cleaned up.
+
+--------------------------------------------------------------------------------
+6. FRONTEND PRODUCTION BUILD & CANONICAL PRERENDER
+Command: cd frontend && npm run build
+--------------------------------------------------------------------------------
+npm notice run vighnaghna-web@1.0.0 prebuild
+npm notice run npm run sync-zip
+npm notice run vighnaghna-web@1.0.0 sync-zip
+npm notice run cp -f ../vighnaghna.zip public/vighnaghna.zip 2>/dev/null || true; cp -f ../vighnaghna.zip public/BotFence.zip 2>/dev/null || true
+npm notice run vighnaghna-web@1.0.0 build
+npm notice run vite build && tsx prerender.ts
+vite v8.3.6 building client environment for production...
+transforming...
+✓ 1681 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   9.47 kB │ gzip:   2.72 kB
+dist/assets/index-cpX_FE0_.css   33.97 kB │ gzip:   6.97 kB
+dist/assets/index-DSRwdqtG.js   388.83 kB │ gzip: 105.37 kB
+
+✓ built in 221ms
+Starting static pre-rendering for 16 canonical routes...
+✓ Pre-rendered: / -> dist/index.html (37422 bytes)
+✓ Pre-rendered: /features -> dist/features/index.html (41741 bytes)
+✓ Pre-rendered: /docs -> dist/docs/index.html (29680 bytes)
+✓ Pre-rendered: /docs/installation -> dist/docs/installation/index.html (27902 bytes)
+✓ Pre-rendered: /docs/configuration -> dist/docs/configuration/index.html (35901 bytes)
+✓ Pre-rendered: /integrations/contact-form-7 -> dist/integrations/contact-form-7/index.html (28804 bytes)
+✓ Pre-rendered: /privacy -> dist/privacy/index.html (25183 bytes)
+✓ Pre-rendered: /faq -> dist/faq/index.html (32625 bytes)
+✓ Pre-rendered: /changelog -> dist/changelog/index.html (29929 bytes)
+✓ Pre-rendered: /support -> dist/support/index.html (25703 bytes)
+✓ Pre-rendered: /about -> dist/about/index.html (23893 bytes)
+✓ Pre-rendered: /blog -> dist/blog/index.html (25684 bytes)
+✓ Pre-rendered: /blog/how-wordpress-form-spam-works -> dist/blog/how-wordpress-form-spam-works/index.html (26997 bytes)
+✓ Pre-rendered: /blog/how-invisible-captcha-works -> dist/blog/how-invisible-captcha-works/index.html (27044 bytes)
+✓ Pre-rendered: /blog/reduce-false-positive-spam-detection -> dist/blog/reduce-false-positive-spam-detection/index.html (27811 bytes)
+✓ Pre-rendered: /download -> dist/download/index.html (22820 bytes)
+
+All 16 canonical routes successfully pre-rendered with zero errors!
+
+--------------------------------------------------------------------------------
+7. OFFICIAL WORDPRESS PLUGIN CHECK ATTEMPT
+Command: which wp
+--------------------------------------------------------------------------------
+Status: Not executed.
+Reason: Live WordPress environment with WP-CLI is not available on this host.
+Required setup command to run on live WordPress environment:
+  wp plugin install plugin-check --activate
+  wp plugin check vighnaghna
+

@@ -492,7 +492,7 @@ class Admin {
 	 * @param mixed  $default Default value.
 	 * @return mixed
 	 */
-	protected function get_conf( string $key, $default = false ) {
+	public function get_conf( string $key, $default = false ) {
 		$val = get_option( 'vighnaghna_' . $key );
 		if ( false !== $val && null !== $val ) {
 			return $val;

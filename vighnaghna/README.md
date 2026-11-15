@@ -122,7 +122,7 @@ The Risk Engine scores submissions from **0 to 100 points**:
 |---|---|---:|---|
 | `honeypot_completed` | Honeypot Completed | **100** | Hidden accessible trap field was populated |
 | `invalid_token` | Invalid Signed Token | **100** | Missing, tampered, forged, or replayed HMAC token |
-| `expired_token` | Expired Token | **25** | Token submitted past lifetime window; safe retry offered |
+| `expired_token` | Expired Token | **80** | Token submitted past lifetime window; safe retry offered |
 | `fast_submission` | Rapid Submission | **30** | Form submitted faster than configured threshold (default: 2.5s) |
 | `rate_limit_exceeded`| Rate Limit Exceeded | **40** | Submissions per minute/hour threshold exceeded |
 | `repeated_message` | Repeated Message | **35** | Exact identical content submitted multiple times |

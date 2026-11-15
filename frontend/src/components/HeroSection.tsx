@@ -3,26 +3,61 @@ import { ArrowUpRight, ArrowDown } from 'lucide-react';
 
 interface HeroSectionProps {
   onOpenDownload: () => void;
+  onNavigate?: (path: string) => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDownload }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDownload, onNavigate }) => {
   return (
-    <section className="relative w-full min-h-[92vh] flex flex-col justify-between dark-studio-glow text-white px-6 sm:px-10 lg:px-16 pt-8 pb-16 select-none overflow-hidden">
+    <section className="relative w-full min-h-[90vh] flex flex-col justify-between dark-studio-glow text-white px-6 sm:px-10 lg:px-16 pt-8 pb-16 select-none overflow-hidden">
       
-      {/* 1. Top Minimalist Studio Navigation Bar */}
-      <header className="w-full flex items-center justify-between text-xs tracking-wider z-20">
+      {/* 1. Top Minimalist Studio Annotation Bar */}
+      <div className="w-full max-w-7xl mx-auto flex items-center justify-between text-xs tracking-wider z-20">
         
         {/* Left Sub Links */}
         <nav className="flex items-center gap-6 text-[#8E8E8E] font-medium">
-          <a href="#features" className="hover:text-white transition-colors">Features</a>
-          <a href="#installation" className="hover:text-white transition-colors">Installation</a>
+          <a
+            href="/features"
+            onClick={(e) => {
+              if (onNavigate) {
+                e.preventDefault();
+                onNavigate('/features');
+              }
+            }}
+            className="hover:text-white transition-colors"
+          >
+            Features
+          </a>
+          <a
+            href="/docs/installation"
+            onClick={(e) => {
+              if (onNavigate) {
+                e.preventDefault();
+                onNavigate('/docs/installation');
+              }
+            }}
+            className="hover:text-white transition-colors"
+          >
+            Installation
+          </a>
+          <a
+            href="/integrations/contact-form-7"
+            onClick={(e) => {
+              if (onNavigate) {
+                e.preventDefault();
+                onNavigate('/integrations/contact-form-7');
+              }
+            }}
+            className="hover:text-white transition-colors hidden sm:inline"
+          >
+            CF7 Integration
+          </a>
         </nav>
 
         {/* Center: Brand Name in Tracked Minimalist Uppercase */}
         <div className="flex items-center gap-2">
-          <a href="#" className="font-bold tracking-[0.25em] text-sm uppercase text-white hover:opacity-80 transition-opacity">
+          <span className="font-bold tracking-[0.25em] text-sm uppercase text-white">
             VIGHNAGHNA
-          </a>
+          </span>
           <span className="font-serif italic text-xs text-[#8E8E8E] hidden sm:inline">
             (विघ्नघ्न)
           </span>
@@ -30,7 +65,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDownload }) => {
 
         {/* Right Sub Links & CTA */}
         <div className="flex items-center gap-6">
-          <a href="#faq" className="text-[#8E8E8E] hover:text-white transition-colors hidden sm:inline">
+          <a
+            href="/faq"
+            onClick={(e) => {
+              if (onNavigate) {
+                e.preventDefault();
+                onNavigate('/faq');
+              }
+            }}
+            className="text-[#8E8E8E] hover:text-white transition-colors hidden sm:inline"
+          >
             FAQ
           </a>
           <button
@@ -43,10 +87,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDownload }) => {
           </button>
         </div>
 
-      </header>
+      </div>
 
 
-      {/* 2. Hero Body: Micro Studio Annotation & Diagonal Arrow */}
+      {/* 2. Hero Body: Micro Studio Annotation & Headline */}
       <div className="w-full max-w-7xl mx-auto my-auto pt-16 sm:pt-20 pb-10">
         
         {/* Top Annotation Row */}
@@ -66,41 +110,49 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDownload }) => {
           </button>
         </div>
 
-        {/* Massive Headline */}
-        <div className="text-left space-y-1 sm:space-y-2">
-          
-          <div className="text-4xl sm:text-6xl md:text-7xl lg:text-[96px] font-[850] tracking-tight leading-[0.92] text-white">
-            WE PREVENT BOTS
-          </div>
+        {/* Semantic H1 Headline */}
+        <h1 className="text-left space-y-1 sm:space-y-2 m-0 p-0">
+          <span className="sr-only">
+            Vighnaghna — Zero-CAPTCHA Anti-Spam and Invisible Form Protection Plugin for WordPress
+          </span>
 
-          <div className="text-4xl sm:text-6xl md:text-7xl lg:text-[96px] font-[850] tracking-tight leading-[0.92] text-white">
+          <span className="block text-4xl sm:text-6xl md:text-7xl lg:text-[96px] font-[850] tracking-tight leading-[0.92] text-white">
+            WE PREVENT BOTS
+          </span>
+
+          <span className="block text-4xl sm:text-6xl md:text-7xl lg:text-[96px] font-[850] tracking-tight leading-[0.92] text-white">
             FROM SPAMMING
-          </div>
+          </span>
 
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pt-1 sm:pt-2">
             
             {/* Serif Italic Accent Word */}
-            <div className="font-serif italic text-4xl sm:text-6xl md:text-7xl lg:text-[96px] font-normal tracking-wide text-white leading-[0.92]">
+            <span className="font-serif italic text-4xl sm:text-6xl md:text-7xl lg:text-[96px] font-normal tracking-wide text-white leading-[0.92] block">
               YOUR FORMS.
-            </div>
+            </span>
 
-            {/* Micro Paragraph to the Right of Headline */}
-            <div className="max-w-md text-xs sm:text-sm text-[#8E8E8E] leading-relaxed pb-2">
-              Invisible anti-spam protection for WordPress. Blocks automated bot submissions with zero puzzles, zero tracking, and zero external SaaS dependencies.
-            </div>
+            {/* Subtitle / Excerpt */}
+            <p className="max-w-md text-xs sm:text-sm text-[#8E8E8E] leading-relaxed pb-2 font-normal">
+              Lightweight, invisible anti-spam protection for WordPress forms. Blocks automated bot submissions with zero puzzles, zero tracking cookies, and zero external SaaS dependencies.
+            </p>
 
           </div>
-
-        </div>
+        </h1>
 
       </div>
 
 
-      {/* 3. Centered Circular Rotating Stamp Badge (From Reference Image) */}
+      {/* 3. Centered Circular Rotating Stamp Badge */}
       <div className="w-full flex items-center justify-center pt-8 z-10">
         <a
-          href="#features"
-          aria-label="Scroll to features"
+          href="/features"
+          onClick={(e) => {
+            if (onNavigate) {
+              e.preventDefault();
+              onNavigate('/features');
+            }
+          }}
+          aria-label="Explore Vighnaghna features"
           className="relative w-28 h-28 flex items-center justify-center group cursor-pointer"
         >
           {/* Rotating Circular Text SVG */}
