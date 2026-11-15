@@ -105,8 +105,9 @@
 }
 
 /* WordPress Notice Overrides */
-.vighnaghna-admin-wrap .notice,
-.botfence-admin-wrap .notice {
+.vighnaghna-admin-wrap .vighnaghna-notice,
+.botfence-admin-wrap .botfence-notice,
+.vighnaghna-admin-wrap .notice.notice-error {
 	background: var(--vigh-surface);
 	border: 1px solid var(--vigh-border-light);
 	border-left: 4px solid var(--vigh-emerald);
@@ -125,6 +126,15 @@
 	margin: 0;
 	font-size: 13px;
 	color: var(--vigh-text);
+}
+
+/* Suppress intrusive third-party promotional/marketing banners inside the Vighnaghna dashboard */
+.vighnaghna-admin-wrap .notice:not(.vighnaghna-notice):not(.notice-error),
+.botfence-admin-wrap .notice:not(.vighnaghna-notice):not(.notice-error),
+.vighnaghna-admin-wrap [class*="monsterinsights"],
+.vighnaghna-admin-wrap [class*="optinmonster"],
+.vighnaghna-admin-wrap [class*="aioseo"] {
+	display: none !important;
 }
 
 .vighnaghna-admin-wrap hr.wp-header-end,

@@ -7,10 +7,11 @@
 	'use strict';
 
 	$(function() {
-		// Ensure any notices accidentally placed inside the header card are relocated after header end
-		$('.vighnaghna-admin-header, .botfence-admin-header')
-			.find('.notice, .updated, .error')
-			.insertAfter('.wp-header-end');
+		// Move any global notices to appear cleanly above the Vighnaghna header card, never below it
+		$('.vighnaghna-admin-wrap')
+			.find('> .notice, > .updated, > .error, .vighnaghna-admin-header .notice, .vighnaghna-admin-header .updated, .vighnaghna-admin-header .error')
+			.not('.vighnaghna-notice')
+			.insertBefore('.vighnaghna-admin-header');
 
 		// Tab Switching
 		$(document).on('click', '.vighnaghna-nav-tab, .botfence-nav-tab, .kl-nav-tab', function(e) {

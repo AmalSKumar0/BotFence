@@ -533,6 +533,8 @@ class Admin {
 
 		?>
 		<div class="wrap vighnaghna-admin-wrap botfence-admin-wrap kl-admin-wrap">
+			<hr class="wp-header-end">
+
 			<div class="vighnaghna-admin-header botfence-admin-header kl-admin-header">
 				<div>
 					<h1>
@@ -554,16 +556,15 @@ class Admin {
 					</span>
 				</div>
 			</div>
-			<hr class="wp-header-end">
 
 			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 			<?php if ( isset( $_GET['updated'] ) ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings updated successfully.', 'vighnaghna' ); ?></p></div>
+				<div class="notice notice-success is-dismissible vighnaghna-notice"><p><?php esc_html_e( 'Settings updated successfully.', 'vighnaghna' ); ?></p></div>
 			<?php endif; ?>
 
 			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 			<?php if ( isset( $_GET['logs_cleared'] ) ) : ?>
-				<div class="notice notice-info is-dismissible"><p><?php esc_html_e( 'Vighnaghna logs have been cleared.', 'vighnaghna' ); ?></p></div>
+				<div class="notice notice-info is-dismissible vighnaghna-notice"><p><?php esc_html_e( 'Vighnaghna logs have been cleared.', 'vighnaghna' ); ?></p></div>
 			<?php endif; ?>
 
 			<!-- Navigation Tabs -->
