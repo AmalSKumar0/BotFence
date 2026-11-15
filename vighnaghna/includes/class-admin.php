@@ -533,7 +533,7 @@ class Admin {
 						<span class="vighnaghna-badge-version botfence-badge-version kl-badge-version">v<?php echo esc_html( VIGHNAGHNA_VERSION ); ?></span>
 					</h1>
 					<p class="vighnaghna-header-subtitle">
-						<?php esc_html_e( 'Intelligent Form Protection. Invisible to Your Visitors.', 'vighnaghna' ); ?> &bull; <?php esc_html_e( 'Built by Amal S Kumar', 'vighnaghna' ); ?> &bull; <a href="https://amalskumar.dev" target="_blank" rel="noopener noreferrer">amalskumar.dev</a>
+						<?php esc_html_e( 'Intelligent Form Protection. Invisible to Your Visitors.', 'vighnaghna' ); ?>
 					</p>
 				</div>
 				<div>
