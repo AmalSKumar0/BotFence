@@ -47,6 +47,7 @@ class AdminTest extends TestCase {
 		$this->assertStringContainsString( 'id="tab-rates"', $output );
 		$this->assertStringContainsString( 'id="tab-logs"', $output );
 		$this->assertStringContainsString( 'id="tab-diagnostics"', $output );
+		$this->assertStringContainsString( '<hr class="wp-header-end">', $output );
 	}
 
 	public function test_all_six_tabs_accessible_via_query_param(): void {

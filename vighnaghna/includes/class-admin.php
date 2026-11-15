@@ -554,6 +554,7 @@ class Admin {
 					</span>
 				</div>
 			</div>
+			<hr class="wp-header-end">
 
 			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 			<?php if ( isset( $_GET['updated'] ) ) : ?>

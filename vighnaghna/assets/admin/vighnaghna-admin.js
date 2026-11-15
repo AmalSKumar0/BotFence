@@ -7,6 +7,11 @@
 	'use strict';
 
 	$(function() {
+		// Ensure any notices accidentally placed inside the header card are relocated after header end
+		$('.vighnaghna-admin-header, .botfence-admin-header')
+			.find('.notice, .updated, .error')
+			.insertAfter('.wp-header-end');
+
 		// Tab Switching
 		$(document).on('click', '.vighnaghna-nav-tab, .botfence-nav-tab, .kl-nav-tab', function(e) {
 			var target = $(this).attr('href');

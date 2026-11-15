@@ -127,6 +127,16 @@
 	color: var(--vigh-text);
 }
 
+.vighnaghna-admin-wrap hr.wp-header-end,
+.botfence-admin-wrap hr.wp-header-end {
+	visibility: hidden;
+	margin: 0;
+	padding: 0;
+	clear: both;
+	border: 0;
+	height: 0;
+}
+
 /* ==========================================================================
    Header Bar
    ========================================================================== */
