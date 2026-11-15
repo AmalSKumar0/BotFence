@@ -1,5 +1,6 @@
 import React from 'react';
-import { Shield, ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
+import { VighnaghnaLogo } from './VighnaghnaLogo';
 
 interface FooterSectionProps {
   onOpenDownload: () => void;
@@ -24,8 +25,8 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenDownload, on
           {/* Brand Column (Left) */}
           <div className="md:col-span-4 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#1C1C1C] border border-[#2E2E2E] flex items-center justify-center text-[#FF4D6D]">
-                <Shield className="w-4 h-4 stroke-[2.2]" />
+              <div className="w-8 h-8 rounded-xl bg-[#1C1C1C] border border-[#2E2E2E] flex items-center justify-center text-[#FF4D6D] p-1.5">
+                <VighnaghnaLogo className="w-full h-full text-[#FF4D6D]" />
               </div>
               <div className="text-xl font-[800] tracking-[0.2em] uppercase text-white">
                 VIGHNAGHNA <span className="font-serif italic font-normal text-xs text-[#8E8E8E] normal-case ml-1">(विघ्नघ्न)</span>

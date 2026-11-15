@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Shield, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Menu, X, ArrowUpRight } from 'lucide-react';
+import { VighnaghnaLogo } from './VighnaghnaLogo';
 
 interface NavbarProps {
   currentPath: string;
@@ -35,8 +36,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
             onClick={(e) => handleLinkClick(e, '/')}
             className="flex items-center gap-2.5 group"
           >
-            <div className="w-8 h-8 rounded-xl bg-[#1C1C1C] border border-[#2E2E2E] flex items-center justify-center text-[#FF4D6D] group-hover:border-[#FF4D6D]/40 transition-colors">
-              <Shield className="w-4 h-4 stroke-[2.2]" />
+            <div className="w-8 h-8 rounded-xl bg-[#1C1C1C] border border-[#2E2E2E] flex items-center justify-center text-[#FF4D6D] group-hover:border-[#FF4D6D]/40 transition-colors p-1.5">
+              <VighnaghnaLogo className="w-full h-full text-[#FF4D6D]" />
             </div>
             <div className="flex items-center gap-1.5">
               <span className="font-bold tracking-[0.2em] text-sm uppercase text-white group-hover:text-neutral-200 transition-colors">
