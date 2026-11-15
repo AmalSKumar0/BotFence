@@ -553,7 +553,7 @@ class VighnaghnaComplianceTest extends TestCase {
 		$readme_min_php  = $rm_req_php[1] ?? '';
 
 		// 4. Parity assertions
-		$this->assertSame( '1.0.0', $php_version );
+		$this->assertSame( '1.0.1', $php_version );
 		$this->assertSame( $php_version, $readme_version, 'Version in vighnaghna.php must match Stable tag in readme.txt' );
 
 		$this->assertSame( '6.0', $php_at_least );

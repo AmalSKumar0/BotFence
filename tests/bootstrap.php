@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'VIGHNAGHNA_VERSION' ) ) {
-	define( 'VIGHNAGHNA_VERSION', '1.0.0' );
+	define( 'VIGHNAGHNA_VERSION', '1.0.1' );
 }
 if ( ! defined( 'VIGHNAGHNA_FILE' ) ) {
 	define( 'VIGHNAGHNA_FILE', ABSPATH . 'vighnaghna.php' );

@@ -1,7 +1,7 @@
 {
   "name": "vighnaghna-web",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "sync-zip": "cp -f ../vighnaghna.zip public/vighnaghna.zip 2>/dev/null || true; cp -f ../vighnaghna.zip public/BotFence.zip 2>/dev/null || true",

@@ -103,7 +103,7 @@ export default function App({ initialPath }: { initialPath?: string } = {}) {
       'alternateName': ['Vighnaghna WordPress Plugin', 'Vighnaghna Anti-Spam'],
       'operatingSystem': 'WordPress 6.0+',
       'applicationCategory': 'SecurityApplication',
-      'softwareVersion': '1.0.0',
+      'softwareVersion': '1.0.1',
       'fileSize': '2.0MB',
       'license': 'https://www.gnu.org/licenses/gpl-2.0.html',
       'url': 'https://vighnaghna.amalskumar.dev/',
@@ -118,8 +118,8 @@ export default function App({ initialPath }: { initialPath?: string } = {}) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white font-sans antialiased">
         <SEO
-          title="Download Vighnaghna — Official Release Package (v1.0.0)"
-          description="Download the official open-source Vighnaghna WordPress anti-spam plugin package (v1.0.0). SHA-256 verified, GPL-2.0+ licensed, zero external dependencies."
+          title="Download Vighnaghna — Official Release Package (v1.0.1)"
+          description="Download the official open-source Vighnaghna WordPress anti-spam plugin package (v1.0.1). SHA-256 verified, GPL-2.0+ licensed, zero external dependencies."
           canonicalUrl="https://vighnaghna.amalskumar.dev/download"
         />
         <Navbar currentPath={currentPath} onNavigate={navigateTo} />

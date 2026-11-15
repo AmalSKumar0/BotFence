@@ -60,8 +60,8 @@ test('generatePluginManifest produces complete WordPress package with correct he
     email: 'marcus@archaeology.org',
     wouldReview: true,
   });
-  assert.equal(manifest.version, '1.0.0');
-  assert.ok(manifest.filename.includes('1.0.0'));
+  assert.equal(manifest.version, '1.0.1');
+  assert.ok(manifest.filename.includes('1.0.1'));
   assert.equal(manifest.files.length, 3);
   
   const mainPhp = manifest.files.find(f => f.name === 'vighnaghna/vighnaghna.php');

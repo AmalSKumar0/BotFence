@@ -114,10 +114,10 @@ export function analyzeFormSubmission(input: ThreatAnalysisInput): ThreatAnalysi
 }
 
 /**
- * Generates the authentic WordPress plugin source files for Vighnaghna v1.0.0
+ * Generates the authentic WordPress plugin source files for Vighnaghna v1.0.1
  */
 export function generatePluginManifest(user: DownloadFormData) {
-  const pluginVersion = '1.0.0';
+  const pluginVersion = '1.0.1';
   const timestamp = new Date().toISOString();
 
   const mainPhp = `<?php
@@ -248,6 +248,10 @@ Compatible with:
 3. Vighnaghna automatically secures all forms out of the box with zero configuration needed.
 
 == Changelog ==
+= 1.0.1 =
+* Fixed admin notices layout anchoring with wp-header-end.
+* Added custom SVG menu icon and vector repository assets.
+
 = 1.0.0 =
 * Initial WordPress.org compliant release of Vighnaghna.
 * Cryptographic HMAC token lifecycle and multi-signal risk engine.

@@ -25,9 +25,22 @@ export const ChangelogPage: React.FC<PageProps> = ({ onOpenDownload, onNavigate 
 
   const releases = [
     {
+      version: '1.0.1',
+      date: 'November 15, 2026',
+      tag: 'Latest Stable Release',
+      summary: 'Brand identity refresh, custom dynamic SVG sidebar icon, and admin notice layout stabilization.',
+      changes: [
+        'Added custom SVG emblem for the WordPress Admin sidebar menu using an inline Base64 data URI compatible with svg-painter.js.',
+        'Generated and bundled official vector repository icon (assets/icon.svg) and high-resolution icons (128x128, 256x256).',
+        'Resolved admin notices layout bug by anchoring notices beneath the dashboard header card with semantic wp-header-end.',
+        'Added defensive DOM-ready notice relocation in admin JavaScript to safeguard the header card layout.',
+        'Updated website and documentation branding with crisp vector emblems and multi-resolution adaptive favicons.'
+      ]
+    },
+    {
       version: '1.0.0',
       date: 'November 14, 2026',
-      tag: 'Latest Stable Release',
+      tag: 'Initial Release',
       summary: 'Production launch and complete compliance audit for WordPress.org Plugin Directory submission.',
       changes: [
         'Complete rebrand to Vighnaghna (विघ्नघ्न), text domain "vighnaghna", PHP prefix "vighnaghna_", namespace "Vighnaghna".',

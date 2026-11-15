@@ -290,8 +290,8 @@ const routes: RouteConfig[] = [
   },
   {
     path: '/download',
-    title: 'Download Vighnaghna — Official Release Package (v1.0.0)',
-    description: 'Download the official open-source Vighnaghna WordPress anti-spam plugin package (v1.0.0). SHA-256 verified, GPL-2.0+ licensed, zero external dependencies.',
+    title: 'Download Vighnaghna — Official Release Package (v1.0.1)',
+    description: 'Download the official open-source Vighnaghna WordPress anti-spam plugin package (v1.0.1). SHA-256 verified, GPL-2.0+ licensed, zero external dependencies.',
     ogType: 'website',
     schema: {
       '@context': 'https://schema.org',

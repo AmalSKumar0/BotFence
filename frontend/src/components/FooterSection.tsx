@@ -41,7 +41,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenDownload, on
                 onClick={onOpenDownload}
                 className="px-4 py-2 rounded-full border border-[#2B2B2B] bg-[#141414] hover:border-[#FF4D6D]/60 hover:text-[#FF4D6D] text-xs font-medium tracking-wider text-white transition-all cursor-pointer inline-flex items-center gap-1.5"
               >
-                <span>Download v1.0.0</span>
+                <span>Download v1.0.1</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </button>
             </div>
