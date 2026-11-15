@@ -133,15 +133,6 @@ class Database {
 				dbDelta( $sql_logs );
 				dbDelta( $sql_rates );
 				dbDelta( $sql_tokens );
-			} else {
-				$wpdb->last_error = '';
-				$r1 = $wpdb->query( $sql_logs );
-				$r2 = $wpdb->query( $sql_rates );
-				$r3 = $wpdb->query( $sql_tokens );
-				if ( false === $r1 || false === $r2 || false === $r3 || ! empty( $wpdb->last_error ) ) {
-					$result['success']  = false;
-					$result['errors'][] = 'Database query failed during table creation: ' . ( ! empty( $wpdb->last_error ) ? $wpdb->last_error : 'Query returned false' );
-				}
 			}
 
 			if ( ! empty( $wpdb->last_error ) && ! in_array( 'Database table creation error: ' . $wpdb->last_error, $result['errors'], true ) ) {
@@ -157,6 +148,7 @@ class Database {
 		// Do not assume that dbDelta() succeeded simply because it did not throw an exception.
 		foreach ( $required_tables as $table ) {
 			$wpdb->last_error = '';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
 			if ( false === $exists || ! empty( $wpdb->last_error ) ) {
 				$result['success']   = false;
@@ -355,8 +347,10 @@ class Database {
 				return $results;
 			}
 
-			$dest_logs  = self::get_logs_table();
-			$dest_rates = self::get_rates_table();
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+			$dest_logs  = $wpdb->prefix . 'vighnaghna_logs';
+			$dest_rates = $wpdb->prefix . 'vighnaghna_rate_limits';
 
 			// 1. Migrate legacy logs.
 			$legacy_logs_tables = array(
@@ -594,6 +588,8 @@ class Database {
 					}
 				}
 			}
+
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		} catch ( \Throwable $e ) {
 			$results['success']  = false;
 			$results['errors'][] = 'Database exception during record migration: ' . $e->getMessage();

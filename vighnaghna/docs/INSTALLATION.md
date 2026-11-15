@@ -7,7 +7,7 @@
 ## System Requirements
 
 - **PHP:** 8.1 or later (Fully tested and compatible with PHP 8.1, 8.2, 8.3, 8.4, and 8.5).
-- **WordPress:** 5.8 or later (Tested up to current stable WP 6.7+).
+- **WordPress:** 6.0 or later (Tested up to current stable WP 7.1).
 - **MySQL / MariaDB:** MySQL 5.7+ or MariaDB 10.3+ with InnoDB support.
 - **PHP Extensions:** `json`, `mbstring`, `openssl`, `filter`, `hash`.
 

@@ -559,9 +559,10 @@ class VighnaghnaComplianceTest extends TestCase {
 		$this->assertSame( '6.0', $php_at_least );
 		$this->assertSame( $php_at_least, $readme_at_least, 'Requires at least must match in header and readme.txt' );
 
-		$this->assertSame( '6.7', $php_tested );
-		$this->assertSame( $php_tested, $readme_tested, 'Tested up to must match in header and readme.txt' );
-		$this->assertSame( $wp_version, $php_tested, 'Tested up to must match environment WordPress version' );
+		// As required by WordPress.org Plugin Check (plugin_header_tested_up_to_not_allowed),
+		// "Tested up to" must be declared ONLY in readme.txt, not in vighnaghna.php header.
+		$this->assertEmpty( $php_tested, 'Tested up to must not be declared in vighnaghna.php header' );
+		$this->assertSame( '7.1', $readme_tested, 'Tested up to in readme.txt must be set to 7.1' );
 
 		$this->assertSame( '8.1', $php_min_php );
 		$this->assertSame( $php_min_php, $readme_min_php, 'Requires PHP must match in header and readme.txt' );
