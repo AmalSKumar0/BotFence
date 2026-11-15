@@ -1110,4 +1110,69 @@ class VighnaghnaComplianceTest extends TestCase {
 		$restore_create = Database::create_tables();
 		$this->assertTrue( $restore_create['success'] );
 	}
+
+	/**
+	 * Verify that diagnostic simulation functions correctly and tests risk scenarios
+	 * even when global protection is toggled to disabled.
+	 */
+	public function test_interactive_simulation_scenarios_and_disabled_bypass(): void {
+		$plugin = Plugin::get_instance();
+		$engine = $plugin->get_captcha_engine();
+		$tok_man = $engine->get_token_manager();
+		$hp = $engine->get_honeypot();
+		$sim_id = 'test_simulation';
+
+		// 1. Simulate when plugin is globally disabled
+		update_option( 'vighnaghna_enabled', 0 );
+		update_option( 'botfence_enabled', 0 );
+		update_option( 'kl_antispam_enabled', 0 );
+
+		// Normal form verification should be bypassed (allowed with 0 score)
+		$normal_verify = $engine->verify_submission( array(), 'cf7', 'contact_form_1' );
+		$this->assertTrue( $normal_verify['is_valid'] );
+		$this->assertSame( 'allow', $normal_verify['action'] );
+		$this->assertSame( 0, $normal_verify['score'] );
+
+		// Headless automation simulation scenario must still evaluate properly
+		$tok = $tok_man->generate_token( $sim_id );
+		$telemetry = base64_encode( (string) wp_json_encode( array( 'elapsed_time' => 3.1, 'webdriver' => true, 'is_trusted' => false ) ) );
+		$headless_payload = array(
+			'vighnaghna_token'     => $tok['token'],
+			'vighnaghna_telemetry' => $telemetry,
+			'message'              => 'Automated test via Selenium',
+		);
+		$headless_res = $engine->verify_submission( $headless_payload, 'test_simulation', $sim_id );
+		$this->assertSame( 'block', $headless_res['action'] );
+		$this->assertGreaterThanOrEqual( 80, $headless_res['score'] );
+		$codes = array_column( $headless_res['signals'], 'code' );
+		$this->assertContains( 'headless_browser', $codes );
+		$this->assertContains( 'untrusted_event', $codes );
+
+		// Honeypot simulation scenario must block
+		$tok = $tok_man->generate_token( $sim_id );
+		$hp_payload = array(
+			'vighnaghna_token'                     => $tok['token'],
+			$hp->get_dynamic_field_name( 0 )       => 'I am a spam bot',
+			'message'                              => 'Buy cheap pills',
+		);
+		$hp_res = $engine->verify_submission( $hp_payload, 'test_simulation', $sim_id );
+		$this->assertSame( 'block', $hp_res['action'] );
+		$this->assertSame( 100, $hp_res['score'] );
+
+		// Clean human simulation scenario must allow
+		$tok = $tok_man->generate_token( $sim_id );
+		$human_telemetry = base64_encode( (string) wp_json_encode( array( 'elapsed_time' => 5.4, 'mouse_moves' => 18, 'keystrokes' => 32, 'touches' => 0, 'is_trusted' => true, 'webdriver' => false ) ) );
+		$human_payload = array(
+			'vighnaghna_token'     => $tok['token'],
+			'vighnaghna_telemetry' => $human_telemetry,
+			'message'              => 'Legitimate user inquiry',
+		);
+		$human_res = $engine->verify_submission( $human_payload, 'test_simulation', $sim_id );
+		$this->assertSame( 'allow', $human_res['action'] );
+		$this->assertSame( 0, $human_res['score'] );
+		$this->assertEmpty( $human_res['signals'] );
+
+		// Reset enabled state
+		update_option( 'vighnaghna_enabled', 1 );
+	}
 }

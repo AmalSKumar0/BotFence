@@ -97,22 +97,25 @@ class Captcha_Engine {
 	 */
 	public function verify_submission( array $submission_data, string $form_type = 'generic', string $form_id = '' ): array {
 		// 0. Check if global protection is disabled or form is explicitly excluded.
-		$is_enabled = get_option( 'vighnaghna_enabled' );
-		if ( false === $is_enabled || null === $is_enabled ) {
-			$is_enabled = get_option( 'botfence_enabled' );
-		}
-		if ( false === $is_enabled || null === $is_enabled ) {
-			$is_enabled = get_option( 'kl_antispam_enabled', 1 );
-		}
+		// Diagnostic simulation requests bypass global disable toggle so admins can test rules.
+		if ( 'test_simulation' !== $form_type ) {
+			$is_enabled = get_option( 'vighnaghna_enabled' );
+			if ( false === $is_enabled || null === $is_enabled ) {
+				$is_enabled = get_option( 'botfence_enabled' );
+			}
+			if ( false === $is_enabled || null === $is_enabled ) {
+				$is_enabled = get_option( 'kl_antispam_enabled', 1 );
+			}
 
-		if ( ! (bool) $is_enabled || $this->is_form_excluded( $form_type, $form_id ) ) {
-			return array(
-				'is_valid'      => true,
-				'action'        => 'allow',
-				'score'         => 0,
-				'error_message' => '',
-				'signals'       => array(),
-			);
+			if ( ! (bool) $is_enabled || $this->is_form_excluded( $form_type, $form_id ) ) {
+				return array(
+					'is_valid'      => true,
+					'action'        => 'allow',
+					'score'         => 0,
+					'error_message' => '',
+					'signals'       => array(),
+				);
+			}
 		}
 
 		$client_ip = $this->rate_limiter->get_client_ip();
@@ -174,8 +177,17 @@ class Captcha_Engine {
 		$text_fields = $this->extract_text_content( $submission_data );
 		$url_count   = $this->count_urls( $text_fields );
 
-		// 5. Rate Limiting Check.
-		$rate_res = $this->rate_limiter->check_submission( $form_id, $text_fields, $client_ip );
+		// 5. Rate Limiting Check (bypassed in diagnostic simulation).
+		if ( 'test_simulation' === $form_type ) {
+			$rate_res = array(
+				'rate_exceeded'    => false,
+				'is_quarantined'   => false,
+				'reason'           => '',
+				'repeated_message' => false,
+			);
+		} else {
+			$rate_res = $this->rate_limiter->check_submission( $form_id, $text_fields, $client_ip );
+		}
 
 		// 6. Check for Adaptive / Fallback Challenge Solution.
 		$challenge_solved = false;
@@ -243,23 +255,25 @@ class Captcha_Engine {
 			'other_plugin_aborted'     => false,
 		);
 
-		// 9. Log the verification attempt.
-		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		// 9. Log the verification attempt (skip simulation to avoid skewing real analytics).
+		if ( 'test_simulation' !== $form_type ) {
+			$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 
-		$this->logger->log(
-			array(
-				'form_type'       => $form_type,
-				'form_id'         => $form_id,
-				'risk_score'      => $evaluation['score'],
-				'action_taken'    => $evaluation['action'],
-				'reasons'         => $evaluation['signals'],
-				'ip_hash'         => $ip_hash,
-				'masked_ip'       => $masked_ip,
-				'user_agent'      => $user_agent,
-				'submission_time' => $elapsed_time,
-				'is_spam'         => $evaluation['is_spam'],
-			)
-		);
+			$this->logger->log(
+				array(
+					'form_type'       => $form_type,
+					'form_id'         => $form_id,
+					'risk_score'      => $evaluation['score'],
+					'action_taken'    => $evaluation['action'],
+					'reasons'         => $evaluation['signals'],
+					'ip_hash'         => $ip_hash,
+					'masked_ip'       => $masked_ip,
+					'user_agent'      => $user_agent,
+					'submission_time' => $elapsed_time,
+					'is_spam'         => $evaluation['is_spam'],
+				)
+			);
+		}
 
 		return array(
 			'is_valid'      => ( 'allow' === $evaluation['action'] ),

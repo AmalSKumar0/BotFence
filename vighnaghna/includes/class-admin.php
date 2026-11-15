@@ -408,10 +408,11 @@ class Admin {
 
 		$token_manager = $this->engine->get_token_manager();
 		$honeypot      = $this->engine->get_honeypot();
+		$sim_form_id   = 'test_simulation';
 
 		switch ( $scenario ) {
 			case 'bot_honeypot':
-				$tok       = $token_manager->generate_token( 'test_form' );
+				$tok       = $token_manager->generate_token( $sim_form_id );
 				$post_data = array(
 					'vighnaghna_token'                     => $tok['token'],
 					'botfence_token'                       => $tok['token'],
@@ -431,7 +432,7 @@ class Admin {
 				break;
 
 			case 'bot_fast_submit':
-				$tok       = $token_manager->generate_token( 'test_form' );
+				$tok       = $token_manager->generate_token( $sim_form_id );
 				$telemetry = base64_encode( (string) wp_json_encode( array( 'elapsed_time' => 0.25, 'mouse_moves' => 0, 'keystrokes' => 0, 'touches' => 0 ) ) );
 				$post_data = array(
 					'vighnaghna_token'       => $tok['token'],
@@ -445,7 +446,7 @@ class Admin {
 				break;
 
 			case 'bot_headless':
-				$tok       = $token_manager->generate_token( 'test_form' );
+				$tok       = $token_manager->generate_token( $sim_form_id );
 				$telemetry = base64_encode( (string) wp_json_encode( array( 'elapsed_time' => 3.1, 'webdriver' => true, 'is_trusted' => false ) ) );
 				$post_data = array(
 					'vighnaghna_token'       => $tok['token'],
@@ -460,7 +461,7 @@ class Admin {
 
 			case 'human_normal':
 			default:
-				$tok       = $token_manager->generate_token( 'test_form' );
+				$tok       = $token_manager->generate_token( $sim_form_id );
 				$telemetry = base64_encode( (string) wp_json_encode( array( 'elapsed_time' => 5.4, 'mouse_moves' => 18, 'keystrokes' => 32, 'touches' => 0, 'is_trusted' => true, 'webdriver' => false ) ) );
 				$post_data = array(
 					'vighnaghna_token'       => $tok['token'],
@@ -474,7 +475,7 @@ class Admin {
 				break;
 		}
 
-		$result = $this->engine->verify_submission( $post_data, 'test_simulation', 'sim_form_1' );
+		$result = $this->engine->verify_submission( $post_data, 'test_simulation', $sim_form_id );
 
 		wp_send_json_success(
 			array(
@@ -569,8 +570,9 @@ class Admin {
 				<div class="vighnaghna-hero-banner botfence-hero-banner">
 					<div class="vighnaghna-hero-top botfence-hero-top">
 						<div class="vighnaghna-hero-status botfence-hero-status">
-							<span class="vighnaghna-live-dot botfence-live-dot"></span>
-							<span class="vighnaghna-live-text botfence-live-text"><?php esc_html_e( 'Live Defense Engine Active', 'vighnaghna' ); ?></span>
+							<?php $is_engine_active = (bool) $this->get_conf( 'enabled', 1 ); ?>
+							<span class="vighnaghna-live-dot botfence-live-dot <?php echo $is_engine_active ? '' : 'vighnaghna-live-dot-inactive'; ?>"></span>
+							<span class="vighnaghna-live-text botfence-live-text"><?php echo $is_engine_active ? esc_html__( 'Live Defense Engine Active', 'vighnaghna' ) : esc_html__( 'Live Defense Engine Inactive', 'vighnaghna' ); ?></span>
 						</div>
 						<div class="vighnaghna-hero-actions botfence-hero-actions">
 							<button type="button" id="vighnaghna-refresh-stats-btn" class="button button-secondary vighnaghna-btn-refresh botfence-btn-refresh">
@@ -761,7 +763,7 @@ class Admin {
 				<div class="vighnaghna-panel botfence-panel kl-panel">
 					<div class="vighnaghna-panel-header-row">
 						<h2 class="vighnaghna-panel-title botfence-panel-title kl-panel-title" style="margin: 0;">
-							<span class="dashicons dashicons-list-view"></span> <?php esc_html_e( 'Recent Blocked Submissions', 'vighnaghna' ); ?>
+							<span><span class="dashicons dashicons-list-view"></span> <?php esc_html_e( 'Recent Blocked Submissions', 'vighnaghna' ); ?></span>
 						</h2>
 						<a href="#tab-logs" class="button button-secondary vighnaghna-switch-tab-btn botfence-switch-tab-btn">
 							<?php esc_html_e( 'View All Audit Logs', 'vighnaghna' ); ?> &rarr;

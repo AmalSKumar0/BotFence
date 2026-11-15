@@ -39,8 +39,9 @@
 .vighnaghna-admin-wrap,
 .botfence-admin-wrap,
 .kl-admin-wrap {
-	max-width: 1240px;
-	margin: 24px 20px 40px 0;
+	width: auto;
+	max-width: 100%;
+	margin: 20px 20px 40px 0;
 	padding: 28px 32px 40px 32px;
 	background-color: var(--vigh-bg);
 	border: 1px solid var(--vigh-border);
@@ -56,6 +57,25 @@
 .botfence-admin-wrap *,
 .kl-admin-wrap * {
 	box-sizing: border-box;
+}
+
+/* Global Dashicons Normalization across plugin dashboard */
+.vighnaghna-admin-wrap .dashicons,
+.botfence-admin-wrap .dashicons,
+.kl-admin-wrap .dashicons {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	vertical-align: middle;
+	line-height: 1;
+}
+
+.vighnaghna-admin-wrap .dashicons:before,
+.botfence-admin-wrap .dashicons:before,
+.kl-admin-wrap .dashicons:before {
+	font-size: inherit;
+	line-height: 1;
+	display: inline-block;
 }
 
 .vighnaghna-admin-wrap a,
@@ -244,8 +264,9 @@
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
-	line-height: 16px;
+	line-height: 1;
 	opacity: 0.75;
+	margin: 0;
 }
 
 .vighnaghna-nav-tab:hover,
@@ -347,6 +368,13 @@
 	animation: vigh-pulse 2s infinite;
 }
 
+.vighnaghna-live-dot.vighnaghna-live-dot-inactive,
+.botfence-live-dot.botfence-live-dot-inactive {
+	background-color: #71717a !important;
+	box-shadow: none !important;
+	animation: none !important;
+}
+
 @keyframes vigh-pulse {
 	0% {
 		box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
@@ -371,16 +399,27 @@
 .botfence-hero-actions .button {
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
+	justify-content: center;
+	gap: 8px;
 	font-weight: 600;
 	font-size: 12px;
-	height: 32px;
-	line-height: 30px;
-	padding: 0 14px;
+	height: 34px;
+	line-height: 1;
+	padding: 0 16px;
 	border-radius: var(--vigh-radius-pill);
 	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 	text-shadow: none;
 	cursor: pointer;
+}
+
+.vighnaghna-hero-actions .button .dashicons,
+.botfence-hero-actions .button .dashicons {
+	font-size: 15px;
+	width: 15px;
+	height: 15px;
+	line-height: 1;
+	margin: 0;
+	vertical-align: middle;
 }
 
 .vighnaghna-hero-actions .button-secondary,
@@ -421,7 +460,7 @@
 .vighnaghna-hero-number-wrap,
 .botfence-hero-number-wrap {
 	display: flex;
-	align-items: baseline;
+	align-items: center;
 	gap: 16px;
 	margin-bottom: 8px;
 	flex-wrap: wrap;
@@ -444,9 +483,9 @@
 	color: var(--vigh-accent);
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
-	display: flex;
+	display: inline-flex;
 	align-items: center;
-	gap: 6px;
+	gap: 8px;
 }
 
 .vighnaghna-hero-label .dashicons,
@@ -455,6 +494,8 @@
 	font-size: 18px;
 	width: 18px;
 	height: 18px;
+	line-height: 1;
+	margin: 0;
 }
 
 .vighnaghna-hero-desc,
@@ -642,10 +683,21 @@
 	letter-spacing: -0.01em;
 }
 
+.vighnaghna-panel-title > span:first-child,
+.botfence-panel-title > span:first-child {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
 .vighnaghna-panel-title .dashicons,
 .botfence-panel-title .dashicons {
-	margin-right: 6px;
+	margin: 0;
 	color: var(--vigh-accent);
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	line-height: 1;
 }
 
 .vighnaghna-panel-link,
@@ -1097,14 +1149,22 @@ input:checked + .kl-slider:before {
 .vighnaghna-empty-state,
 .botfence-empty-state {
 	text-align: center;
-	padding: 36px 20px;
+	padding: 32px 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 
 .vighnaghna-empty-icon {
-	font-size: 32px;
-	width: 32px;
-	height: 32px;
-	margin-bottom: 8px;
+	font-size: 36px;
+	width: 36px;
+	height: 36px;
+	line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 12px auto;
 }
 
 .vighnaghna-empty-icon-success {
@@ -1115,11 +1175,24 @@ input:checked + .kl-slider:before {
 	color: var(--vigh-text-muted);
 }
 
+.vighnaghna-empty-state p {
+	color: #ffffff;
+	font-size: 13px;
+	margin: 0 0 6px 0;
+	line-height: 1.5;
+}
+
+.vighnaghna-empty-state strong {
+	color: #ffffff;
+	font-weight: 600;
+}
+
 .vighnaghna-empty-desc,
 .vighnaghna-muted-text {
-	color: var(--vigh-text-muted);
-	font-size: 12px;
-	margin: 0;
+	color: var(--vigh-text-muted) !important;
+	font-size: 12px !important;
+	max-width: 440px;
+	margin: 0 auto !important;
 	line-height: 1.5;
 }
 
