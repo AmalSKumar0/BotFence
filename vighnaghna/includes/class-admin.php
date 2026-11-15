@@ -525,19 +525,20 @@ class Admin {
 				<div>
 					<h1>
 						<?php if ( file_exists( VIGHNAGHNA_PATH . 'assets/images/icon-128x128.png' ) || file_exists( VIGHNAGHNA_PATH . 'assets/images/logo.png' ) ) : ?>
-							<img src="<?php echo esc_url( $logo_url ); ?>" class="vighnaghna-header-logo botfence-header-logo" alt="Vighnaghna" style="width: 32px; height: 32px; border-radius: 6px; object-fit: contain; vertical-align: middle;" />
+							<img src="<?php echo esc_url( $logo_url ); ?>" class="vighnaghna-header-logo botfence-header-logo" alt="Vighnaghna" />
 						<?php endif; ?>
-						<?php esc_html_e( 'Vighnaghna', 'vighnaghna' ); ?>
-						<span style="font-size: 14px; font-weight: normal; color: #646970; margin-left: 6px;">(विघ्नघ्न — Destroyer of Obstacles)</span>
+						<span class="vighnaghna-brand-title"><?php esc_html_e( 'Vighnaghna', 'vighnaghna' ); ?></span>
+						<span class="vighnaghna-sanskrit-tag">(विघ्नघ्न — Destroyer of Obstacles)</span>
 						<span class="vighnaghna-badge-version botfence-badge-version kl-badge-version">v<?php echo esc_html( VIGHNAGHNA_VERSION ); ?></span>
 					</h1>
-					<p style="margin: 0; color: #646970; font-size: 13px;">
-						<?php esc_html_e( 'Intelligent Form Protection. Invisible to Your Visitors.', 'vighnaghna' ); ?> &bull; <?php esc_html_e( 'Built by Amal S Kumar', 'vighnaghna' ); ?> &bull; <a href="https://amalskumar.dev" target="_blank" rel="noopener noreferrer" style="color: #2271b1; text-decoration: none;">amalskumar.dev</a>
+					<p class="vighnaghna-header-subtitle">
+						<?php esc_html_e( 'Intelligent Form Protection. Invisible to Your Visitors.', 'vighnaghna' ); ?> &bull; <?php esc_html_e( 'Built by Amal S Kumar', 'vighnaghna' ); ?> &bull; <a href="https://amalskumar.dev" target="_blank" rel="noopener noreferrer">amalskumar.dev</a>
 					</p>
 				</div>
 				<div>
 					<span class="vighnaghna-badge botfence-badge kl-badge <?php echo $this->get_conf( 'enabled', 1 ) ? 'vighnaghna-badge-active botfence-badge-active kl-badge-active' : 'vighnaghna-badge-inactive botfence-badge-inactive kl-badge-inactive'; ?>">
-						● <?php echo $this->get_conf( 'enabled', 1 ) ? esc_html__( 'Active & Protecting', 'vighnaghna' ) : esc_html__( 'Disabled', 'vighnaghna' ); ?>
+						<span class="vighnaghna-status-dot"></span>
+						<?php echo $this->get_conf( 'enabled', 1 ) ? esc_html__( 'Active & Protecting', 'vighnaghna' ) : esc_html__( 'Disabled', 'vighnaghna' ); ?>
 					</span>
 				</div>
 			</div>
@@ -668,12 +669,12 @@ class Admin {
 					</div>
 				</div>
 
-				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+				<div class="vighnaghna-two-col-grid botfence-two-col-grid">
 					<!-- Form Breakdown -->
 					<div class="vighnaghna-panel botfence-panel kl-panel">
 						<h2 class="vighnaghna-panel-title botfence-panel-title kl-panel-title">
 							<span><span class="dashicons dashicons-forms"></span> <?php esc_html_e( 'Spam Blocked by Form Builder', 'vighnaghna' ); ?></span>
-							<a href="#tab-integrations" class="vighnaghna-switch-tab-btn botfence-switch-tab-btn" style="font-size: 12px; font-weight: normal; text-decoration: none;"><?php esc_html_e( 'Manage &rarr;', 'vighnaghna' ); ?></a>
+							<a href="#tab-integrations" class="vighnaghna-switch-tab-btn botfence-switch-tab-btn vighnaghna-panel-link"><?php esc_html_e( 'Manage &rarr;', 'vighnaghna' ); ?></a>
 						</h2>
 						<?php
 						$form_names = array(
@@ -692,9 +693,9 @@ class Admin {
 						?>
 						<?php if ( empty( $breakdown ) ) : ?>
 							<div class="vighnaghna-empty-state botfence-empty-state">
-								<span class="dashicons dashicons-yes-alt" style="font-size: 36px; color: #10b981; width: 36px; height: 36px;"></span>
+								<span class="dashicons dashicons-yes-alt vighnaghna-empty-icon vighnaghna-empty-icon-success"></span>
 								<p><strong><?php esc_html_e( 'No form spam detected yet.', 'vighnaghna' ); ?></strong></p>
-								<p style="color: #646970; font-size: 12px; margin: 0;">
+								<p class="vighnaghna-empty-desc">
 									<?php esc_html_e( 'Vighnaghna is actively guarding all detected forms. Run the Threat Simulator to test response scenarios.', 'vighnaghna' ); ?>
 								</p>
 							</div>
@@ -724,13 +725,13 @@ class Admin {
 					<div class="vighnaghna-panel botfence-panel kl-panel">
 						<h2 class="vighnaghna-panel-title botfence-panel-title kl-panel-title">
 							<span><span class="dashicons dashicons-chart-pie"></span> <?php esc_html_e( 'Most Common Spam Signals', 'vighnaghna' ); ?></span>
-							<a href="#tab-risk" class="vighnaghna-switch-tab-btn botfence-switch-tab-btn" style="font-size: 12px; font-weight: normal; text-decoration: none;"><?php esc_html_e( 'Configure Weights &rarr;', 'vighnaghna' ); ?></a>
+							<a href="#tab-risk" class="vighnaghna-switch-tab-btn botfence-switch-tab-btn vighnaghna-panel-link"><?php esc_html_e( 'Configure Weights &rarr;', 'vighnaghna' ); ?></a>
 						</h2>
 						<?php if ( empty( $stats['top_signals'] ) ) : ?>
 							<div class="vighnaghna-empty-state botfence-empty-state">
-								<span class="dashicons dashicons-shield" style="font-size: 36px; color: #2271b1; width: 36px; height: 36px;"></span>
+								<span class="dashicons dashicons-shield vighnaghna-empty-icon vighnaghna-empty-icon-shield"></span>
 								<p><strong><?php esc_html_e( 'No spam signals logged yet.', 'vighnaghna' ); ?></strong></p>
-								<p style="color: #646970; font-size: 12px; margin: 0;">
+								<p class="vighnaghna-empty-desc">
 									<?php esc_html_e( 'Signals such as honeypot violations, invalid signatures, and rapid automated submissions will appear here.', 'vighnaghna' ); ?>
 								</p>
 							</div>
@@ -758,7 +759,7 @@ class Admin {
 
 				<!-- Recent Blocked Submissions Stream -->
 				<div class="vighnaghna-panel botfence-panel kl-panel">
-					<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+					<div class="vighnaghna-panel-header-row">
 						<h2 class="vighnaghna-panel-title botfence-panel-title kl-panel-title" style="margin: 0;">
 							<span class="dashicons dashicons-list-view"></span> <?php esc_html_e( 'Recent Blocked Submissions', 'vighnaghna' ); ?>
 						</h2>
@@ -767,7 +768,7 @@ class Admin {
 						</a>
 					</div>
 					<?php if ( empty( $stats['recent_blocked'] ) ) : ?>
-						<p style="color: #646970;"><?php esc_html_e( 'No recent blocked submissions in the database.', 'vighnaghna' ); ?></p>
+						<p class="vighnaghna-muted-text"><?php esc_html_e( 'No recent blocked submissions in the database.', 'vighnaghna' ); ?></p>
 					<?php else : ?>
 						<table class="vighnaghna-table botfence-table kl-table">
 							<thead>
@@ -800,7 +801,7 @@ class Admin {
 												<?php echo esc_html( $item->risk_score ); ?>/100 <?php echo $item->risk_score >= 80 ? esc_html__( 'CRITICAL', 'vighnaghna' ) : esc_html__( 'HIGH', 'vighnaghna' ); ?>
 											</span>
 										</td>
-										<td style="color: #475569; font-size: 12px;"><?php echo esc_html( $reasons_text ); ?></td>
+										<td class="vighnaghna-reasons-cell"><?php echo esc_html( $reasons_text ); ?></td>
 										<td><code><?php echo esc_html( $item->masked_ip ); ?></code></td>
 									</tr>
 								<?php endforeach; ?>
@@ -1072,7 +1073,7 @@ class Admin {
 					<p class="description"><?php esc_html_e( 'All logs are privacy-conscious and anonymized. Full message bodies and personal details are never stored.', 'vighnaghna' ); ?></p>
 
 					<?php if ( empty( $logs['items'] ) ) : ?>
-						<p style="padding: 20px 0; color: #646970; text-align: center;"><?php esc_html_e( 'No log entries found.', 'vighnaghna' ); ?></p>
+						<p class="vighnaghna-empty-desc" style="padding: 24px 0; text-align: center;"><?php esc_html_e( 'No log entries found.', 'vighnaghna' ); ?></p>
 					<?php else : ?>
 						<table class="vighnaghna-table botfence-table kl-table">
 							<thead>
@@ -1101,21 +1102,21 @@ class Admin {
 												<?php echo esc_html( strtoupper( $entry->action_taken ) ); ?>
 											</span>
 										</td>
-										<td><?php echo esc_html( $entry->masked_ip ); ?></td>
+										<td><code><?php echo esc_html( $entry->masked_ip ); ?></code></td>
 										<td><?php echo esc_html( sprintf( '%.2fs', $entry->submission_time ) ); ?></td>
 										<td>
 											<a href="#" class="vighnaghna-toggle-details botfence-toggle-details kl-toggle-details"><?php esc_html_e( 'View Signals', 'vighnaghna' ); ?></a>
 										</td>
 									</tr>
-									<tr class="vighnaghna-details-row botfence-details-row kl-details-row" style="display: none; background: #f6f7f7;">
-										<td colspan="7" style="padding: 12px 20px;">
+									<tr class="vighnaghna-details-row botfence-details-row kl-details-row" style="display: none;">
+										<td colspan="7" class="vighnaghna-details-cell">
 											<strong><?php esc_html_e( 'Triggered Signals:', 'vighnaghna' ); ?></strong>
 											<?php
 											$reasons = json_decode( (string) $entry->reasons, true );
 											if ( empty( $reasons ) ) {
-												echo '<p style="margin: 4px 0; color: #008a20;">' . esc_html__( 'No risk signals triggered. Clean human submission.', 'vighnaghna' ) . '</p>';
+												echo '<p class="vighnaghna-clean-submission">' . esc_html__( 'No risk signals triggered. Clean human submission.', 'vighnaghna' ) . '</p>';
 											} else {
-												echo '<ul style="margin: 6px 0 0 16px; list-style-type: disc;">';
+												echo '<ul class="vighnaghna-signals-list">';
 												foreach ( $reasons as $r ) {
 													$name = is_array( $r ) ? ( $r['name'] ?? $r['code'] ?? '' ) : (string) $r;
 													$pts  = is_array( $r ) && isset( $r['points'] ) ? ' (+' . $r['points'] . ' pts)' : '';
@@ -1146,8 +1147,8 @@ class Admin {
 					<input type="hidden" id="botfence_admin_nonce" value="<?php echo esc_attr( wp_create_nonce( 'botfence_admin_action_nonce' ) ); ?>" />
 					<input type="hidden" id="kl_admin_nonce" value="<?php echo esc_attr( wp_create_nonce( 'kl_admin_action_nonce' ) ); ?>" />
 
-					<div style="display: flex; gap: 12px; align-items: center; margin-top: 16px;">
-						<select id="vighnaghna-sim-scenario" style="min-width: 280px;">
+					<div class="vighnaghna-sim-controls">
+						<select id="vighnaghna-sim-scenario">
 							<option value="human_normal"><?php esc_html_e( 'Normal Human (5.4s typing, 32 keystrokes, clean)', 'vighnaghna' ); ?></option>
 							<option value="bot_honeypot"><?php esc_html_e( 'Automated Bot (Populated hidden honeypot)', 'vighnaghna' ); ?></option>
 							<option value="bot_invalid_token"><?php esc_html_e( 'Malicious Bot (Forged / invalid signed token)', 'vighnaghna' ); ?></option>
@@ -1170,13 +1171,13 @@ class Admin {
 							<tr>
 								<td><strong><?php esc_html_e( 'Plugin Identity', 'vighnaghna' ); ?></strong></td>
 								<td>
-									<div style="display: flex; align-items: center; gap: 12px;">
+									<div class="vighnaghna-identity-row">
 										<?php if ( file_exists( VIGHNAGHNA_PATH . 'assets/images/icon-128x128.png' ) || file_exists( VIGHNAGHNA_PATH . 'assets/images/logo.png' ) ) : ?>
-											<img src="<?php echo esc_url( $logo_url ); ?>" alt="Vighnaghna" style="width: 36px; height: 36px; border-radius: 6px;" />
+											<img src="<?php echo esc_url( $logo_url ); ?>" alt="Vighnaghna" class="vighnaghna-diag-logo" />
 										<?php endif; ?>
 										<div>
 											<strong>Vighnaghna (विघ्नघ्न)</strong> &bull; <code>v<?php echo esc_html( VIGHNAGHNA_VERSION ); ?></code>
-											<div style="color: #646970; font-size: 12px;"><?php esc_html_e( 'Intelligent Form Protection. Invisible to Your Visitors.', 'vighnaghna' ); ?></div>
+											<div class="vighnaghna-header-subtitle"><?php esc_html_e( 'Intelligent Form Protection. Invisible to Your Visitors.', 'vighnaghna' ); ?></div>
 										</div>
 									</div>
 								</td>

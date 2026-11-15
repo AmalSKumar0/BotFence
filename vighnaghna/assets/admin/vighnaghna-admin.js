@@ -144,17 +144,17 @@
 					$btn.prop('disabled', false).text('Run Test Simulation');
 					if (res.success && res.data) {
 						var actionColor = '#10b981';
-						if (res.data.action === 'block') actionColor = '#ef4444';
+						if (res.data.action === 'block') actionColor = '#ff4d6d';
 						else if (res.data.action === 'challenge') actionColor = '#f59e0b';
 
-						var html = '<div class="notice inline" style="padding: 16px; margin-top: 15px; border-left: 4px solid ' + actionColor + '; background: #fff; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">' +
-							'<h4 style="margin: 0 0 8px 0; font-size: 15px;">Vighnaghna Engine Decision: <span style="color:' + actionColor + '; text-transform: uppercase;">' + res.data.action + '</span> (Risk Score: ' + res.data.score + '/100)</h4>' +
-							'<p style="margin: 0 0 8px 0; color: #475569;"><strong>Risk Evaluation:</strong> ' + (res.data.signals.length ? 'Suspicious signals detected below' : 'Clean submission — legitimate human interaction detected') + '</p>';
+						var html = '<div class="vighnaghna-sim-box" style="border-left: 4px solid ' + actionColor + ';">' +
+							'<h4 class="vighnaghna-sim-title">Vighnaghna Engine Decision: <span style="color:' + actionColor + '; text-transform: uppercase;">' + res.data.action + '</span> (Risk Score: ' + res.data.score + '/100)</h4>' +
+							'<p class="vighnaghna-sim-eval"><strong>Risk Evaluation:</strong> ' + (res.data.signals.length ? 'Suspicious signals detected below' : 'Clean submission — legitimate human interaction detected') + '</p>';
 
 						if (res.data.signals && res.data.signals.length) {
-							html += '<ul style="margin: 0; padding-left: 20px; color: #334155;">';
+							html += '<ul class="vighnaghna-sim-signals">';
 							res.data.signals.forEach(function(s) {
-								html += '<li style="margin-bottom: 4px;"><strong>' + (s.name || s.code) + '</strong> (+' + s.points + ' pts): ' + s.details + '</li>';
+								html += '<li><strong>' + (s.name || s.code) + '</strong> (+' + s.points + ' pts): ' + s.details + '</li>';
 							});
 							html += '</ul>';
 						}
@@ -163,12 +163,12 @@
 						$resultBox.html(html).fadeIn(200);
 					} else {
 						var errMsg = (res.data && res.data.message) ? res.data.message : 'Simulation failed.';
-						$resultBox.html('<div class="notice notice-error inline" style="padding: 12px; margin-top: 15px;"><p>' + errMsg + '</p></div>').fadeIn(200);
+						$resultBox.html('<div class="vighnaghna-sim-box vighnaghna-sim-box-error"><p>' + errMsg + '</p></div>').fadeIn(200);
 					}
 				},
 				error: function() {
 					$btn.prop('disabled', false).text('Run Test Simulation');
-					$resultBox.html('<div class="notice notice-error inline" style="padding: 12px; margin-top: 15px;"><p>Request error while executing simulation.</p></div>').fadeIn(200);
+					$resultBox.html('<div class="vighnaghna-sim-box vighnaghna-sim-box-error"><p>Request error while executing simulation.</p></div>').fadeIn(200);
 				}
 			});
 		});
