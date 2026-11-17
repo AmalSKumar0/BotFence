@@ -3,7 +3,7 @@
  * Plugin Name:       Vighnaghna
  * Plugin URI:        https://vighnaghna.amalskumar.dev
  * Description:       Lightweight, invisible anti-spam protection for WordPress forms. No CAPTCHA, no external requests.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 6.0
  * Requires PHP:      8.1
  * Author:            Amal S Kumar
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Vighnaghna Plugin Constants.
 if ( ! defined( 'VIGHNAGHNA_VERSION' ) ) {
-	define( 'VIGHNAGHNA_VERSION', '1.0.1' );
+	define( 'VIGHNAGHNA_VERSION', '1.0.2' );
 }
 
 if ( ! defined( 'VIGHNAGHNA_FILE' ) ) {

@@ -114,10 +114,10 @@ export function analyzeFormSubmission(input: ThreatAnalysisInput): ThreatAnalysi
 }
 
 /**
- * Generates the authentic WordPress plugin source files for Vighnaghna v1.0.1
+ * Generates the authentic WordPress plugin source files for Vighnaghna v1.0.2
  */
 export function generatePluginManifest(user: DownloadFormData) {
-  const pluginVersion = '1.0.1';
+  const pluginVersion = '1.0.2';
   const timestamp = new Date().toISOString();
 
   const mainPhp = `<?php
@@ -248,6 +248,11 @@ Compatible with:
 3. Vighnaghna automatically secures all forms out of the box with zero configuration needed.
 
 == Changelog ==
+= 1.0.2 =
+* Enforce mandatory blocking policy for zero-time and sub-second submissions.
+* Derive verified duration exclusively from cryptographically signed HMAC token.
+* Hardened Contact Form 7 integration and all supported form builders.
+
 = 1.0.1 =
 * Fixed admin notices layout anchoring with wp-header-end.
 * Added custom SVG menu icon and vector repository assets.

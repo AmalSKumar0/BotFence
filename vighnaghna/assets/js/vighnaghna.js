@@ -5,7 +5,7 @@
  * Zero-dependency client script for behavior telemetry, dynamic token refresh on cached pages,
  * and universal form builder protection.
  *
- * @version 1.0.1
+ * @version 1.0.2
  */
 (function() {
 	'use strict';
@@ -101,6 +101,7 @@
 
 		var data = {
 			elapsed_time: parseFloat(elapsed.toFixed(3)),
+			duration_ms: Math.max(1, Math.round(now - start)),
 			mouse_moves: mouseMoves,
 			keystrokes: keystrokes,
 			touches: touchEvents,

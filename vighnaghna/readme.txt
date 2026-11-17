@@ -5,7 +5,7 @@ Tags: anti-spam, captcha, spam protection, form security, forms
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,12 @@ Yes. Vighnaghna is licensed under GPLv2 or later, makes zero external network re
 5. Interactive threat simulator and diagnostic test runner.
 
 == Changelog ==
+
+= 1.0.2 =
+* Fix: Enforce strict millisecond timing verification and mandatory blocking policy for zero-time and sub-second bot submissions.
+* Security: Derive verified submission duration exclusively from server-side HMAC-signed tokens; eliminate blind trust of client telemetry timestamps.
+* Security: Ensure Contact Form 7 and all supported form builder integrations strictly validate timing telemetry on AJAX and REST submissions.
+* Fix: Block zero-duration submissions with immediate 100 risk score; reject negative, future, and tampered timestamps.
 
 = 1.0.1 =
 * Fix: Anchor admin notices cleanly after dashboard header card with semantic wp-header-end delimiter.

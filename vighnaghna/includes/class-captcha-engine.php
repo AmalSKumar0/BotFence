@@ -148,12 +148,10 @@ class Captcha_Engine {
 			$telemetry = $telemetry_raw;
 		}
 
-		$elapsed_time = isset( $telemetry['elapsed_time'] ) ? (float) $telemetry['elapsed_time'] : (float) ( $submission_data['vighnaghna_elapsed_time'] ?? $submission_data['botfence_elapsed_time'] ?? $submission_data['kl_elapsed_time'] ?? 0 );
-
 		// 2. Honeypot Check (with telemetry-informed autofill discrimination).
 		$hp_result = $this->honeypot->check_submission( $submission_data, $telemetry );
 
-		// 3. Token Check.
+		// 3. Cryptographic Token & Verified Server-Side Timing Check.
 		$possible_token_keys = array(
 			'vighnaghna_token',
 			'_vighnaghna_token',
@@ -172,6 +170,28 @@ class Captcha_Engine {
 		}
 
 		$token_res = $this->token_manager->validate_token( $raw_token, $form_id, $client_ip );
+
+		// Server-side verified duration and timing validation.
+		// Never trust client-provided duration; verified duration is calculated from the cryptographically signed token timestamp.
+		$verified_duration_ms = null;
+		$timing_status        = $token_res['timing_status'] ?? ( $token_res['status'] ?? 'missing' );
+
+		if ( $token_res['is_valid'] && isset( $token_res['duration_ms'] ) ) {
+			$verified_duration_ms = $token_res['duration_ms'];
+			if ( $verified_duration_ms < 0 ) {
+				$timing_status = 'negative_duration';
+			} else {
+				$timing_status = 'valid';
+			}
+		} elseif ( in_array( $token_res['status'], array( 'future_timestamp', 'negative_duration', 'tampered', 'malformed', 'missing', 'expired' ), true ) ) {
+			$timing_status = $token_res['status'];
+			if ( isset( $token_res['duration_ms'] ) ) {
+				$verified_duration_ms = $token_res['duration_ms'];
+			}
+		}
+
+		// Elapsed time in seconds with millisecond precision.
+		$elapsed_time = null !== $verified_duration_ms ? (float) ( $verified_duration_ms / 1000.0 ) : 0.0;
 
 		// 4. Content Analysis (Excessive URLs & Duplicate Message).
 		$text_fields = $this->extract_text_content( $submission_data );
@@ -201,18 +221,21 @@ class Captcha_Engine {
 
 		// 7. Assemble context for Risk Engine.
 		$context = array(
-			'honeypot_triggered' => $hp_result['triggered'],
-			'honeypot_field'     => $hp_result['field'],
-			'token_status'       => $token_res['status'],
-			'token_age'          => $token_res['age'],
-			'elapsed_time'       => $elapsed_time,
-			'rate_exceeded'      => $rate_res['rate_exceeded'],
-			'is_quarantined'     => $rate_res['is_quarantined'],
-			'rate_reason'        => $rate_res['reason'],
-			'repeated_message'   => $rate_res['repeated_message'],
-			'url_count'          => $url_count,
-			'telemetry'          => $telemetry,
-			'text_length'        => strlen( $text_fields ),
+			'honeypot_triggered'   => $hp_result['triggered'],
+			'honeypot_field'       => $hp_result['field'],
+			'token_status'         => $token_res['status'],
+			'token_age'            => $token_res['age'],
+			'duration_ms'          => $verified_duration_ms,
+			'verified_duration_ms' => $verified_duration_ms,
+			'timing_status'        => $timing_status,
+			'elapsed_time'         => $elapsed_time,
+			'rate_exceeded'        => $rate_res['rate_exceeded'],
+			'is_quarantined'       => $rate_res['is_quarantined'],
+			'rate_reason'          => $rate_res['reason'],
+			'repeated_message'     => $rate_res['repeated_message'],
+			'url_count'            => $url_count,
+			'telemetry'            => $telemetry,
+			'text_length'          => strlen( $text_fields ),
 		);
 
 		// 8. Calculate Risk Score.
@@ -240,6 +263,8 @@ class Captcha_Engine {
 			'form_type'                => $form_type,
 			'token_status'             => $token_res['status'],
 			'token_age'                => $token_res['age'],
+			'duration_ms'              => $verified_duration_ms,
+			'timing_status'            => $timing_status,
 			'is_token_expired'         => 'expired' === $token_res['status'],
 			'is_token_replayed'        => 'replayed' === $token_res['status'],
 			'honeypot_triggered'       => $hp_result['triggered'],

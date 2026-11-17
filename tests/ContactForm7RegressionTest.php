@@ -89,7 +89,8 @@ class ContactForm7RegressionTest extends TestCase {
 	 * Helper: Creates a valid CF7 test submission payload with customer telemetry.
 	 */
 	private function create_cf7_payload( string $form_id, array $telemetry_override = array() ): array {
-		$tok_data = $this->token_manager->generate_token( $form_id );
+		$time_offset = isset( $telemetry_override['elapsed_time'] ) ? (float) $telemetry_override['elapsed_time'] : 19.789;
+		$tok_data    = $this->token_manager->generate_token( $form_id, '', microtime( true ) - $time_offset );
 
 		$telemetry = array_merge(
 			array(
@@ -460,7 +461,7 @@ class ContactForm7RegressionTest extends TestCase {
 	 */
 	public function test_11_simultaneous_submissions(): void {
 		$form_id = '1365';
-		$tok_data = $this->token_manager->generate_token( $form_id );
+		$tok_data = $this->token_manager->generate_token( $form_id, '', microtime( true ) - 19.789 );
 		$shared_token = $tok_data['token'];
 
 		// Simulate request A.

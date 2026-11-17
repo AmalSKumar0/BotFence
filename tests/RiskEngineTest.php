@@ -108,7 +108,7 @@ class RiskEngineTest extends TestCase {
 		$context = array(
 			'honeypot_triggered' => false,
 			'token_status'       => 'valid',
-			'elapsed_time'       => 0.8, // Faster than 2.5s
+			'elapsed_time'       => 2.2, // between 2.0s and 2.5s -> fast submission challenge
 			'rate_exceeded'      => false,
 			'telemetry'          => array( 'is_trusted' => true ),
 		);
@@ -141,7 +141,7 @@ class RiskEngineTest extends TestCase {
 		$context = array(
 			'honeypot_triggered' => false,
 			'token_status'       => 'valid',
-			'elapsed_time'       => 1.2, // +30 fast submit
+			'elapsed_time'       => 2.2, // +30 fast submit (> 2.0s and < 2.5s)
 			'url_count'          => 5,   // +25 excessive urls
 			'repeated_message'   => true, // +35 repeated message
 			// Total = 30 + 25 + 35 = 90

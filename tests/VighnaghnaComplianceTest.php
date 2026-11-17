@@ -553,7 +553,7 @@ class VighnaghnaComplianceTest extends TestCase {
 		$readme_min_php  = $rm_req_php[1] ?? '';
 
 		// 4. Parity assertions
-		$this->assertSame( '1.0.1', $php_version );
+		$this->assertSame( '1.0.2', $php_version );
 		$this->assertSame( $php_version, $readme_version, 'Version in vighnaghna.php must match Stable tag in readme.txt' );
 
 		$this->assertSame( '6.0', $php_at_least );
@@ -1135,7 +1135,7 @@ class VighnaghnaComplianceTest extends TestCase {
 		$this->assertSame( 0, $normal_verify['score'] );
 
 		// Headless automation simulation scenario must still evaluate properly
-		$tok = $tok_man->generate_token( $sim_id );
+		$tok = $tok_man->generate_token( $sim_id, '', microtime( true ) - 3.1 );
 		$telemetry = base64_encode( (string) wp_json_encode( array( 'elapsed_time' => 3.1, 'webdriver' => true, 'is_trusted' => false ) ) );
 		$headless_payload = array(
 			'vighnaghna_token'     => $tok['token'],
@@ -1150,7 +1150,7 @@ class VighnaghnaComplianceTest extends TestCase {
 		$this->assertContains( 'untrusted_event', $codes );
 
 		// Honeypot simulation scenario must block
-		$tok = $tok_man->generate_token( $sim_id );
+		$tok = $tok_man->generate_token( $sim_id, '', microtime( true ) - 5.0 );
 		$hp_payload = array(
 			'vighnaghna_token'                     => $tok['token'],
 			$hp->get_dynamic_field_name( 0 )       => 'I am a spam bot',
@@ -1161,7 +1161,7 @@ class VighnaghnaComplianceTest extends TestCase {
 		$this->assertSame( 100, $hp_res['score'] );
 
 		// Clean human simulation scenario must allow
-		$tok = $tok_man->generate_token( $sim_id );
+		$tok = $tok_man->generate_token( $sim_id, '', microtime( true ) - 5.4 );
 		$human_telemetry = base64_encode( (string) wp_json_encode( array( 'elapsed_time' => 5.4, 'mouse_moves' => 18, 'keystrokes' => 32, 'touches' => 0, 'is_trusted' => true, 'webdriver' => false ) ) );
 		$human_payload = array(
 			'vighnaghna_token'     => $tok['token'],

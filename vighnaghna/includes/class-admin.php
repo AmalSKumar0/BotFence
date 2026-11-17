@@ -119,7 +119,7 @@ class Admin {
 
 		$base_url  = defined( 'VIGHNAGHNA_URL' ) ? VIGHNAGHNA_URL : plugin_dir_url( dirname( __FILE__ ) );
 		$base_path = defined( 'VIGHNAGHNA_PATH' ) ? VIGHNAGHNA_PATH : plugin_dir_path( dirname( __FILE__ ) );
-		$version   = defined( 'VIGHNAGHNA_VERSION' ) ? VIGHNAGHNA_VERSION : '1.0.1';
+		$version   = defined( 'VIGHNAGHNA_VERSION' ) ? VIGHNAGHNA_VERSION : '1.0.2';
 
 		$css_url = file_exists( $base_path . 'assets/css/vighnaghna-admin.css' )
 			? $base_url . 'assets/css/vighnaghna-admin.css'

@@ -117,7 +117,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onBackHome }) => {
           </p>
 
           <div className="pt-2 text-xs text-[#666666] tracking-wider uppercase font-medium">
-            v1.0.1 • Free & Open Source (GPL-2.0+) • Self-Hosted
+            v1.0.2 • Free & Open Source (GPL-2.0+) • Self-Hosted
           </div>
 
         </div>

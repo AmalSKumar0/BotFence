@@ -67,7 +67,7 @@ class EndToEndTest extends TestCase {
 	 * Scenario 1: Normal Human Submission
 	 */
 	public function test_e2e_normal_human_submission(): void {
-		$tok_data  = $this->token_manager->generate_token( 'contact_us', '203.0.113.10' );
+		$tok_data  = $this->token_manager->generate_token( 'contact_us', '203.0.113.10', microtime( true ) - 7.8 );
 		$telemetry = base64_encode( (string) wp_json_encode( array(
 			'elapsed_time' => 7.8,
 			'mouse_moves'  => 35,
@@ -139,10 +139,9 @@ class EndToEndTest extends TestCase {
 		$this->assertSame( 200, $response->status );
 		$this->assertNotEmpty( $response->data['token'] );
 
-		$fresh_token = $response->data['token'];
-
-		// 3. User submits form with refreshed token -> passes!
-		$telemetry = base64_encode( (string) wp_json_encode( array(
+		// User submits form with refreshed token after taking 3.2s to interact -> passes!
+		$fresh_token = $this->token_manager->generate_token( 'cached_form', '127.0.0.1', microtime( true ) - 3.2 )['token'];
+		$telemetry   = base64_encode( (string) wp_json_encode( array(
 			'elapsed_time' => 3.2,
 			'mouse_moves'  => 8,
 			'keystrokes'   => 15,
@@ -166,8 +165,8 @@ class EndToEndTest extends TestCase {
 	 * Both forms receive independent tokens and submit independently.
 	 */
 	public function test_e2e_multiple_forms_on_one_page(): void {
-		$token_form_1 = $this->token_manager->generate_token( 'form_newsletter', '127.0.0.1' );
-		$token_form_2 = $this->token_manager->generate_token( 'form_contact', '127.0.0.1' );
+		$token_form_1 = $this->token_manager->generate_token( 'form_newsletter', '127.0.0.1', microtime( true ) - 4.0 );
+		$token_form_2 = $this->token_manager->generate_token( 'form_contact', '127.0.0.1', microtime( true ) - 6.2 );
 
 		$this->assertNotSame( $token_form_1['token'], $token_form_2['token'] );
 
@@ -202,7 +201,7 @@ class EndToEndTest extends TestCase {
 		preg_match( '/What is (\d+) \+ (\d+)\?/', $challenge['question'], $matches );
 		$answer = (string) ( (int) $matches[1] + (int) $matches[2] );
 
-		$tok_data = $this->token_manager->generate_token( 'post_100', '127.0.0.1' );
+		$tok_data = $this->token_manager->generate_token( 'post_100', '127.0.0.1', microtime( true ) - 5.0 );
 		$submission = array(
 			'kl_anti_spam_token'  => $tok_data['token'],
 			'kl_challenge_token'  => $challenge['challenge_token'],
@@ -224,7 +223,7 @@ class EndToEndTest extends TestCase {
 	 * - Slow user who kept form open for 20 minutes (before submitting)
 	 */
 	public function test_e2e_false_positive_single_url_human(): void {
-		$tok_data  = $this->token_manager->generate_token( 'rfp_form', '127.0.0.1' );
+		$tok_data  = $this->token_manager->generate_token( 'rfp_form', '127.0.0.1', microtime( true ) - 8.5 );
 		$telemetry = base64_encode( (string) wp_json_encode( array(
 			'elapsed_time' => 8.5,
 			'mouse_moves'  => 40,
@@ -251,7 +250,7 @@ class EndToEndTest extends TestCase {
 	 * Attack Scenario 7: TOCTOU Replay Simulation (Simultaneous Submissions)
 	 */
 	public function test_attack_simulation_simultaneous_token_replay(): void {
-		$tok_data = $this->token_manager->generate_token( 'transfer_form', '198.51.100.22' );
+		$tok_data = $this->token_manager->generate_token( 'transfer_form', '198.51.100.22', microtime( true ) - 5.0 );
 
 		// First submission (arrived at thread 1).
 		$res1 = $this->engine->verify_submission( array(

@@ -25,9 +25,22 @@ export const ChangelogPage: React.FC<PageProps> = ({ onOpenDownload, onNavigate 
 
   const releases = [
     {
+      version: '1.0.2',
+      date: 'November 17, 2026',
+      tag: 'Latest Stable Release',
+      summary: 'Critical security fix for zero-time bot submission bypass, millisecond-precision timing enforcement, and HMAC token-verified server durations.',
+      changes: [
+        'Implemented strict mandatory blocking policy: verified durations under 1,000 ms (including 0 ms) are immediately blocked with a risk score of 100.',
+        'Eliminated trust of client-provided telemetry elapsed times; verified submission duration is now derived strictly from cryptographically signed HMAC server timestamps.',
+        'Added high-precision millisecond timestamping to Token Manager and Risk Engine.',
+        'Hardened Contact Form 7 integration to reliably extract telemetry across REST API and AJAX submissions.',
+        'Added comprehensive 12-scenario regression test suite covering sub-second velocities, tampered timing, negative durations, and integration enforcement.'
+      ]
+    },
+    {
       version: '1.0.1',
       date: 'November 15, 2026',
-      tag: 'Latest Stable Release',
+      tag: 'Previous Release',
       summary: 'Brand identity refresh, custom dynamic SVG sidebar icon, and admin notice layout stabilization.',
       changes: [
         'Added custom SVG emblem for the WordPress Admin sidebar menu using an inline Base64 data URI compatible with svg-painter.js.',

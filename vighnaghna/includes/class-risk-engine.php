@@ -29,6 +29,10 @@ class Risk_Engine {
 	public const SIGNAL_REPEATED_MESSAGE    = 'repeated_message';
 	public const SIGNAL_HEADLESS_BROWSER    = 'headless_browser';
 	public const SIGNAL_UNTRUSTED_EVENT     = 'untrusted_event';
+	public const SIGNAL_INSTANT_SUBMISSION  = 'instant_submission';
+	public const SIGNAL_MISSING_TIMING      = 'missing_timing';
+	public const SIGNAL_NEGATIVE_DURATION   = 'negative_duration';
+	public const SIGNAL_FUTURE_TIMESTAMP    = 'future_timestamp';
 
 	/**
 	 * Default risk weights.
@@ -147,7 +151,9 @@ class Risk_Engine {
 		}
 
 		// 2. Token Signal.
-		$token_status = (string) ( $context['token_status'] ?? 'valid' );
+		$token_status  = (string) ( $context['token_status'] ?? 'valid' );
+		$timing_status = (string) ( $context['timing_status'] ?? '' );
+
 		if ( 'expired' === $token_status ) {
 			// Expired tokens are treated separately from malicious tampering.
 			$points       = $this->get_weight( self::SIGNAL_EXPIRED_TOKEN );
@@ -162,7 +168,7 @@ class Risk_Engine {
 					(float) ( $context['token_age'] ?? 0 )
 				),
 			);
-		} elseif ( in_array( $token_status, array( 'missing', 'malformed', 'tampered', 'invalid_payload', 'replayed', 'form_mismatch', 'future_timestamp' ), true ) ) {
+		} elseif ( in_array( $token_status, array( 'missing', 'malformed', 'tampered', 'invalid_payload', 'replayed', 'form_mismatch', 'future_timestamp', 'negative_duration' ), true ) ) {
 			$points       = $this->get_weight( self::SIGNAL_INVALID_TOKEN );
 			$total_score += $points;
 			$signals[]    = array(
@@ -177,23 +183,132 @@ class Risk_Engine {
 			);
 		}
 
-		// 3. Fast Submission Analysis.
-		$elapsed_time   = (float) ( $context['elapsed_time'] ?? 0 );
-		$min_time_limit = (float) ( get_option( 'vighnaghna_min_submission_time' ) ?: get_option( 'botfence_min_submission_time' ) ?: get_option( 'kl_antispam_min_submission_time', 2.5 ) );
-		if ( $elapsed_time > 0 && $elapsed_time < $min_time_limit ) {
-			$points       = $this->get_weight( self::SIGNAL_FAST_SUBMISSION );
+		// 3. Timing and Submission Velocity Analysis.
+		$has_duration = false;
+		$duration_ms  = null;
+
+		if ( array_key_exists( 'duration_ms', $context ) && null !== $context['duration_ms'] ) {
+			$duration_ms  = (int) round( (float) $context['duration_ms'] );
+			$has_duration = true;
+		} elseif ( array_key_exists( 'verified_duration_ms', $context ) && null !== $context['verified_duration_ms'] ) {
+			$duration_ms  = (int) round( (float) $context['verified_duration_ms'] );
+			$has_duration = true;
+		} elseif ( array_key_exists( 'elapsed_time', $context ) && null !== $context['elapsed_time'] ) {
+			$duration_ms  = (int) round( (float) $context['elapsed_time'] * 1000 );
+			$has_duration = true;
+		}
+
+		$thresholds   = $this->get_thresholds();
+		$block_thresh = $thresholds['block'];
+
+		// Case A: Negative duration -> Reject.
+		if ( ( $has_duration && $duration_ms < 0 ) || 'negative_duration' === $timing_status || 'negative_duration' === $token_status ) {
+			$points       = 100;
+			$total_score += $points;
+			$signals[]    = array(
+				'code'    => self::SIGNAL_NEGATIVE_DURATION,
+				'name'    => __( 'Negative submission duration', 'vighnaghna' ),
+				'points'  => $points,
+				'details' => sprintf(
+					/* translators: %d: measured duration in milliseconds */
+					__( 'Recorded negative elapsed time (%d ms). Timestamp is corrupted or in the future.', 'vighnaghna' ),
+					(int) $duration_ms
+				),
+			);
+		}
+		// Case B: Future timestamp -> Reject.
+		elseif ( 'future_timestamp' === $timing_status || 'future_timestamp' === $token_status ) {
+			$points       = 100;
+			$total_score += $points;
+			$signals[]    = array(
+				'code'    => self::SIGNAL_FUTURE_TIMESTAMP,
+				'name'    => __( 'Future security timestamp', 'vighnaghna' ),
+				'points'  => $points,
+				'details' => __( 'Security verification timestamp is in the future.', 'vighnaghna' ),
+			);
+		}
+		// Case C: Tampered / malformed token or timing data -> Already evaluated in token signal.
+		elseif ( in_array( $timing_status, array( 'tampered', 'malformed', 'invalid_payload', 'replayed' ), true ) || in_array( $token_status, array( 'tampered', 'malformed', 'invalid_payload', 'replayed' ), true ) ) {
+			// Evaluated in token signal above.
+		}
+		// Case D: Expired token -> Already evaluated in token signal.
+		elseif ( 'expired' === $token_status || 'expired' === $timing_status ) {
+			// Evaluated in token signal above.
+		}
+		// Case E: Missing timing data -> High risk; do not treat as valid.
+		elseif ( ! $has_duration || 'missing' === $timing_status || 'missing' === $token_status ) {
+			// If missing token was already flagged with 100 pts above, avoid redundant score bloat.
+			if ( 'missing' !== $token_status ) {
+				$points       = max( 80, $block_thresh );
+				$total_score += $points;
+				$signals[]    = array(
+					'code'    => self::SIGNAL_MISSING_TIMING,
+					'name'    => __( 'Missing timing data', 'vighnaghna' ),
+					'points'  => $points,
+					'details' => __( 'Form submission did not include verifiable timing data or timestamp.', 'vighnaghna' ),
+				);
+			}
+		}
+		// Case F: Verified duration = 0 ms -> Block.
+		elseif ( $duration_ms === 0 ) {
+			$points       = 100;
+			$total_score += $points;
+			$signals[]    = array(
+				'code'    => self::SIGNAL_INSTANT_SUBMISSION,
+				'name'    => __( 'Zero-time submission (instant bot)', 'vighnaghna' ),
+				'points'  => $points,
+				'details' => __( 'Submission duration was measured at 0 ms (impossible for human interaction).', 'vighnaghna' ),
+			);
+		}
+		// Case G: Verified duration between 1–999 ms -> Block.
+		elseif ( $duration_ms >= 1 && $duration_ms <= 999 ) {
+			$points       = 100;
+			$total_score += $points;
+			$signals[]    = array(
+				'code'    => self::SIGNAL_INSTANT_SUBMISSION,
+				'name'    => __( 'Sub-second submission', 'vighnaghna' ),
+				'points'  => $points,
+				'details' => sprintf(
+					/* translators: %d: duration in milliseconds */
+					__( 'Completed in %d ms (sub-second submission; automated velocity).', 'vighnaghna' ),
+					$duration_ms
+				),
+			);
+		}
+		// Case H: Verified duration = 1,000–1,999 ms -> High risk; block at the configured threshold.
+		elseif ( $duration_ms >= 1000 && $duration_ms <= 1999 ) {
+			$points       = max( 60, $block_thresh );
 			$total_score += $points;
 			$signals[]    = array(
 				'code'    => self::SIGNAL_FAST_SUBMISSION,
-				'name'    => __( 'Unrealistically fast submission', 'vighnaghna' ),
+				'name'    => __( 'High-risk submission velocity', 'vighnaghna' ),
 				'points'  => $points,
 				'details' => sprintf(
-					/* translators: 1: submission elapsed seconds, 2: minimum required seconds */
-					__( 'Completed in %1$.2f seconds (minimum human threshold: %2$.2f seconds).', 'vighnaghna' ),
-					$elapsed_time,
-					$min_time_limit
+					/* translators: %d: duration in milliseconds */
+					__( 'Completed in %d ms (high risk; under 2 seconds threshold).', 'vighnaghna' ),
+					$duration_ms
 				),
 			);
+		}
+		// Case I: Valid duration above 2 seconds (>= 2,000 ms) -> Continue normal risk evaluation.
+		else {
+			$elapsed_seconds = (float) ( $duration_ms / 1000.0 );
+			$min_time_limit  = (float) ( get_option( 'vighnaghna_min_submission_time' ) ?: get_option( 'botfence_min_submission_time' ) ?: get_option( 'kl_antispam_min_submission_time', 2.5 ) );
+			if ( $elapsed_seconds < $min_time_limit ) {
+				$points       = $this->get_weight( self::SIGNAL_FAST_SUBMISSION );
+				$total_score += $points;
+				$signals[]    = array(
+					'code'    => self::SIGNAL_FAST_SUBMISSION,
+					'name'    => __( 'Unrealistically fast submission', 'vighnaghna' ),
+					'points'  => $points,
+					'details' => sprintf(
+						/* translators: 1: elapsed seconds, 2: minimum required seconds */
+						__( 'Completed in %1$.2f seconds (minimum human threshold: %2$.2f seconds).', 'vighnaghna' ),
+						$elapsed_seconds,
+						$min_time_limit
+					),
+				);
+			}
 		}
 
 		// 4. Rate Limiting Signal.

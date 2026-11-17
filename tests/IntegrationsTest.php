@@ -74,7 +74,7 @@ class IntegrationsTest extends TestCase {
 	 * Helper to create legitimate submission payload.
 	 */
 	protected function create_clean_post( string $form_id ): array {
-		$tok_data  = $this->token_manager->generate_token( $form_id, '127.0.0.1' );
+		$tok_data  = $this->token_manager->generate_token( $form_id, '127.0.0.1', microtime( true ) - 4.5 );
 		$telemetry = base64_encode( (string) wp_json_encode( array(
 			'elapsed_time' => 4.5,
 			'mouse_moves'  => 12,

@@ -74,17 +74,31 @@ class Token_Manager {
 	}
 
 	/**
-	 * Generates a short-lived cryptographically signed token.
+	 * Generates a short-lived cryptographically signed token with millisecond precision.
 	 *
-	 * @param string   $form_id     Identifier of the form.
-	 * @param string   $client_ip   Visitor IP.
-	 * @param int|null $custom_time Optional custom timestamp (for testing).
-	 * @return array{token: string, timestamp: int, expires_at: int}
+	 * @param string          $form_id     Identifier of the form.
+	 * @param string          $client_ip   Visitor IP.
+	 * @param int|float|null  $custom_time Optional custom timestamp in seconds or milliseconds (for testing).
+	 * @return array{token: string, timestamp: int, timestamp_ms: int, expires_at: int}
 	 */
-	public function generate_token( string $form_id = 'generic', string $client_ip = '', ?int $custom_time = null ): array {
-		$secret    = $this->get_secret_key();
-		$timestamp = null !== $custom_time ? $custom_time : time();
-		$lifetime  = (int) ( get_option( 'vighnaghna_token_lifetime' ) ?: get_option( 'botfence_token_lifetime' ) ?: get_option( 'kl_antispam_token_lifetime', self::DEFAULT_LIFETIME ) );
+	public function generate_token( string $form_id = 'generic', string $client_ip = '', $custom_time = null ): array {
+		$secret = $this->get_secret_key();
+
+		if ( null !== $custom_time ) {
+			if ( $custom_time < 10000000000 ) {
+				$timestamp_ms = (int) round( (float) $custom_time * 1000 );
+				$timestamp_s  = (int) round( (float) $custom_time );
+			} else {
+				$timestamp_ms = (int) round( (float) $custom_time );
+				$timestamp_s  = (int) round( (float) $custom_time / 1000 );
+			}
+		} else {
+			$micro        = microtime( true );
+			$timestamp_ms = (int) round( $micro * 1000 );
+			$timestamp_s  = (int) round( $micro );
+		}
+
+		$lifetime = (int) ( get_option( 'vighnaghna_token_lifetime' ) ?: get_option( 'botfence_token_lifetime' ) ?: get_option( 'kl_antispam_token_lifetime', self::DEFAULT_LIFETIME ) );
 		if ( $lifetime <= 60 ) {
 			$lifetime = self::DEFAULT_LIFETIME;
 		}
@@ -100,7 +114,7 @@ class Token_Manager {
 
 		$payload = array(
 			'n' => $nonce,
-			't' => $timestamp,
+			't' => $timestamp_ms,
 			'f' => sanitize_key( $form_id ),
 			'i' => $ip_fingerprint,
 		);
@@ -111,34 +125,37 @@ class Token_Manager {
 		$token_string    = $encoded_payload . '.' . $signature;
 
 		return array(
-			'token'      => $token_string,
-			'timestamp'  => $timestamp,
-			'expires_at' => $timestamp + $lifetime,
+			'token'        => $token_string,
+			'timestamp'    => $timestamp_s,
+			'timestamp_ms' => $timestamp_ms,
+			'expires_at'   => $timestamp_s + $lifetime,
 		);
 	}
 
 	/**
 	 * Validates a cryptographically signed token.
 	 *
-	 * Checks structure, signature, expiration, form binding, and replay protection.
+	 * Checks structure, signature, expiration, form binding, timing duration, and replay protection.
 	 * Employs a safe policy for proxies, mobile networks, and shifting IP addresses.
 	 *
-	 * @param mixed    $token        Token string to validate.
-	 * @param string   $form_id      Form identifier for validation.
-	 * @param string   $client_ip    Visitor IP address.
-	 * @param int|null $current_time Optional current timestamp (for testing).
+	 * @param mixed          $token        Token string to validate.
+	 * @param string         $form_id      Form identifier for validation.
+	 * @param string         $client_ip    Visitor IP address.
+	 * @param int|float|null $current_time Optional current timestamp in seconds or milliseconds (for testing).
 	 * @return array{
 	 *     is_valid: bool,
 	 *     status: string,
 	 *     timestamp: int,
+	 *     timestamp_ms: ?int,
 	 *     age: float,
+	 *     duration_ms: ?int,
+	 *     timing_status: string,
 	 *     risk_points: int,
 	 *     error_message: string,
 	 *     ip_match: bool
 	 * }
 	 */
-	public function validate_token( $token, string $form_id = '', string $client_ip = '', ?int $current_time = null ): array {
-		$now            = null !== $current_time ? $current_time : time();
+	public function validate_token( $token, string $form_id = '', string $client_ip = '', $current_time = null ): array {
 		$weight_invalid = (int) ( get_option( 'vighnaghna_weight_invalid_token' ) ?: get_option( 'botfence_weight_invalid_token' ) ?: get_option( 'kl_antispam_weight_invalid_token', 100 ) );
 		$weight_expired = (int) ( get_option( 'vighnaghna_weight_expired_token' ) ?: get_option( 'botfence_weight_expired_token' ) ?: get_option( 'kl_antispam_weight_expired_token', 80 ) );
 		$lifetime       = (int) ( get_option( 'vighnaghna_token_lifetime' ) ?: get_option( 'botfence_token_lifetime' ) ?: get_option( 'kl_antispam_token_lifetime', self::DEFAULT_LIFETIME ) );
@@ -149,7 +166,10 @@ class Token_Manager {
 				'is_valid'      => false,
 				'status'        => 'missing',
 				'timestamp'     => 0,
+				'timestamp_ms'  => null,
 				'age'           => 0.0,
+				'duration_ms'   => null,
+				'timing_status' => 'missing',
 				'risk_points'   => $weight_invalid,
 				'error_message' => __( 'Security verification token is missing.', 'vighnaghna' ),
 				'ip_match'      => false,
@@ -163,7 +183,10 @@ class Token_Manager {
 				'is_valid'      => false,
 				'status'        => 'malformed',
 				'timestamp'     => 0,
+				'timestamp_ms'  => null,
 				'age'           => 0.0,
+				'duration_ms'   => null,
+				'timing_status' => 'malformed',
 				'risk_points'   => $weight_invalid,
 				'error_message' => __( 'Security verification token is malformed.', 'vighnaghna' ),
 				'ip_match'      => false,
@@ -180,7 +203,10 @@ class Token_Manager {
 				'is_valid'      => false,
 				'status'        => 'tampered',
 				'timestamp'     => 0,
+				'timestamp_ms'  => null,
 				'age'           => 0.0,
+				'duration_ms'   => null,
+				'timing_status' => 'tampered',
 				'risk_points'   => $weight_invalid,
 				'error_message' => __( 'Security token signature verification failed.', 'vighnaghna' ),
 				'ip_match'      => false,
@@ -196,25 +222,54 @@ class Token_Manager {
 				'is_valid'      => false,
 				'status'        => 'invalid_payload',
 				'timestamp'     => 0,
+				'timestamp_ms'  => null,
 				'age'           => 0.0,
+				'duration_ms'   => null,
+				'timing_status' => 'invalid_payload',
 				'risk_points'   => $weight_invalid,
 				'error_message' => __( 'Security token contents are corrupted.', 'vighnaghna' ),
 				'ip_match'      => false,
 			);
 		}
 
-		$token_time = (int) $payload['t'];
-		$age        = (float) ( $now - $token_time );
+		$raw_t = (float) $payload['t'];
+		if ( $raw_t < 10000000000 ) {
+			$token_time_ms = (int) round( $raw_t * 1000 );
+			$token_time_s  = (int) round( $raw_t );
+		} else {
+			$token_time_ms = (int) round( $raw_t );
+			$token_time_s  = (int) round( $raw_t / 1000 );
+		}
 
-		// 5. Future Timestamp / Clock Skew Check (allow max 60s future drift).
-		if ( $age < -60 ) {
+		if ( null !== $current_time ) {
+			if ( $current_time < 10000000000 ) {
+				$now_ms = (int) round( (float) $current_time * 1000 );
+				$now_s  = (int) round( (float) $current_time );
+			} else {
+				$now_ms = (int) round( (float) $current_time );
+				$now_s  = (int) round( (float) $current_time / 1000 );
+			}
+		} else {
+			$micro  = microtime( true );
+			$now_ms = (int) round( $micro * 1000 );
+			$now_s  = (int) round( $micro );
+		}
+
+		$duration_ms = $now_ms - $token_time_ms;
+		$age         = (float) ( $duration_ms / 1000.0 );
+
+		// 5. Future Timestamp / Clock Skew Check (allow max 60s future drift for signature validity).
+		if ( $duration_ms < -60000 ) {
 			return array(
 				'is_valid'      => false,
 				'status'        => 'future_timestamp',
-				'timestamp'     => $token_time,
+				'timestamp'     => $token_time_s,
+				'timestamp_ms'  => $token_time_ms,
 				'age'           => $age,
+				'duration_ms'   => $duration_ms,
+				'timing_status' => 'future_timestamp',
 				'risk_points'   => $weight_invalid,
-				'error_message' => __( 'Security token timestamp is invalid.', 'vighnaghna' ),
+				'error_message' => __( 'Security token timestamp is invalid (in the future).', 'vighnaghna' ),
 				'ip_match'      => false,
 			);
 		}
@@ -224,8 +279,11 @@ class Token_Manager {
 			return array(
 				'is_valid'      => false,
 				'status'        => 'expired',
-				'timestamp'     => $token_time,
+				'timestamp'     => $token_time_s,
+				'timestamp_ms'  => $token_time_ms,
 				'age'           => $age,
+				'duration_ms'   => $duration_ms,
+				'timing_status' => 'expired',
 				'risk_points'   => $weight_expired,
 				'error_message' => __( 'Security verification token has expired. Please refresh the page and try again.', 'vighnaghna' ),
 				'ip_match'      => true,
@@ -240,8 +298,11 @@ class Token_Manager {
 				return array(
 					'is_valid'      => false,
 					'status'        => 'form_mismatch',
-					'timestamp'     => $token_time,
+					'timestamp'     => $token_time_s,
+					'timestamp_ms'  => $token_time_ms,
 					'age'           => $age,
+					'duration_ms'   => $duration_ms,
+					'timing_status' => 'form_mismatch',
 					'risk_points'   => $weight_invalid,
 					'error_message' => __( 'Security verification token is not valid for this form.', 'vighnaghna' ),
 					'ip_match'      => false,
@@ -262,16 +323,19 @@ class Token_Manager {
 
 		// 9. Atomic Single-Use Token Consumption (Replay Prevention).
 		$nonce_hash = hash( 'sha256', $payload['n'] . '_' . $payload['t'] );
-		$now_dt     = gmdate( 'Y-m-d H:i:s', $now );
-		$exp_dt     = gmdate( 'Y-m-d H:i:s', $now + $lifetime + 120 );
+		$now_dt     = gmdate( 'Y-m-d H:i:s', $now_s );
+		$exp_dt     = gmdate( 'Y-m-d H:i:s', $now_s + $lifetime + 120 );
 
 		$consumed = $this->consume_token_atomically( $nonce_hash, $token_form_id, $now_dt, $exp_dt );
 		if ( ! $consumed ) {
 			return array(
 				'is_valid'      => false,
 				'status'        => 'replayed',
-				'timestamp'     => $token_time,
+				'timestamp'     => $token_time_s,
+				'timestamp_ms'  => $token_time_ms,
 				'age'           => $age,
+				'duration_ms'   => $duration_ms,
+				'timing_status' => 'replayed',
 				'risk_points'   => $weight_invalid,
 				'error_message' => __( 'Security token has already been submitted (replay detected).', 'vighnaghna' ),
 				'ip_match'      => $ip_match,
@@ -281,8 +345,11 @@ class Token_Manager {
 		return array(
 			'is_valid'      => true,
 			'status'        => 'valid',
-			'timestamp'     => $token_time,
-			'age'           => max( 0.0, $age ),
+			'timestamp'     => $token_time_s,
+			'timestamp_ms'  => $token_time_ms,
+			'age'           => $age,
+			'duration_ms'   => $duration_ms,
+			'timing_status' => $duration_ms < 0 ? 'negative_duration' : 'valid',
 			'risk_points'   => 0,
 			'error_message' => '',
 			'ip_match'      => $ip_match,

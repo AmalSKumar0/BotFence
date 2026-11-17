@@ -58,7 +58,7 @@ class CaptchaEngineTest extends TestCase {
 	}
 
 	public function test_legitimate_human_submission_passes(): void {
-		$tok_data  = $this->token_manager->generate_token( 'form_123', '127.0.0.1' );
+		$tok_data  = $this->token_manager->generate_token( 'form_123', '127.0.0.1', microtime( true ) - 4.2 );
 		$telemetry = base64_encode( (string) wp_json_encode( array(
 			'elapsed_time' => 4.2,
 			'mouse_moves'  => 15,
@@ -116,9 +116,9 @@ class CaptchaEngineTest extends TestCase {
 	}
 
 	public function test_fast_submission_challenges(): void {
-		$tok_data  = $this->token_manager->generate_token( 'form_1', '127.0.0.1' );
+		$tok_data  = $this->token_manager->generate_token( 'form_1', '127.0.0.1', microtime( true ) - 2.2 );
 		$telemetry = base64_encode( (string) wp_json_encode( array(
-			'elapsed_time' => 0.4, // < 2.5s
+			'elapsed_time' => 2.2, // between 2.0s and 2.5s -> fast submission challenge
 			'is_trusted'   => true,
 		) ) );
 
@@ -161,7 +161,7 @@ class CaptchaEngineTest extends TestCase {
 	}
 
 	public function test_solving_challenge_allows_medium_risk(): void {
-		$tok_data  = $this->token_manager->generate_token( 'form_1', '127.0.0.1' );
+		$tok_data  = $this->token_manager->generate_token( 'form_1', '127.0.0.1', microtime( true ) - 2.2 );
 		$challenge = $this->engine->generate_adaptive_challenge( 'form_1' );
 
 		// Solve challenge from question text.
@@ -170,7 +170,7 @@ class CaptchaEngineTest extends TestCase {
 
 		// Submission that was fast (30 points = medium risk), but includes correct challenge solution.
 		$telemetry = base64_encode( (string) wp_json_encode( array(
-			'elapsed_time' => 0.5,
+			'elapsed_time' => 2.2,
 			'is_trusted'   => true,
 		) ) );
 
@@ -223,7 +223,7 @@ class CaptchaEngineTest extends TestCase {
 	}
 
 	public function test_double_hook_memoization_avoids_replay_self_denial(): void {
-		$tok_data = $this->token_manager->generate_token( 'cf7_memo', '127.0.0.1' );
+		$tok_data = $this->token_manager->generate_token( 'cf7_memo', '127.0.0.1', microtime( true ) - 5.0 );
 		$adapter  = new \BotFence\Integrations\Contact_Form_7( $this->engine );
 
 		$post_data = array(

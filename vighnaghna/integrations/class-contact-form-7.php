@@ -151,6 +151,12 @@ class Contact_Form_7 extends Abstract_Form_Adapter {
 
 		$form_id   = $this->get_cf7_form_id( $submission );
 		$post_data = ! empty( $_POST ) ? wp_unslash( $_POST ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( is_object( $submission ) && method_exists( $submission, 'get_posted_data' ) ) {
+			$posted = $submission->get_posted_data();
+			if ( is_array( $posted ) && ! empty( $posted ) ) {
+				$post_data = array_merge( $posted, $post_data );
+			}
+		}
 		$res       = $this->verify( $post_data, $form_id );
 
 		return ! $res['is_valid'];
@@ -170,6 +176,12 @@ class Contact_Form_7 extends Abstract_Form_Adapter {
 
 		$form_id   = $this->get_cf7_form_id( $contact_form );
 		$post_data = ! empty( $_POST ) ? wp_unslash( $_POST ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( is_object( $contact_form ) && method_exists( $contact_form, 'get_posted_data' ) ) {
+			$posted = $contact_form->get_posted_data();
+			if ( is_array( $posted ) && ! empty( $posted ) ) {
+				$post_data = array_merge( $posted, $post_data );
+			}
+		}
 		$res       = $this->verify( $post_data, $form_id );
 
 		return ! $res['is_valid'];
@@ -187,6 +199,12 @@ class Contact_Form_7 extends Abstract_Form_Adapter {
 	public function action_before_send_mail( $contact_form, &$abort = false ): void {
 		$form_id   = $this->get_cf7_form_id( $contact_form );
 		$post_data = ! empty( $_POST ) ? wp_unslash( $_POST ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( is_object( $contact_form ) && method_exists( $contact_form, 'get_posted_data' ) ) {
+			$posted = $contact_form->get_posted_data();
+			if ( is_array( $posted ) && ! empty( $posted ) ) {
+				$post_data = array_merge( $posted, $post_data );
+			}
+		}
 		$res       = $this->verify( $post_data, $form_id );
 
 		if ( ! $res['is_valid'] ) {
